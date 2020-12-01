@@ -15,13 +15,13 @@ plugins {
 }
 
 repositories {
-    flatDir {
-        dirs("lib")
-    }
     maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
     maven { url = uri("http://maven.enginehub.org/repo/") }
     maven { url = uri("https://repo.codemc.org/repository/maven-public") }
     maven { url = uri("https://papermc.io/repo/repository/maven-public/") }
+    maven { url = uri("https://jitpack.io") }
+    maven { url = uri("https://repo.aikar.co/content/groups/aikar/") }
+    maven { url = uri("https://mvn.scireum.com") }
 //    maven { url = uri("https://maven.pkg.github.com/solonovamax/Gaea") }
 }
 
@@ -35,29 +35,29 @@ val versionObj = Version("2", "0", "0", true)
 version = versionObj
 
 dependencies {
-    val gaeaVersion = "1.14.4"
-    compileOnly(name = "Gaea-${gaeaVersion}", group = "")
-    testImplementation(name = "Gaea-${gaeaVersion}", group = "")
-
+    // Gaea - world generator base
+    compileOnly("com.github.solonovamax:Gaea:master-SNAPSHOT")
+    // parsii - parsing equations
+    implementation("com.github.solonovamax:parsii:functions")
+    // Tectonic -
+    implementation("com.github.solonovamax:Tectonic:master-SNAPSHOT")
+    // jetbrains annotations - annotation stuff
     compileOnly("org.jetbrains:annotations:20.1.0")
-
+    // apache commons + imaging - image stuffs
     implementation("commons-io:commons-io:2.4")
     implementation("org.apache.commons:commons-imaging:1.0-alpha2")
-
+    // world edit - saving structures
     compileOnly("com.sk89q.worldedit:worldedit-bukkit:7.2.0-SNAPSHOT")
+    // bstats - tracking stats
     implementation("org.bstats:bstats-bukkit:1.7")
-
+    // json-simple - loading json
     compileOnly("com.googlecode.json-simple:json-simple:1.1")
-
-    implementation(name = "parsii-1.2.1", group = "")
-
+    // spigot api - spigot
     compileOnly("org.spigotmc:spigot-api:1.16.2-R0.1-SNAPSHOT")
+    // paper lib - stuff
     implementation("io.papermc:paperlib:1.0.5")
-
+    // jafma - fast math
     implementation("net.jafama:jafama:2.3.2")
-
-    implementation(name = "Tectonic-0.1.0", group = "")
-
 
     // JUnit.
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")

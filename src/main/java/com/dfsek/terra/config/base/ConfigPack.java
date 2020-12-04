@@ -4,6 +4,7 @@ import com.dfsek.tectonic.abstraction.AbstractConfigLoader;
 import com.dfsek.tectonic.exception.ConfigException;
 import com.dfsek.tectonic.exception.LoadException;
 import com.dfsek.tectonic.loading.ConfigLoader;
+import com.dfsek.terra.addons.JarLoader;
 import com.dfsek.terra.biome.UserDefinedBiome;
 import com.dfsek.terra.carving.UserDefinedCarver;
 import com.dfsek.terra.config.builder.biomegrid.BiomeGridBuilder;
@@ -66,6 +67,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -137,7 +139,10 @@ public class ConfigPack {
 
         selfLoader.load(template, stream);
 
-        load(new ZIPLoader(file));
+        if(file instanceof JarFile)
+            load(new JarLoader((JarFile) file));
+        else
+            load(new ZIPLoader(file));
         LangUtil.log("config-pack.loaded", Level.INFO, template.getID(), String.valueOf((System.nanoTime() - l) / 1000000D));
     }
 

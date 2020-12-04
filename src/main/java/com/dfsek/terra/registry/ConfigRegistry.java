@@ -7,6 +7,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipFile;
 
 /**
@@ -17,16 +20,6 @@ public class ConfigRegistry extends TerraRegistry<ConfigPack> {
 
     private ConfigRegistry() {
 
-    }
-
-    public static ConfigRegistry getRegistry() {
-        if(singleton == null) singleton = new ConfigRegistry();
-        return singleton;
-    }
-
-    public void load(File folder) throws ConfigException {
-        ConfigPack pack = new ConfigPack(folder);
-        add(pack.getTemplate().getID(), pack);
     }
 
     public static void loadAll(JavaPlugin main) {
@@ -40,15 +33,49 @@ public class ConfigRegistry extends TerraRegistry<ConfigPack> {
         }
         for(File zip : packsFolder.listFiles(file -> file.getName().endsWith(".zip") || file.getName().endsWith(".jar") || file.getName().endsWith(".terra"))) {
             try {
-                Debug.info("Loading ZIP archive: " + zip.getName());
-                getRegistry().load(new ZipFile(zip));
+                String fileName = zip.getName();
+
+                Pattern pattern = Pattern.compile(".*\\.(.*)");
+                Matcher matcher = pattern.matcher(fileName);
+                if(matcher.find()) {
+                    switch(matcher.group(1)) {
+                        case "zip":
+                            Debug.info("Loading ZIP archive: " + zip.getName());
+                            getRegistry().load(new ZipFile(zip));
+                            break;
+                        case "terra":
+                        case "jar":
+                            Debug.info("Loading JAR or TERRA archive: " + zip.getName());
+                            getRegistry().load(new JarFile(zip));
+                            break;
+                        default:
+                            Debug.error("Zip matched .zip, .jar, or .terra, but did not fit into .zip, .jar. or .terra. " +
+                                    "This error should never happen. If it did, either you, or me, fucked up badly.");
+                            break;
+                    }
+                }
             } catch(IOException | ConfigException e) {
                 e.printStackTrace();
             }
         }
     }
 
+    public static ConfigRegistry getRegistry() {
+        if(singleton == null) singleton = new ConfigRegistry();
+        return singleton;
+    }
+
+    public void load(File folder) throws ConfigException {
+        ConfigPack pack = new ConfigPack(folder);
+        add(pack.getTemplate().getID(), pack);
+    }
+
     public void load(ZipFile file) throws ConfigException {
+        ConfigPack pack = new ConfigPack(file);
+        add(pack.getTemplate().getID(), pack);
+    }
+
+    public void load(JarFile file) throws ConfigException {
         ConfigPack pack = new ConfigPack(file);
         add(pack.getTemplate().getID(), pack);
     }

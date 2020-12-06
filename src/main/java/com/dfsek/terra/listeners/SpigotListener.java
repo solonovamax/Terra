@@ -1,14 +1,10 @@
-package com.dfsek.terra;
+package com.dfsek.terra.listeners;
 
+import com.dfsek.terra.TerraWorld;
 import com.dfsek.terra.async.AsyncStructureFinder;
-import com.dfsek.terra.config.base.ConfigPack;
+import com.dfsek.terra.debug.Debug;
 import com.dfsek.terra.generation.items.TerraStructure;
-import com.dfsek.terra.generation.items.tree.TerraTree;
-import com.dfsek.terra.registry.TreeRegistry;
 import com.dfsek.terra.util.StructureTypeEnum;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.EnderSignal;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -19,16 +15,18 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.VillagerAcquireTradeEvent;
 import org.bukkit.event.entity.VillagerCareerChangeEvent;
-import org.bukkit.event.world.StructureGrowEvent;
 import org.polydev.gaea.GaeaPlugin;
-import org.polydev.gaea.tree.Tree;
-import org.polydev.gaea.tree.TreeType;
-import org.polydev.gaea.util.FastRandom;
 
-public class EventListener implements Listener {
+/**
+ * Listener to load on Spigot servers, contains Villager crash prevention and hacky ender eye redirection.
+ * <p>
+ * (This is currently loaded on all servers; once Paper accepts the StructureLocateEvent PR this will only be loaded on servers without
+ * StructureLocateEvent).
+ */
+public class SpigotListener implements Listener {
     private final GaeaPlugin main;
 
-    public EventListener(GaeaPlugin main) {
+    public SpigotListener(GaeaPlugin main) {
         this.main = main;
     }
 
@@ -37,6 +35,7 @@ public class EventListener implements Listener {
         Entity entity = e.getEntity();
         if(e.getEntityType().equals(EntityType.ENDER_SIGNAL)) {
             Debug.info("Detected Ender Signal...");
+            if(!TerraWorld.isTerraWorld(e.getEntity().getWorld())) return;
             TerraWorld tw = TerraWorld.getWorld(e.getEntity().getWorld());
             EnderSignal signal = (EnderSignal) entity;
             TerraStructure config = tw.getConfig().getStructureLocatable(StructureTypeEnum.STRONGHOLD);
@@ -45,7 +44,7 @@ public class EventListener implements Listener {
                 AsyncStructureFinder finder = new AsyncStructureFinder(tw.getGrid(), config, e.getLocation(), 0, 500, location -> {
                     if(location != null) signal.setTargetLocation(location.toLocation(signal.getWorld()));
                     Debug.info("Location: " + location);
-                });
+                }, main);
                 finder.run(); // Do this synchronously so eye doesn't change direction several ticks after spawning.
             } else
                 main.getLogger().warning("No overrides are defined for Strongholds. Ender Signals will not work correctly.");
@@ -54,6 +53,7 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onCartographerChange(VillagerAcquireTradeEvent e) {
+        if(!TerraWorld.isTerraWorld(e.getEntity().getWorld())) return;
         if(!(e.getEntity() instanceof Villager)) return;
         if(((Villager) e.getEntity()).getProfession().equals(Villager.Profession.CARTOGRAPHER))
             e.setCancelled(true); // Cancel leveling if the villager is a Cartographer, to prevent crashing server.
@@ -61,29 +61,10 @@ public class EventListener implements Listener {
 
     @EventHandler
     public void onCartographerLevel(VillagerCareerChangeEvent e) {
+        if(!TerraWorld.isTerraWorld(e.getEntity().getWorld())) return;
         if(e.getProfession().equals(Villager.Profession.CARTOGRAPHER)) {
             e.getEntity().setProfession(Villager.Profession.NITWIT); // Give villager new profession to prevent server crash.
             e.setCancelled(true);
         }
-    }
-
-    @EventHandler
-    public void onSaplingGrow(StructureGrowEvent e) {
-        if(!TerraWorld.isTerraWorld(e.getWorld())) return;
-        TerraWorld tw = TerraWorld.getWorld(e.getWorld());
-        ConfigPack c = tw.getConfig();
-        if(c.getTemplate().isDisableSaplings()) return;
-        e.setCancelled(true);
-        Block block = e.getLocation().getBlock();
-        BlockData data = block.getBlockData();
-        block.setType(Material.AIR);
-        TreeRegistry registry = c.getTreeRegistry();
-        Tree tree = registry.get(TreeType.fromBukkit(e.getSpecies()).toString());
-        Debug.info("Overriding tree type: " + e.getSpecies());
-        if(tree instanceof TerraTree) {
-            if(!((TerraTree) tree).plantBlockCheck(e.getLocation().subtract(0, 1, 0), new FastRandom())) {
-                block.setBlockData(data);
-            }
-        } else if(!tree.plant(e.getLocation().subtract(0, 1, 0), new FastRandom(), Terra.getInstance())) block.setBlockData(data);
     }
 }

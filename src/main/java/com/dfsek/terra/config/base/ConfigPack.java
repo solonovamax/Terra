@@ -116,9 +116,7 @@ public class ConfigPack {
             throw new FileMissingException("No pack.yml file found in " + folder.getAbsolutePath(), e);
         }
 
-        load(new FolderLoader(folder.toPath()));
-
-        LangUtil.log("config-pack.loaded", Level.INFO, template.getID(), String.valueOf((System.nanoTime() - l) / 1000000D), template.getAuthor());
+        load(new FolderLoader(folder.toPath()), l);
     }
 
     public ConfigPack(ZipFile file) throws ConfigException {
@@ -143,10 +141,9 @@ public class ConfigPack {
             load(new JarLoader((JarFile) file));
         else
             load(new ZIPLoader(file));
-        LangUtil.log("config-pack.loaded", Level.INFO, template.getID(), String.valueOf((System.nanoTime() - l) / 1000000D));
     }
 
-    private void load(Loader loader) throws ConfigException {
+    private void load(Loader loader, long start) throws ConfigException {
         for(Map.Entry<String, Double> var : template.getVariables().entrySet()) {
             varScope.create(var.getKey()).setValue(var.getValue());
         }
@@ -169,6 +166,8 @@ public class ConfigPack {
             }
         }
         template.getStructureLocatables().forEach((type, name) -> structureMap.put(Objects.requireNonNull(type), Objects.requireNonNull(structureRegistry.get(name))));
+
+        LangUtil.log("config-pack.loaded", Level.INFO, template.getID(), String.valueOf((System.nanoTime() - start) / 1000000D), template.getAuthor(), template.getVersion());
     }
 
     private <C extends AbstractableTemplate, O> void buildAll(TerraFactory<C, O> factory, TerraRegistry<O> registry, List<C> configTemplates) throws LoadException {

@@ -1,7 +1,7 @@
 package com.dfsek.terra.config.lang;
 
-import com.dfsek.terra.Debug;
 import com.dfsek.terra.Terra;
+import com.dfsek.terra.debug.Debug;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,7 +31,7 @@ public final class LangUtil {
             Debug.error("Report this to Terra!");
         }
         try {
-            language = new Language(new File(Terra.getInstance().getDataFolder(), "lang" + File.separator + langID + ".yml"));
+            language = new Language(new File(main.getDataFolder(), "lang" + File.separator + langID + ".yml"));
         } catch(InvalidConfigurationException | IOException e) {
             logger.severe("Unable to load language: " + langID);
             e.printStackTrace();

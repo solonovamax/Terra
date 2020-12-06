@@ -16,7 +16,6 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.generator.BlockPopulator;
 import org.jetbrains.annotations.NotNull;
 import org.polydev.gaea.profiler.ProfileFuture;
-import org.polydev.gaea.world.carving.Carver;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,25 +43,35 @@ public class CavePopulator extends BlockPopulator {
                 c.carve(chunk.getX(), chunk.getZ(), world, (v, type) -> {
                     Block b = chunk.getBlock(v.getBlockX(), v.getBlockY(), v.getBlockZ());
                     Material m = b.getType();
-                    if(type.equals(Carver.CarvingType.CENTER) && template.getInner().canReplace(m)) {
-                        if(template.getShift().containsKey(b.getType()))
-                            shiftCandidate.put(b.getLocation(), b.getType());
-                        b.setBlockData(template.getInner().get(v.getBlockY()).get(random), false);
-                    } else if(type.equals(Carver.CarvingType.WALL) && template.getOuter().canReplace(m)) {
-                        if(template.getShift().containsKey(b.getType()))
-                            shiftCandidate.put(b.getLocation(), b.getType());
-                        b.setBlockData(template.getOuter().get(v.getBlockY()).get(random), false);
-                    } else if(type.equals(Carver.CarvingType.TOP) && template.getTop().canReplace(m)) {
-                        if(template.getShift().containsKey(b.getType()))
-                            shiftCandidate.put(b.getLocation(), b.getType());
-                        b.setBlockData(template.getTop().get(v.getBlockY()).get(random), false);
-                    } else if(type.equals(Carver.CarvingType.BOTTOM) && template.getBottom().canReplace(m)) {
-                        if(template.getShift().containsKey(b.getType()))
-                            shiftCandidate.put(b.getLocation(), b.getType());
-                        b.setBlockData(template.getBottom().get(v.getBlockY()).get(random), false);
-                    }
-                    if(template.getUpdate().contains(m)) {
-                        updateNeeded.add(b);
+                    switch(type) {
+                        case CENTER:
+                            if(template.getInner().canReplace(m)) {
+                                b.setBlockData(template.getInner().get(v.getBlockY()).get(random), false);
+                                if(template.getUpdate().contains(m)) updateNeeded.add(b);
+                                if(template.getShift().containsKey(m)) shiftCandidate.put(b.getLocation(), m);
+                            }
+                            break;
+                        case WALL:
+                            if(template.getOuter().canReplace(m)) {
+                                b.setBlockData(template.getOuter().get(v.getBlockY()).get(random), false);
+                                if(template.getUpdate().contains(m)) updateNeeded.add(b);
+                                if(template.getShift().containsKey(m)) shiftCandidate.put(b.getLocation(), m);
+                            }
+                            break;
+                        case TOP:
+                            if(template.getTop().canReplace(m)) {
+                                b.setBlockData(template.getTop().get(v.getBlockY()).get(random), false);
+                                if(template.getUpdate().contains(m)) updateNeeded.add(b);
+                                if(template.getShift().containsKey(m)) shiftCandidate.put(b.getLocation(), m);
+                            }
+                            break;
+                        case BOTTOM:
+                            if(template.getBottom().canReplace(m)) {
+                                b.setBlockData(template.getBottom().get(v.getBlockY()).get(random), false);
+                                if(template.getUpdate().contains(m)) updateNeeded.add(b);
+                                if(template.getShift().containsKey(m)) shiftCandidate.put(b.getLocation(), m);
+                            }
+                            break;
                     }
                 });
                 for(Map.Entry<Location, Material> entry : shiftCandidate.entrySet()) {

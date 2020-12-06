@@ -1,7 +1,5 @@
 package com.dfsek.terra.generation;
 
-import com.dfsek.terra.Debug;
-import com.dfsek.terra.Terra;
 import com.dfsek.terra.TerraProfiler;
 import com.dfsek.terra.TerraWorld;
 import com.dfsek.terra.biome.UserDefinedBiome;
@@ -9,6 +7,7 @@ import com.dfsek.terra.biome.palette.PaletteHolder;
 import com.dfsek.terra.config.base.ConfigPack;
 import com.dfsek.terra.config.lang.LangUtil;
 import com.dfsek.terra.config.templates.BiomeTemplate;
+import com.dfsek.terra.debug.Debug;
 import com.dfsek.terra.math.MathUtil;
 import com.dfsek.terra.population.CavePopulator;
 import com.dfsek.terra.population.FloraPopulator;
@@ -28,6 +27,7 @@ import org.bukkit.block.data.type.Stairs;
 import org.bukkit.generator.BlockPopulator;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.polydev.gaea.GaeaPlugin;
 import org.polydev.gaea.biome.Biome;
 import org.polydev.gaea.generation.GaeaChunkGenerator;
 import org.polydev.gaea.generation.GenerationPhase;
@@ -51,12 +51,13 @@ import java.util.logging.Level;
 
 public class TerraChunkGenerator extends GaeaChunkGenerator {
     private static final Map<World, PopulationManager> popMap = new HashMap<>();
-    private final PopulationManager popMan = new PopulationManager(Terra.getInstance());
+    private final PopulationManager popMan;
     private final ConfigPack configPack;
     private boolean needsLoad = true;
 
-    public TerraChunkGenerator(ConfigPack c) {
+    public TerraChunkGenerator(ConfigPack c, GaeaPlugin main) {
         super(ChunkInterpolator.InterpolationType.TRILINEAR);
+        popMan = new PopulationManager(main);
         this.configPack = c;
         popMan.attach(new OrePopulator());
         popMan.attach(new TreePopulator());

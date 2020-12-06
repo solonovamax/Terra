@@ -2,19 +2,15 @@ package com.dfsek.terra.carving;
 
 import com.dfsek.terra.TerraWorld;
 import com.dfsek.terra.biome.UserDefinedBiome;
-import com.dfsek.terra.biome.grid.TerraBiomeGrid;
 import com.dfsek.terra.config.templates.BiomeTemplate;
 import com.dfsek.terra.config.templates.CarverTemplate;
 import com.dfsek.terra.math.RandomFunction;
 import net.jafama.FastMath;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
-import org.polydev.gaea.biome.Biome;
 import org.polydev.gaea.generation.GenerationPhase;
-import org.polydev.gaea.math.MathUtil;
 import org.polydev.gaea.math.Range;
 import org.polydev.gaea.util.FastRandom;
-import org.polydev.gaea.util.GlueList;
 import org.polydev.gaea.world.carving.Carver;
 import org.polydev.gaea.world.carving.Worm;
 import parsii.eval.Expression;
@@ -23,7 +19,9 @@ import parsii.eval.Scope;
 import parsii.eval.Variable;
 import parsii.tokenizer.ParseException;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.function.BiConsumer;
 
@@ -31,12 +29,9 @@ public class UserDefinedCarver extends Carver {
     private final double[] start; // 0, 1, 2 = x, y, z.
     private final double[] mutate; // 0, 1, 2 = x, y, z. 3 = radius.
     private final Range length;
-    private final int hash;
+    private final long hash;
     private final int topCut;
     private final int bottomCut;
-    private double step = 2;
-    private Range recalc = new Range(8, 10);
-    private double recalcMagnitude = 3;
     private final CarverTemplate config;
     private final Expression xRad;
     private final Expression yRad;
@@ -44,13 +39,14 @@ public class UserDefinedCarver extends Carver {
     private final Variable lengthVar;
     private final Variable position;
     private final Variable seedVar;
-    private final Range height;
-    private final double sixtyFourSq = FastMath.pow(64, 2);
+    private final Map<World, CarverCache> cacheMap = new HashMap<>();
+    private double step = 2;
+    private Range recalc = new Range(8, 10);
+    private double recalcMagnitude = 3;
 
-    public UserDefinedCarver(Range height, Range length, double[] start, double[] mutate, List<String> radii, Scope parent, int hash, int topCut, int bottomCut, CarverTemplate config) throws ParseException {
+    public UserDefinedCarver(Range height, Range length, double[] start, double[] mutate, List<String> radii, Scope parent, long hash, int topCut, int bottomCut, CarverTemplate config) throws ParseException {
         super(height.getMin(), height.getMax());
         this.length = length;
-        this.height = height;
         this.start = start;
         this.mutate = mutate;
         this.hash = hash;
@@ -81,6 +77,18 @@ public class UserDefinedCarver extends Carver {
         return new UserDefinedWorm(length.get(r) / 2, r, vector, topCut, bottomCut);
     }
 
+    protected Variable getSeedVar() {
+        return seedVar;
+    }
+
+    protected Variable getLengthVar() {
+        return lengthVar;
+    }
+
+    protected Variable getPosition() {
+        return position;
+    }
+
     public void setStep(double step) {
         this.step = step;
     }
@@ -91,31 +99,16 @@ public class UserDefinedCarver extends Carver {
 
     @Override
     public void carve(int chunkX, int chunkZ, World w, BiConsumer<Vector, CarvingType> consumer) {
+        CarverCache cache = cacheMap.computeIfAbsent(w, CarverCache::new);
         int carvingRadius = getCarvingRadius();
-        TerraBiomeGrid grid = TerraWorld.getWorld(w).getGrid();
         for(int x = chunkX - carvingRadius; x <= chunkX + carvingRadius; x++) {
-            z:
             for(int z = chunkZ - carvingRadius; z <= chunkZ + carvingRadius; z++) {
-                if(isChunkCarved(w, x, z, new FastRandom(MathUtil.hashToLong(this.getClass().getName() + "_" + x + "&" + z)))) {
-                    long seed = MathUtil.getCarverChunkSeed(x, z, w.getSeed());
-                    seedVar.setValue(seed);
-                    Random r = new FastRandom(seed);
-                    Worm carving = getWorm(seed, new Vector((x << 4) + r.nextInt(16), height.get(r), (z << 4) + r.nextInt(16)));
-                    Vector origin = carving.getOrigin();
-                    List<Worm.WormPoint> points = new GlueList<>();
-                    for(int i = 0; i < carving.getLength(); i++) {
-                        carving.step();
-                        Biome biome = grid.getBiome(carving.getRunning().toLocation(w), GenerationPhase.POPULATE);
-                        if(!((UserDefinedBiome) biome).getConfig().getCarvers().containsKey(this)) { // Stop if we enter a biome this carver is not present in
-                            continue z;
-                        }
-                        if(FastMath.floorDiv(origin.getBlockX(), 16) != chunkX && FastMath.floorDiv(origin.getBlockZ(), 16) != chunkZ) { // Only carve in the current chunk.
-                            continue;
-                        }
-                        points.add(carving.getPoint());
-                    }
-                    points.forEach(point -> point.carve(chunkX, chunkZ, consumer));
-                }
+                cache.getPoints(x, z, this).forEach(point -> {
+                    Vector origin = point.getOrigin();
+                    if(FastMath.floorDiv(origin.getBlockX(), 16) != chunkX && FastMath.floorDiv(origin.getBlockZ(), 16) != chunkZ) // We only want to carve this chunk.
+                        return;
+                    point.carve(chunkX, chunkZ, consumer);
+                });
             }
         }
     }
@@ -126,7 +119,7 @@ public class UserDefinedCarver extends Carver {
 
     @Override
     public boolean isChunkCarved(World w, int chunkX, int chunkZ, Random random) {
-        BiomeTemplate conf = ((UserDefinedBiome) TerraWorld.getWorld(w).getGrid().getBiome(chunkX << 4, chunkZ << 4, GenerationPhase.POPULATE)).getConfig();
+        BiomeTemplate conf = ((UserDefinedBiome) TerraWorld.getWorld(w).getGrid().getBiome((chunkX << 4) + 8, (chunkZ << 4) + 8, GenerationPhase.POPULATE)).getConfig();
         if(conf.getCarvers().get(this) != null) {
             return new FastRandom(random.nextLong() + hash).nextInt(100) < conf.getCarvers().get(this);
         }

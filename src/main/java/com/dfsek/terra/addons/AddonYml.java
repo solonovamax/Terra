@@ -16,10 +16,9 @@ public class AddonYml implements ConfigTemplate {
     @Value("author")
     @Default
     private String author = "no author";
-    @Value("version")
+    @Value("api-version")
     @Default
     private String version = "0.0.0";
-
 
     public String getMainClass() {
         return mainClass;

@@ -58,6 +58,8 @@ dependencies {
 
     implementation(name = "Tectonic-1.0.1", group = "")
 
+    implementation("org.xeustechnologies:jcl-core:+")
+
 
     // JUnit.
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")

@@ -1,7 +1,8 @@
 package com.dfsek.terra.addons;
 
-public interface Addon {
-    String getName();
+import com.dfsek.terra.Terra;
 
-    String getAuthor();
+public interface Addon {
+
+    void initialize(Terra terra);
 }

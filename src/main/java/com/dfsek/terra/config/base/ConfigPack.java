@@ -106,7 +106,7 @@ public class ConfigPack {
     }
 
     public ConfigPack(File folder) throws ConfigException {
-        long l = System.nanoTime();
+        long startTime = System.nanoTime();
 
         File pack = new File(folder, "pack.yml");
 
@@ -116,11 +116,11 @@ public class ConfigPack {
             throw new FileMissingException("No pack.yml file found in " + folder.getAbsolutePath(), e);
         }
 
-        load(new FolderLoader(folder.toPath()), l);
+        load(new FolderLoader(folder.toPath()), startTime);
     }
 
     public ConfigPack(ZipFile file) throws ConfigException {
-        long l = System.nanoTime();
+        long startTime = System.nanoTime();
 
         InputStream stream = null;
 
@@ -138,9 +138,9 @@ public class ConfigPack {
         selfLoader.load(template, stream);
 
         if(file instanceof JarFile)
-            load(new JarLoader((JarFile) file));
+            load(new JarLoader((JarFile) file), startTime);
         else
-            load(new ZIPLoader(file));
+            load(new ZIPLoader(file), startTime);
     }
 
     private void load(Loader loader, long start) throws ConfigException {

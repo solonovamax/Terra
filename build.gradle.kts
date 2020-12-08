@@ -14,14 +14,10 @@ plugins {
 }
 
 repositories {
-    flatDir {
-        dirs("lib")
-    }
     maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
     maven { url = uri("http://maven.enginehub.org/repo/") }
     maven { url = uri("https://repo.codemc.org/repository/maven-public") }
     maven { url = uri("https://papermc.io/repo/repository/maven-public/") }
-//    maven { url = uri("https://maven.pkg.github.com/solonovamax/Gaea") }
 }
 
 java {
@@ -35,8 +31,8 @@ version = versionObj
 
 dependencies {
     val gaeaVersion = "1.15.0"
-    compileOnly(name = "Gaea-${gaeaVersion}", group = "")
-    testImplementation(name = "Gaea-${gaeaVersion}", group = "")
+    compileOnly("org.polydev.gaea:Gaea:${gaeaVersion}")
+    testImplementation("org.polydev.gaea:Gaea:${gaeaVersion}")
 
     compileOnly("org.jetbrains:annotations:20.1.0")
 
@@ -55,7 +51,7 @@ dependencies {
 
     implementation("net.jafama:jafama:2.3.2")
 
-    implementation(name = "Tectonic-1.0.3", group = "")
+    implementation("com.dfsek:Tectonic:1.0.3")
 
     implementation("org.xeustechnologies:jcl-core:+")
 
@@ -68,22 +64,16 @@ dependencies {
 val compileJava: JavaCompile by tasks
 val mainSourceSet: SourceSet = sourceSets["main"]
 
-val tokenizeJavaSources = task<Copy>(name = "tokenizeJavaSources") {
-    from(mainSourceSet.allSource) {
-        include("**/plugin.yml")
-        println("version: $versionObj")
-        val tokens = mapOf("VERSION" to versionObj.toString())
-
-        filter(org.apache.tools.ant.filters.ReplaceTokens::class, "tokens" to tokens)
-    }
-    into("build/tokenizedSources")
-    includeEmptyDirs = false
+tasks.withType<ProcessResources> {
+    include("*.yml")
+    filter<org.apache.tools.ant.filters.ReplaceTokens>(
+            "tokens" to mapOf(
+                    "VERSION" to project.version.toString()
+            )
+    )
 }
 
-
 compileJava.apply {
-    dependsOn(tokenizeJavaSources)
-
     options.encoding = "UTF-8"
     doFirst {
         options.compilerArgs = mutableListOf("-Xlint:all")
@@ -100,7 +90,8 @@ tasks.test {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-    from(tokenizeJavaSources.destinationDir)
+    // Tell shadow to download the packs
+    dependsOn(downloadDefaultPacks)
 
     archiveClassifier.set("")
     archiveBaseName.set("Terra")
@@ -170,7 +161,6 @@ val downloadDefaultPacks = tasks.create("downloadDefaultPacks") {
         downloadPack(netherPackUrl)
     }
 }
-tasks.processResources.get().dependsOn(downloadDefaultPacks)
 
 val testWithPaper = task<JavaExec>(name = "testWithPaper") {
     standardInput = System.`in`

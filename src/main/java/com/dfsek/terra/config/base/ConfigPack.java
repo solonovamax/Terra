@@ -6,6 +6,7 @@ import com.dfsek.tectonic.exception.LoadException;
 import com.dfsek.tectonic.loading.ConfigLoader;
 import com.dfsek.terra.addons.JarLoader;
 import com.dfsek.terra.biome.UserDefinedBiome;
+import com.dfsek.terra.biome.grid.master.TerraBiomeGrid;
 import com.dfsek.terra.carving.UserDefinedCarver;
 import com.dfsek.terra.config.builder.biomegrid.BiomeGridBuilder;
 import com.dfsek.terra.config.exception.FileMissingException;
@@ -165,6 +166,15 @@ public class ConfigPack {
                 throw new LoadException("Invalid erosion biome defined in biome \"" + b.getID() + "\"", e);
             }
         }
+
+        for(String gridName : template.getGrids()) {
+            if(!biomeGridRegistry.contains(gridName)) throw new LoadException("No such BiomeGrid \"" + gridName + "\"");
+        }
+
+        if(template.getGridType().equals(TerraBiomeGrid.Type.RADIAL) && !biomeGridRegistry.contains(template.getRadialInternalGrid())) {
+            throw new LoadException("No such BiomeGrid \"" + template.getRadialInternalGrid() + "\"");
+        }
+
         template.getStructureLocatables().forEach((type, name) -> structureMap.put(Objects.requireNonNull(type), Objects.requireNonNull(structureRegistry.get(name))));
 
         LangUtil.log("config-pack.loaded", Level.INFO, template.getID(), String.valueOf((System.nanoTime() - start) / 1000000D), template.getAuthor(), template.getVersion());

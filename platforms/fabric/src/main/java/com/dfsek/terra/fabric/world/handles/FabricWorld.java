@@ -1,4 +1,4 @@
-package com.dfsek.terra.fabric.world.handles.world;
+package com.dfsek.terra.fabric.world.handles;
 
 import com.dfsek.terra.api.generic.Entity;
 import com.dfsek.terra.api.generic.Tree;
@@ -7,42 +7,39 @@ import com.dfsek.terra.api.generic.world.Chunk;
 import com.dfsek.terra.api.generic.world.World;
 import com.dfsek.terra.api.generic.world.block.Block;
 import com.dfsek.terra.api.generic.world.vector.Location;
-import com.dfsek.terra.fabric.world.block.FabricBlock;
-import com.dfsek.terra.fabric.world.generator.FabricChunkGenerator;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.WorldAccess;
+import com.dfsek.terra.fabric.world.handles.chunk.FabricChunk;
+import net.minecraft.server.world.ServerWorld;
 
 import java.io.File;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-public class FabricWorldAccess implements World {
-    private final WorldAccess delegate;
+public class FabricWorld implements World {
 
-    public FabricWorldAccess(WorldAccess delegate) {
-        this.delegate = delegate;
+    private final Handle delegate;
+
+    public FabricWorld(ServerWorld world, ChunkGenerator generator) {
+        this.delegate = new Handle(world, generator);
     }
 
     @Override
     public long getSeed() {
-        return ((StructureWorldAccess) delegate).getSeed();
+        return delegate.world.getSeed();
     }
 
     @Override
     public int getMaxHeight() {
-        return delegate.getDimensionHeight();
+        return delegate.world.getHeight();
     }
 
     @Override
     public ChunkGenerator getGenerator() {
-        return new FabricChunkGenerator(((ServerWorldAccess) delegate).toServerWorld().getChunkManager().getChunkGenerator());
+        return delegate.generator;
     }
 
     @Override
     public String getName() {
-        return ((ServerWorldAccess) delegate).toServerWorld().worldProperties.getLevelName();
+        return delegate.world.worldProperties.getLevelName();
     }
 
     @Override
@@ -57,7 +54,7 @@ public class FabricWorldAccess implements World {
 
     @Override
     public Chunk getChunkAt(int x, int z) {
-        return null;
+        return new FabricChunk(delegate.world.getChunk(x, z));
     }
 
     @Override
@@ -67,13 +64,12 @@ public class FabricWorldAccess implements World {
 
     @Override
     public Block getBlockAt(int x, int y, int z) {
-        BlockPos pos = new BlockPos(x, y, z);
-        return new FabricBlock(pos, delegate);
+        return null;
     }
 
     @Override
     public Block getBlockAt(Location l) {
-        return getBlockAt(l.getBlockX(), l.getBlockY(), l.getBlockZ());
+        return null;
     }
 
     @Override
@@ -87,7 +83,17 @@ public class FabricWorldAccess implements World {
     }
 
     @Override
-    public WorldAccess getHandle() {
-        return delegate;
+    public Handle getHandle() {
+        return null;
+    }
+
+    private final class Handle {
+        private final ServerWorld world;
+        private final ChunkGenerator generator;
+
+        private Handle(ServerWorld world, ChunkGenerator generator) {
+            this.world = world;
+            this.generator = generator;
+        }
     }
 }

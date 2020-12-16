@@ -10,8 +10,11 @@ import com.dfsek.terra.api.generic.world.World;
 import com.dfsek.terra.api.generic.world.WorldHandle;
 import com.dfsek.terra.api.generic.world.block.BlockData;
 import com.dfsek.terra.api.generic.world.block.MaterialData;
-import com.dfsek.terra.api.translator.MapTransform;
-import com.dfsek.terra.api.translator.Transformer;
+import com.dfsek.terra.api.transform.MapTransform;
+import com.dfsek.terra.api.transform.NotNullValidator;
+import com.dfsek.terra.api.transform.Transformer;
+import com.dfsek.terra.biome.UserDefinedBiome;
+import com.dfsek.terra.config.base.ConfigPack;
 import com.dfsek.terra.config.base.PluginConfig;
 import com.dfsek.terra.config.lang.LangUtil;
 import com.dfsek.terra.fabric.inventory.FabricItemHandle;
@@ -24,17 +27,25 @@ import com.dfsek.terra.registry.ConfigRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.world.GeneratorType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.BuiltinRegistries;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.biome.Biome;
+import net.minecraft.world.biome.BiomeEffects;
+import net.minecraft.world.biome.GenerationSettings;
+import net.minecraft.world.biome.SpawnSettings;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.chunk.ChunkGeneratorSettings;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.DefaultBiomeFeatures;
 import net.minecraft.world.gen.feature.Feature;
 import net.minecraft.world.gen.feature.HugeMushroomFeature;
 import net.minecraft.world.gen.feature.TreeFeature;
+import net.minecraft.world.gen.feature.TreeFeatureConfig;
+import net.minecraft.world.gen.surfacebuilder.SurfaceBuilder;
+import net.minecraft.world.gen.surfacebuilder.TernarySurfaceConfig;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -138,21 +149,60 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
         }
     }
 
+    Transformer<String, Biome> biomeFixer = new Transformer.Builder<String, Biome>()
+            .addTransform(id -> BuiltinRegistries.BIOME.get(Identifier.tryParse(id)), new NotNullValidator<>())
+            .addTransform(id -> BuiltinRegistries.BIOME.get(Identifier.tryParse("minecraft:" + id.toLowerCase())), new NotNullValidator<>()).build();
+
     @Override
     public void register(TypeRegistry registry) {
         genericLoaders.register(registry);
         registry
                 .registerLoader(BlockData.class, (t, o, l) -> worldHandle.createBlockData((String) o))
                 .registerLoader(MaterialData.class, (t, o, l) -> worldHandle.createMaterialData((String) o))
-                .registerLoader(com.dfsek.terra.api.generic.world.Biome.class, (t, o, l) -> {
-                    String id = (String) o;
-                    if(!id.contains(":")) id = "minecraft:" + id.toLowerCase();
-                    Identifier identifier = new Identifier(id);
-                    Biome biome = BuiltinRegistries.BIOME.get(identifier);
-                    return new FabricBiome(biome);
-                });
+                .registerLoader(com.dfsek.terra.api.generic.world.Biome.class, (t, o, l) -> new FabricBiome(biomeFixer.translate((String) o)));
     }
 
+    public static String createBiomeID(ConfigPack pack, UserDefinedBiome biome) {
+        return pack.getTemplate().getID().toLowerCase() + "/" + biome.getID().toLowerCase();
+    }
+
+    private Biome createBiome(UserDefinedBiome biome) {
+        SpawnSettings.Builder spawnSettings = new SpawnSettings.Builder();
+        DefaultBiomeFeatures.addFarmAnimals(spawnSettings);
+        DefaultBiomeFeatures.addMonsters(spawnSettings, 95, 5, 100);
+
+        Biome vanilla = ((FabricBiome) biome.getVanillaBiome()).getHandle();
+
+        GenerationSettings.Builder generationSettings = new GenerationSettings.Builder();
+        generationSettings.surfaceBuilder(SurfaceBuilder.DEFAULT.withConfig(new TernarySurfaceConfig(Blocks.GRASS_BLOCK.getDefaultState(), Blocks.DIRT.getDefaultState(), Blocks.GRAVEL.getDefaultState()))); // It needs a surfacebuilder, even though we dont use it.
+
+        BiomeEffects.Builder effects = new BiomeEffects.Builder()
+                .waterColor(vanilla.getWaterColor())
+                .waterFogColor(vanilla.getWaterFogColor())
+                .fogColor(vanilla.getFogColor())
+                .skyColor(vanilla.getSkyColor())
+                .grassColorModifier(vanilla.getEffects().getGrassColorModifier());
+        if(vanilla.getEffects().getGrassColor().isPresent()) {
+            effects.grassColor(vanilla.getEffects().getGrassColor().get());
+        }
+        if(vanilla.getEffects().getFoliageColor().isPresent()) {
+            effects.foliageColor(vanilla.getEffects().getFoliageColor().get());
+        }
+
+        return (new Biome.Builder())
+                .precipitation(vanilla.getPrecipitation())
+                .category(vanilla.getCategory())
+                .depth(vanilla.getDepth())
+                .scale(vanilla.getScale())
+                .temperature(0.8F)
+                .downfall(0.4F)
+                .effects(effects.build())
+                .spawnSettings(spawnSettings.build())
+                .generationSettings(generationSettings.build())
+                .build();
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public void onInitialize() {
         instance = this;
@@ -162,19 +212,19 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
                 feature.feature instanceof TreeFeature
                         || feature.feature instanceof HugeMushroomFeature).forEach(tree -> System.out.println(BuiltinRegistries.CONFIGURED_FEATURE.getId(tree)));
 
-        Transformer<String, ConfiguredFeature<?, ?>> treeTransformer = new Transformer.Builder<String, ConfiguredFeature<?, ?>>()
-                .addTransform(id -> BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse(id)))
-                .addTransform(new MapTransform<String, ConfiguredFeature<?, ?>>()
-                        .add("BROWN_MUSHROOM", BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:huge_brown_mushroom")))
-                        .add("RED_MUSHROOM", BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:huge_red_mushroom")))
-                        .add("JUNGLE", BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:mega_jungle_tree")))
-                        .add("JUNGLE_COCOA", BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:jungle_tree_no_vine")))
-                        .add("LARGE_OAK", BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:fancy_oak")))
-                        .add("LARGE_SPRUCE", BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:pine")))
-                        .add("SMALL_JUNGLE", BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:jungle_tree")))
-                        .add("SWAMP_OAK", BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:oak")))
-                        .add("TALL_BIRCH", BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:birch"))))
-                .addTransform(id -> BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:" + id.toLowerCase()))).build();
+        Transformer<String, ConfiguredFeature<TreeFeatureConfig, ?>> treeTransformer = new Transformer.Builder<String, ConfiguredFeature<TreeFeatureConfig, ?>>()
+                .addTransform(id -> (ConfiguredFeature<TreeFeatureConfig, ?>) BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse(id)))
+                .addTransform(new MapTransform<String, ConfiguredFeature<TreeFeatureConfig, ?>>()
+                        .add("BROWN_MUSHROOM", (ConfiguredFeature<TreeFeatureConfig, ?>) BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:huge_brown_mushroom")))
+                        .add("RED_MUSHROOM", (ConfiguredFeature<TreeFeatureConfig, ?>) BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:huge_red_mushroom")))
+                        .add("JUNGLE", (ConfiguredFeature<TreeFeatureConfig, ?>) BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:mega_jungle_tree")))
+                        .add("JUNGLE_COCOA", (ConfiguredFeature<TreeFeatureConfig, ?>) BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:jungle_tree_no_vine")))
+                        .add("LARGE_OAK", (ConfiguredFeature<TreeFeatureConfig, ?>) BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:fancy_oak")))
+                        .add("LARGE_SPRUCE", (ConfiguredFeature<TreeFeatureConfig, ?>) BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:pine")))
+                        .add("SMALL_JUNGLE", (ConfiguredFeature<TreeFeatureConfig, ?>) BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:jungle_tree")))
+                        .add("SWAMP_OAK", (ConfiguredFeature<TreeFeatureConfig, ?>) BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:oak")))
+                        .add("TALL_BIRCH", (ConfiguredFeature<TreeFeatureConfig, ?>) BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:birch"))))
+                .addTransform(id -> (ConfiguredFeature<TreeFeatureConfig, ?>) BuiltinRegistries.CONFIGURED_FEATURE.get(Identifier.tryParse("minecraft:" + id.toLowerCase()))).build();
         ((FabricWorldHandle) worldHandle).setTreeTransformer(treeTransformer);
 
         config = new File(FabricLoader.getInstance().getConfigDir().toFile(), "Terra");
@@ -182,8 +232,10 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
         plugin.load(this);
         LangUtil.load("en_us", this);
         logger.info("Initializing Terra...");
-        registry.loadAll(this);
 
+
+        registry.loadAll(this);
+        registry.forEach(pack -> pack.getBiomeRegistry().forEach(biome -> Registry.register(BuiltinRegistries.BIOME, new Identifier("terra", createBiomeID(pack, biome)), createBiome(biome)))); // Register all Terra biomes.
 
         /*
         registry.forEach(config -> {

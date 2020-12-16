@@ -5,7 +5,7 @@ import com.dfsek.terra.api.generic.world.WorldHandle;
 import com.dfsek.terra.api.generic.world.block.Block;
 import com.dfsek.terra.api.generic.world.block.BlockData;
 import com.dfsek.terra.api.generic.world.block.MaterialData;
-import com.dfsek.terra.api.translator.Transformer;
+import com.dfsek.terra.api.transform.Transformer;
 import com.dfsek.terra.fabric.world.block.FabricBlockData;
 import com.dfsek.terra.fabric.world.block.FabricMaterialData;
 import com.dfsek.terra.fabric.world.block.data.FabricMultipleFacing;
@@ -18,13 +18,14 @@ import net.minecraft.block.BlockState;
 import net.minecraft.command.argument.BlockArgumentParser;
 import net.minecraft.state.property.Properties;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
+import net.minecraft.world.gen.feature.TreeFeatureConfig;
 
 import java.util.Arrays;
 
 public class FabricWorldHandle implements WorldHandle {
-    private Transformer<String, ConfiguredFeature<?, ?>> treeTransformer;
+    private Transformer<String, ConfiguredFeature<TreeFeatureConfig, ?>> treeTransformer;
 
-    public void setTreeTransformer(Transformer<String, ConfiguredFeature<?, ?>> treeTransformer) {
+    public void setTreeTransformer(Transformer<String, ConfiguredFeature<TreeFeatureConfig, ?>> treeTransformer) {
         this.treeTransformer = treeTransformer;
     }
 

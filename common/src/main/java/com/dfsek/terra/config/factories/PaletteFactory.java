@@ -1,12 +1,12 @@
 package com.dfsek.terra.config.factories;
 
-import com.dfsek.terra.api.gaea.math.FastNoiseLite;
-import com.dfsek.terra.api.gaea.util.FastRandom;
-import com.dfsek.terra.api.gaea.world.palette.Palette;
-import com.dfsek.terra.api.gaea.world.palette.RandomPalette;
-import com.dfsek.terra.api.gaea.world.palette.SimplexPalette;
-import com.dfsek.terra.api.generic.TerraPlugin;
-import com.dfsek.terra.api.generic.world.block.BlockData;
+import com.dfsek.terra.api.math.FastNoiseLite;
+import com.dfsek.terra.api.platform.TerraPlugin;
+import com.dfsek.terra.api.platform.block.BlockData;
+import com.dfsek.terra.api.util.FastRandom;
+import com.dfsek.terra.api.world.palette.Palette;
+import com.dfsek.terra.api.world.palette.RandomPalette;
+import com.dfsek.terra.api.world.palette.SimplexPalette;
 import com.dfsek.terra.biome.palette.PaletteLayer;
 import com.dfsek.terra.config.templates.PaletteTemplate;
 

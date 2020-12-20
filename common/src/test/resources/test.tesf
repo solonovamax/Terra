@@ -1,0 +1,4 @@
+test("hello", 1);
+
+test("ghgjhgjhgj", 3.4);
+

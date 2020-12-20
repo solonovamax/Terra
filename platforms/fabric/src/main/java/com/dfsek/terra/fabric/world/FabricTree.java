@@ -1,8 +1,8 @@
 package com.dfsek.terra.fabric.world;
 
-import com.dfsek.terra.api.generic.Tree;
-import com.dfsek.terra.api.generic.world.block.MaterialData;
-import com.dfsek.terra.api.generic.world.vector.Location;
+import com.dfsek.terra.api.math.vector.Location;
+import com.dfsek.terra.api.platform.Tree;
+import com.dfsek.terra.api.platform.block.MaterialData;
 import com.dfsek.terra.fabric.TerraFabricPlugin;
 import com.dfsek.terra.fabric.world.generator.FabricChunkGenerator;
 import com.dfsek.terra.fabric.world.handles.world.FabricWorldAccess;
@@ -11,15 +11,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.StructureWorldAccess;
 import net.minecraft.world.gen.chunk.ChunkGenerator;
 import net.minecraft.world.gen.feature.ConfiguredFeature;
-import net.minecraft.world.gen.feature.TreeFeatureConfig;
 
 import java.util.Random;
 import java.util.Set;
 
 public class FabricTree implements Tree {
-    private final ConfiguredFeature<TreeFeatureConfig, ?> delegate;
+    private final ConfiguredFeature<?, ?> delegate;
 
-    public FabricTree(ConfiguredFeature<TreeFeatureConfig, ?> delegate) {
+    public FabricTree(ConfiguredFeature<?, ?> delegate) {
         this.delegate = delegate;
     }
 

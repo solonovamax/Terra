@@ -1,5 +1,3 @@
-import com.dfsek.terra.configureCommon
-
 plugins {
     `java-library`
 }
@@ -20,4 +18,6 @@ dependencies {
     "compileOnly"("com.googlecode.json-simple:json-simple:1.1")
 
     "shadedApi"("com.google.guava:guava:30.0-jre")
+
+    "shadedImplementation"("org.xeustechnologies:jcl-core:+")
 }

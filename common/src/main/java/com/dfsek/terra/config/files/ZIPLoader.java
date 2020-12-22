@@ -18,7 +18,8 @@ public class ZIPLoader extends Loader {
         Enumeration<? extends ZipEntry> entries = file.entries();
         while(entries.hasMoreElements()) {
             ZipEntry entry = entries.nextElement();
-            if(!entry.isDirectory() && entry.getName().equals(singleFile)) return file.getInputStream(entry);
+            if(!entry.isDirectory() && entry.getName().equals(singleFile))
+                return file.getInputStream(entry);
         }
         throw new IllegalArgumentException("No such file: " + singleFile);
     }

@@ -54,7 +54,6 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
     private WorldHandle handle = new BukkitWorldHandle(this);
     private final GenericLoaders genericLoaders = new GenericLoaders(this);
 
-
     public void reload() {
         Map<World, TerraWorld> newMap = new HashMap<>();
         worldMap.forEach((world, tw) -> {

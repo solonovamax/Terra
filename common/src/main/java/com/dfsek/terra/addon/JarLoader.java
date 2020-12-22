@@ -1,9 +1,9 @@
-package com.dfsek.terra.addons;
+package com.dfsek.terra.addon;
 
 import com.dfsek.tectonic.exception.ConfigException;
 import com.dfsek.tectonic.exception.LoadException;
 import com.dfsek.tectonic.loading.ConfigLoader;
-import com.dfsek.terra.Terra;
+import com.dfsek.terra.api.platform.TerraPlugin;
 import com.dfsek.terra.config.files.ZIPLoader;
 import org.xeustechnologies.jcl.JarClassLoader;
 import org.xeustechnologies.jcl.JclObjectFactory;
@@ -22,26 +22,25 @@ import java.util.jar.JarFile;
 public class JarLoader extends ZIPLoader {
     private final JarFile file;
 
-    public JarLoader(JarFile file) throws LoadException {
+    public JarLoader(JarFile file, TerraPlugin terra) throws LoadException {
         super(file);
         this.file = file;
         try {
             InputStream is = get("addon.yml");
 
-            ConfigLoader cf = new ConfigLoader();
+            ConfigLoader configLoader = new ConfigLoader();
             AddonYml yml = new AddonYml();
-            cf.load(yml, is);
+            configLoader.load(yml, is);
             String className = yml.getMainClass();
 
-            initializePlugin(className);
+            initializePlugin(className, terra);
 
         } catch(IOException | ConfigException e) {
             throw new LoadException("Could not load addon.yml", e);
         }
     }
 
-    public void initializePlugin(String mainClassName) {
-        Terra terra = Terra.getInstance();
+    public void initializePlugin(String mainClassName, TerraPlugin terra) {
         JarClassLoader jcl = new JarClassLoader(Collections.singletonList(file.getName()));
         JclObjectFactory factory = JclObjectFactory.getInstance();
 

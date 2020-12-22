@@ -4,8 +4,8 @@ import com.dfsek.tectonic.abstraction.AbstractConfigLoader;
 import com.dfsek.tectonic.exception.ConfigException;
 import com.dfsek.tectonic.exception.LoadException;
 import com.dfsek.tectonic.loading.ConfigLoader;
-import com.dfsek.terra.addons.JarLoader;
 import com.dfsek.tectonic.loading.TypeRegistry;
+import com.dfsek.terra.addon.JarLoader;
 import com.dfsek.terra.api.LoaderRegistrar;
 import com.dfsek.terra.api.loot.LootTable;
 import com.dfsek.terra.api.platform.TerraPlugin;
@@ -85,17 +85,20 @@ public class ConfigPack implements LoaderRegistrar {
     private final ConfigLoader selfLoader = new ConfigLoader();
     private final Scope varScope = new Scope();
 
+    private ConfigPack(TerraPlugin terra) {
+        floraRegistry = new FloraRegistry(terra);
+        paletteRegistry = new PaletteRegistry(terra);
+        treeRegistry = new TreeRegistry(terra);
 
-
-    public ConfigPack(File folder, TerraPlugin main) throws ConfigException {
-        long startTime = System.nanoTime();
-        floraRegistry = new FloraRegistry(main);
-        paletteRegistry = new PaletteRegistry(main);
-        treeRegistry = new TreeRegistry(main);
         register(abstractConfigLoader);
 
-        main.register(selfLoader);
-        main.register(abstractConfigLoader);
+        terra.register(selfLoader);
+        terra.register(abstractConfigLoader);
+    }
+
+    public ConfigPack(File folder, TerraPlugin terra) throws ConfigException {
+        this(terra);
+        long startTime = System.nanoTime();
 
         File pack = new File(folder, "pack.yml");
 
@@ -105,46 +108,41 @@ public class ConfigPack implements LoaderRegistrar {
             throw new FileMissingException("No pack.yml file found in " + folder.getAbsolutePath(), e);
         }
 
-        load(new FolderLoader(folder.toPath()), startTime, main);
+        load(new FolderLoader(folder.toPath()), startTime, terra);
     }
 
-    public ConfigPack(ZipFile file, TerraPlugin main) throws ConfigException {
+    public ConfigPack(ZipFile file, TerraPlugin terra) throws ConfigException {
+        this(terra);
         long startTime = System.nanoTime();
-        floraRegistry = new FloraRegistry(main);
-        paletteRegistry = new PaletteRegistry(main);
-        treeRegistry = new TreeRegistry(main);
-        register(abstractConfigLoader);
 
-        main.register(selfLoader);
-        main.register(abstractConfigLoader);
-
-        InputStream stream = null;
+        InputStream packYmlStream = null;
 
         try {
             Enumeration<? extends ZipEntry> entries = file.entries();
             while(entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                if(entry.getName().equals("pack.yml")) stream = file.getInputStream(entry);
+                if(entry.getName().equals("pack.yml")) packYmlStream = file.getInputStream(entry);
             }
         } catch(IOException e) {
             throw new LoadException("Unable to load pack.yml from ZIP file", e);
         }
-        if(stream == null) throw new FileMissingException("No pack.yml file found in " + file.getName());
+        if(packYmlStream == null)
+            throw new FileMissingException("No pack.yml file found in " + file.getName());
 
-        selfLoader.load(template, stream);
+        selfLoader.load(template, packYmlStream);
 
         if(file instanceof JarFile)
-            load(new JarLoader((JarFile) file), startTime, main);
+            load(new JarLoader((JarFile) file, terra), startTime, terra);
         else
-            load(new ZIPLoader(file), startTime, main);
+            load(new ZIPLoader(file), startTime, terra);
     }
 
     private void load(Loader loader, long start, TerraPlugin main) throws ConfigException {
         for(Map.Entry<String, Double> var : template.getVariables().entrySet()) {
             varScope.create(var.getKey()).setValue(var.getValue());
         }
-        abstractConfigLoader
-                .registerLoader(LootTable.class, new LootTableLoader(loader, main)); // These loaders need access to the Loader instance to get files.
+        abstractConfigLoader.registerLoader(LootTable.class, new LootTableLoader(loader, main)); // These loaders need access to the Loader instance to get files.
+
         loader
                 .open("palettes").then(streams -> buildAll(new PaletteFactory(), paletteRegistry, abstractConfigLoader.load(streams, PaletteTemplate::new), main)).close()
                 .open("ores").then(streams -> buildAll(new OreFactory(), oreRegistry, abstractConfigLoader.load(streams, OreTemplate::new), main)).close()
@@ -172,7 +170,8 @@ public class ConfigPack implements LoaderRegistrar {
     }
 
     private <C extends AbstractableTemplate, O> void buildAll(TerraFactory<C, O> factory, TerraRegistry<O> registry, List<C> configTemplates, TerraPlugin main) throws LoadException {
-        for(C template : configTemplates) registry.add(template.getID(), factory.build(template, main));
+        for(C template : configTemplates)
+            registry.add(template.getID(), factory.build(template, main));
     }
 
     public UserDefinedBiome getBiome(String id) {
@@ -226,8 +225,7 @@ public class ConfigPack implements LoaderRegistrar {
 
     @Override
     public void register(TypeRegistry registry) {
-        registry
-                .registerLoader(Palette.class, paletteRegistry)
+        registry.registerLoader(Palette.class, paletteRegistry)
                 .registerLoader(Biome.class, biomeRegistry)
                 .registerLoader(UserDefinedCarver.class, carverRegistry)
                 .registerLoader(Flora.class, floraRegistry)

@@ -17,8 +17,8 @@ buildscript {
 plugins {
     id("fabric-loom").version("0.5.9")
     `java-library`
+    idea
 }
-//apply(plugin = "fabric-loom")
 
 configureCommon()
 

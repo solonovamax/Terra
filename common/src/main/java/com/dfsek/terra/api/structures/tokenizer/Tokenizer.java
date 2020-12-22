@@ -11,7 +11,8 @@ import java.util.Set;
 public class Tokenizer {
     private final Lookahead reader;
 
-    private final Set<Character> syntaxSignificant = Sets.newHashSet(';', '(', ')', '"', '[', ']', ',');
+    private final Set<Character> syntaxSignificant = Sets.newHashSet(';', '(', ')', '"', ',', '\\', '=', '{', '}', '+', '-', '*', '/', '>', '<', '!'); // Reserved chars
+    private final Set<String> keywords = Sets.newHashSet("if", "return");
 
 
     public Tokenizer(String data) {
@@ -31,6 +32,26 @@ public class Tokenizer {
 
         if(reader.matches("/*", true)) skipTo("*/"); // Skip multi line comment
 
+        if(reader.matches("true", true))
+            return new Token("true", Token.Type.BOOLEAN, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.matches("false", true))
+            return new Token("false", Token.Type.BOOLEAN, new Position(reader.getLine(), reader.getIndex()));
+
+
+        if(reader.matches("==", true))
+            return new Token("==", Token.Type.BOOLEAN_OPERATOR, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.matches("!=", true))
+            return new Token("!=", Token.Type.BOOLEAN_OPERATOR, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.matches(">", true))
+            return new Token(">", Token.Type.BOOLEAN_OPERATOR, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.matches("<", true))
+            return new Token("<", Token.Type.BOOLEAN_OPERATOR, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.matches(">=", true))
+            return new Token(">=", Token.Type.BOOLEAN_OPERATOR, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.matches("<=", true))
+            return new Token("<=", Token.Type.BOOLEAN_OPERATOR, new Position(reader.getLine(), reader.getIndex()));
+
+
         if(isNumberStart()) {
             StringBuilder num = new StringBuilder();
             while(!reader.current().isEOF() && isNumberLike()) {
@@ -42,12 +63,19 @@ public class Tokenizer {
         if(reader.current().is('"')) {
             reader.consume(); // Consume first quote
             StringBuilder string = new StringBuilder();
-            while(!reader.current().is('"')) {
+            boolean ignoreNext = false;
+            while((!reader.current().is('"')) || ignoreNext) {
+                if(reader.current().is('\\') && !ignoreNext) {
+                    ignoreNext = true;
+                    reader.consume();
+                    continue;
+                } else ignoreNext = false;
                 if(reader.current().isEOF())
                     throw new FormatException("No end of string literal found. " + reader.getLine() + ":" + reader.getIndex());
                 string.append(reader.consume());
             }
             reader.consume(); // Consume last quote
+
             return new Token(string.toString(), Token.Type.STRING, new Position(reader.getLine(), reader.getIndex()));
         }
 
@@ -59,6 +87,22 @@ public class Tokenizer {
             return new Token(reader.consume().toString(), Token.Type.STATEMENT_END, new Position(reader.getLine(), reader.getIndex()));
         if(reader.current().is(','))
             return new Token(reader.consume().toString(), Token.Type.SEPARATOR, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.current().is('{'))
+            return new Token(reader.consume().toString(), Token.Type.BLOCK_BEGIN, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.current().is('}'))
+            return new Token(reader.consume().toString(), Token.Type.BLOCK_END, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.current().is('='))
+            return new Token(reader.consume().toString(), Token.Type.ASSIGNMENT, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.current().is('+'))
+            return new Token(reader.consume().toString(), Token.Type.ADDITION_OPERATOR, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.current().is('-'))
+            return new Token(reader.consume().toString(), Token.Type.SUBTRACTION_OPERATOR, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.current().is('*'))
+            return new Token(reader.consume().toString(), Token.Type.MULTIPLICATION_OPERATOR, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.current().is('/'))
+            return new Token(reader.consume().toString(), Token.Type.DIVISION_OPERATOR, new Position(reader.getLine(), reader.getIndex()));
+        if(reader.current().is('!'))
+            return new Token(reader.consume().toString(), Token.Type.BOOLEAN_NOT, new Position(reader.getLine(), reader.getIndex()));
 
         StringBuilder token = new StringBuilder();
         while(!reader.current().isEOF() && !isSyntaxSignificant(reader.current().getCharacter())) {
@@ -66,7 +110,10 @@ public class Tokenizer {
             if(!c.isWhitespace()) token.append(c);
         }
 
-        return new Token(token.toString(), Token.Type.IDENTIFIER, new Position(reader.getLine(), reader.getIndex()));
+        String tokenString = token.toString();
+
+
+        return new Token(tokenString, keywords.contains(tokenString) ? Token.Type.KEYWORD : Token.Type.IDENTIFIER, new Position(reader.getLine(), reader.getIndex()));
     }
 
     private boolean isNumberLike() {

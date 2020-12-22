@@ -1,4 +1,5 @@
-test("hello", 1);
+test("hello" + 3 + "gdfg", 3 + 8*2 - 1);
 
-test("ghgjhgjhgj", 3.4);
-
+if(true) {
+    test("fdsgdf" + 2, 3.4);
+}

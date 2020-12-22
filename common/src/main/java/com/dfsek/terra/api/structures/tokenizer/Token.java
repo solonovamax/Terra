@@ -19,7 +19,7 @@ public class Token {
         return content;
     }
 
-    public Position getStart() {
+    public Position getPosition() {
         return start;
     }
 
@@ -28,7 +28,97 @@ public class Token {
         return type + ": '" + content + "'";
     }
 
+    public boolean isConstant() {
+        return this.type.equals(Type.NUMBER) || this.type.equals(Type.STRING) || this.type.equals(Type.BOOLEAN);
+    }
+
+    public boolean isBinaryOperator() {
+        return type.equals(Type.ADDITION_OPERATOR)
+                || type.equals(Type.SUBTRACTION_OPERATOR)
+                || type.equals(Type.MULTIPLICATION_OPERATOR)
+                || type.equals(Type.DIVISION_OPERATOR)
+                || type.equals(Type.BOOLEAN_OPERATOR);
+    }
+
+    public boolean isStrictArithmeticOperator() {
+        return type.equals(Type.SUBTRACTION_OPERATOR)
+                || type.equals(Type.MULTIPLICATION_OPERATOR)
+                || type.equals(Type.DIVISION_OPERATOR);
+    }
+
     public enum Type {
-        IDENTIFIER, NUMBER, STRING, BOOLEAN, BODY_BEGIN, BODY_END, STATEMENT_END, SEPARATOR
+        /**
+         * Function identifier or language keyword
+         */
+        IDENTIFIER,
+
+        /**
+         * Language keyword
+         */
+        KEYWORD,
+        /**
+         * Numeric literal
+         */
+        NUMBER,
+        /**
+         * String literal
+         */
+        STRING,
+        /**
+         * Boolean literal
+         */
+        BOOLEAN,
+        /**
+         * Beginning of function body
+         */
+        BODY_BEGIN,
+        /**
+         * Ending of function body
+         */
+        BODY_END,
+        /**
+         * End of statement
+         */
+        STATEMENT_END,
+        /**
+         * Argument separator
+         */
+        SEPARATOR,
+        /**
+         * Beginning of code block
+         */
+        BLOCK_BEGIN,
+        /**
+         * End of code block
+         */
+        BLOCK_END,
+        /**
+         * assignment operator
+         */
+        ASSIGNMENT,
+        /**
+         * Boolean operator
+         */
+        BOOLEAN_OPERATOR,
+        /**
+         * Addition/concatenation operator
+         */
+        ADDITION_OPERATOR,
+        /**
+         * Subtraction operator
+         */
+        SUBTRACTION_OPERATOR,
+        /**
+         * Multiplication operator
+         */
+        MULTIPLICATION_OPERATOR,
+        /**
+         * Division operator
+         */
+        DIVISION_OPERATOR,
+        /**
+         * Boolean not operator
+         */
+        BOOLEAN_NOT
     }
 }

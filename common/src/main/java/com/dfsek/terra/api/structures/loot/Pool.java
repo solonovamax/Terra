@@ -27,12 +27,12 @@ public class Pool {
     public Pool(JSONObject pool, TerraPlugin main) {
         entries = new ProbabilityCollection<>();
         Object amount = pool.get("rolls");
-        if(amount instanceof Long) {
-            max = FastMath.toIntExact((Long) amount);
-            min = FastMath.toIntExact((Long) amount);
+        if(amount instanceof Number) {
+            max = ((Number) amount).intValue();
+            min = ((Number) amount).intValue();
         } else {
-            max = FastMath.toIntExact((Long) ((JSONObject) amount).get("max"));
-            min = FastMath.toIntExact((Long) ((JSONObject) amount).get("min"));
+            max = ((Number) ((JSONObject) amount).get("max")).intValue();
+            min = ((Number) ((JSONObject) amount).get("min")).intValue();
         }
 
         for(Object entryJSON : (JSONArray) pool.get("entries")) {

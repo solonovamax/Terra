@@ -2,8 +2,8 @@ package com.dfsek.terra.bukkit.handles;
 
 import com.dfsek.terra.api.platform.block.MaterialData;
 import com.dfsek.terra.api.platform.handle.ItemHandle;
+import com.dfsek.terra.api.platform.inventory.Enchantment;
 import com.dfsek.terra.api.platform.inventory.ItemStack;
-import com.dfsek.terra.api.platform.inventory.item.Enchantment;
 import com.dfsek.terra.bukkit.util.MinecraftUtils;
 import com.dfsek.terra.bukkit.world.BukkitAdapter;
 import com.dfsek.terra.bukkit.world.block.BukkitMaterialData;

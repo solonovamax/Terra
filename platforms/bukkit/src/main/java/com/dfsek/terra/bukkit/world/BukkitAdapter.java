@@ -10,11 +10,11 @@ import com.dfsek.terra.api.platform.block.data.Rail;
 import com.dfsek.terra.api.platform.block.data.RedstoneWire;
 import com.dfsek.terra.api.platform.block.data.Slab;
 import com.dfsek.terra.api.platform.block.data.Stairs;
-import com.dfsek.terra.api.platform.inventory.item.Enchantment;
+import com.dfsek.terra.api.platform.inventory.Enchantment;
 import com.dfsek.terra.api.platform.world.Chunk;
 import com.dfsek.terra.api.platform.world.World;
 import com.dfsek.terra.bukkit.BukkitCommandSender;
-import com.dfsek.terra.bukkit.world.inventory.meta.BukkitEnchantment;
+import com.dfsek.terra.bukkit.world.inventory.BukkitEnchantment;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
@@ -22,6 +22,10 @@ import org.bukkit.util.Vector;
  * Utility class to adapt Bukkit enums to Terra enums.
  */
 public final class BukkitAdapter {
+    // No fun allowed.
+    private BukkitAdapter() {
+    }
+
     public static Stairs.Shape adapt(org.bukkit.block.data.type.Stairs.Shape shape) {
         switch(shape) {
             case STRAIGHT:

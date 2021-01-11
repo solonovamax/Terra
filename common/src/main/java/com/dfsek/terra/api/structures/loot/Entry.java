@@ -8,19 +8,20 @@ import com.dfsek.terra.api.structures.loot.functions.DamageFunction;
 import com.dfsek.terra.api.structures.loot.functions.EnchantFunction;
 import com.dfsek.terra.api.structures.loot.functions.LootFunction;
 import com.dfsek.terra.api.util.GlueList;
-import net.jafama.FastMath;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.util.List;
 import java.util.Random;
+import java.util.logging.Logger;
 
 /**
  * Representation of a single item entry within a Loot Table pool.
  */
 public class Entry {
+    private final Logger logger;
     private final MaterialData item;
-    private final long weight;
+    private final int weight;
     private final List<LootFunction> functions = new GlueList<>();
     private final TerraPlugin main;
 
@@ -31,12 +32,13 @@ public class Entry {
      */
     public Entry(JSONObject entry, TerraPlugin main) {
         this.main = main;
+        this.logger = main.getLogger();
         String id = entry.get("name").toString();
         this.item = main.getWorldHandle().createMaterialData(id);
 
-        long weight1;
+        int weight1;
         try {
-            weight1 = (long) entry.get("weight");
+            weight1 = ((Number) entry.get("weight")).intValue();
         } catch(NullPointerException e) {
             weight1 = 1;
         }
@@ -45,34 +47,115 @@ public class Entry {
         if(entry.containsKey("functions")) {
             for(Object function : (JSONArray) entry.get("functions")) {
                 switch(((String) ((JSONObject) function).get("function"))) {
+                    case "minecraft:apply_bonus":
+                    case "apply_bonus":
+                        logger.warning("There is no implementation for the \"minecraft:apply_bonus\" function.");
+                        break;
+                    case "minecraft:copy_name":
+                    case "copy_name":
+                        logger.warning("There is no implementation for the \"minecraft:copy_name\" function.");
+                        break;
+                    case "minecraft:copy_nbt":
+                    case "copy_nbt":
+                        logger.warning("There is no implementation for the \"minecraft:copy_nbt\" function.");
+                        break;
+                    case "minecraft:copy_state":
+                    case "copy_state":
+                        logger.warning("There is no implementation for the \"minecraft:copy_state\" function.");
+                        break;
+                    case "minecraft:enchant_randomly":
+                    case "enchant_randomly":
+                        break;
+                    case "minecraft:enchant_with_levels":
+                    case "enchant_with_levels":
+                        Number maxEnchant = (Number) ((JSONObject) ((JSONObject) function).get("levels")).get("max");
+                        Number minEnchant = (Number) ((JSONObject) ((JSONObject) function).get("levels")).get("min");
+                        JSONArray disabled = null;
+                        if(((JSONObject) function).containsKey("disabled_enchants"))
+                            disabled = (JSONArray) ((JSONObject) function).get("disabled_enchants");
+                        functions.add(new EnchantFunction(minEnchant.intValue(), maxEnchant.intValue(), disabled, main));
+                        break;
+                    case "minecraft:exploration_map":
+                    case "exploration_map":
+                        break;
+                    case "minecraft:explosion_decay":
+                    case "explosion_decay":
+                        break;
+                    case "minecraft:furnace_smelt":
+                    case "furnace_smelt":
+                        break;
+                    case "minecraft:fill_player_head":
+                    case "fill_player_head":
+                        break;
+                    case "minecraft:limit_count":
+                    case "limit_count":
+                        break;
+                    case "minecraft:looting_enchant":
+                    case "looting_enchant":
+                        break;
+                    case "minecraft:set_attributes":
+                    case "set_attributes":
+                        break;
+                    // TODO: 2021-01-09 maybe add this function when 1.17 comes out. Or just warn & ignore like the rest lmao.
+/*
+                    case "minecraft:set_banner_pattern":
+                    case "set_banner_pattern":
+                        break;
+*/
+                    case "minecraft:set_contents":
+                    case "set_contents":
+                        break;
                     case "minecraft:set_count":
                     case "set_count":
                         Object loot = ((JSONObject) function).get("count");
-                        long max, min;
+                        Number max, min;
                         if(loot instanceof Long) {
                             max = (Long) loot;
                             min = (Long) loot;
                         } else {
-                            max = (long) ((JSONObject) loot).get("max");
-                            min = (long) ((JSONObject) loot).get("min");
+                            max = (Number) ((JSONObject) loot).get("max");
+                            min = (Number) ((JSONObject) loot).get("min");
                         }
-                        functions.add(new AmountFunction(FastMath.toIntExact(min), FastMath.toIntExact(max)));
+                        functions.add(new AmountFunction(min.intValue(), max.intValue()));
                         break;
                     case "minecraft:set_damage":
                     case "set_damage":
-                        long maxDamage = (long) ((JSONObject) ((JSONObject) function).get("damage")).get("max");
-                        long minDamage = (long) ((JSONObject) ((JSONObject) function).get("damage")).get("min");
-                        functions.add(new DamageFunction(FastMath.toIntExact(minDamage), FastMath.toIntExact(maxDamage)));
+                        Number maxDamage = (Number) ((JSONObject) ((JSONObject) function).get("damage")).get("max");
+                        Number minDamage = (Number) ((JSONObject) ((JSONObject) function).get("damage")).get("min");
+                        functions.add(new DamageFunction(minDamage.intValue(), maxDamage.intValue()));
                         break;
-                    case "minecraft:enchant_with_levels":
-                    case "enchant_with_levels":
-                        long maxEnchant = (long) ((JSONObject) ((JSONObject) function).get("levels")).get("max");
-                        long minEnchant = (long) ((JSONObject) ((JSONObject) function).get("levels")).get("min");
-                        JSONArray disabled = null;
-                        if(((JSONObject) function).containsKey("disabled_enchants"))
-                            disabled = (JSONArray) ((JSONObject) function).get("disabled_enchants");
-                        functions.add(new EnchantFunction(FastMath.toIntExact(minEnchant), FastMath.toIntExact(maxEnchant), disabled, main));
+                    // TODO: 2021-01-09 maybe add this function when 1.17 comes out. Or just warn & ignore like the rest
+/*
+                    case "minecraft:set_enchantments":
+                    case "set_enchantments":
                         break;
+*/
+                    case "minecraft:set_loot_table":
+                    case "set_loot_table":
+                        // just set the "LootTable" nbt tag based on the "name" value.
+                        // set the "LootTableSeed" nbt tag based on the "seed" value.
+                        break;
+                    case "minecraft:set_lore":
+                    case "set_lore":
+                        // set the "display:Lore" nbt tag based on the "lore" value. ("lore" values is a JSON list & "Lore" tag is also a list.)
+                        // if the "replace" values is true, replace  the lore. If false, append to the item lore.
+                        // the "entity" value specifies which entity to affect.
+                        break;
+                    case "minecraft:set_name":
+                    case "set_name":
+                        // set the "display:Name" nbt tag based on the "name" value.
+                        // the "entity" value specifies which entity to affect.
+                        break;
+                    case "minecraft:set_nbt":
+                    case "set_nbt":
+                        // Adds the nbt in the "tag" value to the nbt.
+                        break;
+                    case "minecraft:set_stew_effect":
+                    case "set_stew_effect":
+                        logger.warning("There is no implementation for the \"minecraft:set_stew_effect\" function.");
+                        break;
+                    default:
+                        logger.warning(() -> String.format("Could not find implementation for the unknown function \"%s\"", ((JSONObject) function).get("function")));
                 }
             }
         }
@@ -97,7 +180,7 @@ public class Entry {
      *
      * @return long - The weight of the Entry.
      */
-    public long getWeight() {
+    public int getWeight() {
         return this.weight;
     }
 }

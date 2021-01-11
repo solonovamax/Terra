@@ -1,9 +1,8 @@
 package com.dfsek.terra.api.structures.loot.functions;
 
 import com.dfsek.terra.api.platform.TerraPlugin;
+import com.dfsek.terra.api.platform.inventory.Enchantment;
 import com.dfsek.terra.api.platform.inventory.ItemStack;
-import com.dfsek.terra.api.platform.inventory.item.Enchantment;
-import com.dfsek.terra.api.platform.inventory.item.ItemMeta;
 import com.dfsek.terra.api.util.GlueList;
 import net.jafama.FastMath;
 import org.json.simple.JSONArray;
@@ -38,27 +37,26 @@ public class EnchantFunction implements LootFunction {
         double enchant = (r.nextDouble() * (max - min)) + min;
         List<Enchantment> possible = new GlueList<>();
         for(Enchantment ench : main.getItemHandle().getEnchantments()) {
-            if(ench.canEnchantItem(original) && (disabled == null || !this.disabled.contains(ench.getID()))) {
+            if(ench.isAcceptableItem(original) && (disabled == null || !this.disabled.contains(ench.getName()))) {
                 possible.add(ench);
             }
         }
         int numEnchant = (r.nextInt((int) FastMath.abs(enchant)) / 10 + 1);
         Collections.shuffle(possible);
-        ItemMeta meta = original.getItemMeta();
         iter:
         for(int i = 0; i < numEnchant && i < possible.size(); i++) {
             Enchantment chosen = possible.get(i);
-            for(Enchantment ench : meta.getEnchantments().keySet()) {
-                if(chosen.conflictsWith(ench)) continue iter;
+            for(Enchantment ench : original.getEnchantments().keySet()) {
+                if(chosen.canCombine(ench))
+                    continue iter;
             }
             int lvl = r.nextInt(1 + (int) (((enchant / 40 > 1) ? 1 : enchant / 40) * (chosen.getMaxLevel())));
             try {
-                meta.addEnchantment(chosen, FastMath.max(lvl, 1));
+                original.addEnchantment(chosen, FastMath.max(lvl, 1));
             } catch(IllegalArgumentException e) {
                 main.getLogger().warning("Attempted to enchant " + original.getType() + " with " + chosen + " at level " + FastMath.max(lvl, 1) + ", but an unexpected exception occurred! Usually this is caused by a misbehaving enchantment plugin.");
             }
         }
-        original.setItemMeta(meta);
         return original;
     }
 }

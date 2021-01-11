@@ -58,7 +58,7 @@ public class LootTable {
         for(ItemStack stack : loot) {
             int attempts = 0;
             while(stack.getAmount() != 0 && attempts < 10) {
-                ItemStack newStack = stack.clone();
+                ItemStack newStack = stack.copy();
                 newStack.setAmount(1);
                 int slot = r.nextInt(i.getSize());
                 ItemStack slotItem = i.getItem(slot);
@@ -66,7 +66,7 @@ public class LootTable {
                     i.setItem(slot, newStack);
                     stack.setAmount(stack.getAmount() - 1);
                 } else if(slotItem.getType().equals(newStack.getType())) {
-                    ItemStack dep = newStack.clone();
+                    ItemStack dep = newStack.copy();
                     dep.setAmount(newStack.getAmount() + slotItem.getAmount());
                     i.setItem(slot, dep);
                     stack.setAmount(stack.getAmount() - 1);

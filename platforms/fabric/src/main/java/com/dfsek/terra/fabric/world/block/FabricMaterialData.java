@@ -34,7 +34,7 @@ public class FabricMaterialData implements MaterialData {
 
     @Override
     public double getMaxDurability() {
-        return 0;
+        return delegate.asItem().getMaxDamage();
     }
 
     @Override
@@ -53,11 +53,11 @@ public class FabricMaterialData implements MaterialData {
         return delegate.asItem().hashCode();
     }
 
+
     @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof FabricMaterialData) {
-            return ((FabricMaterialData) obj).matches(this);
-        }
-        return false;
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if(o == null || getClass() != o.getClass()) return false;
+        return delegate.equals(o);
     }
 }

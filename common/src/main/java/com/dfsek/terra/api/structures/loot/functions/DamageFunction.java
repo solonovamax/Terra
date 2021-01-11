@@ -1,8 +1,6 @@
 package com.dfsek.terra.api.structures.loot.functions;
 
 import com.dfsek.terra.api.platform.inventory.ItemStack;
-import com.dfsek.terra.api.platform.inventory.item.Damageable;
-import com.dfsek.terra.api.platform.inventory.item.ItemMeta;
 
 import java.util.Random;
 
@@ -34,9 +32,7 @@ public class DamageFunction implements LootFunction {
     @Override
     public ItemStack apply(ItemStack original, Random r) {
         double itemDurability = (r.nextDouble() * (max - min)) + min;
-        Damageable damage = (Damageable) original.getItemMeta();
-        damage.setDamage((int) (original.getType().getMaxDurability() - (itemDurability / 100) * original.getType().getMaxDurability()));
-        original.setItemMeta((ItemMeta) damage);
+        original.setDamage((int) (original.getMaxDamage() - (itemDurability / 100) * original.getMaxDamage()));
         return original;
     }
 }

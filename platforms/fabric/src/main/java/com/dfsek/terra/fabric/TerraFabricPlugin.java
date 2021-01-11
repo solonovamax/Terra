@@ -110,7 +110,7 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 
     @Override

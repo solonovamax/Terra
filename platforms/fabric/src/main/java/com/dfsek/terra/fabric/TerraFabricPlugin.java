@@ -287,6 +287,29 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
                 .build();
     }
 
+    public void packInit() {
+        logger.info("Loading config packs...");
+        registry.loadAll(this);
+
+        registry.forEach(pack -> pack.getBiomeRegistry().forEach((id, biome) -> Registry.register(BuiltinRegistries.BIOME, new Identifier("terra", createBiomeID(pack, id)), createBiome(biome)))); // Register all Terra biomes.
+
+        if(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
+            registry.forEach(pack -> {
+                final GeneratorType generatorType = new GeneratorType("terra." + pack.getTemplate().getID()) {
+                    @Override
+                    protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
+                        return new FabricChunkGeneratorWrapper(new TerraBiomeSource(biomeRegistry, seed, pack), seed, pack);
+                    }
+                };
+                //noinspection ConstantConditions
+                ((GeneratorTypeAccessor) generatorType).setTranslationKey(new LiteralText("Terra:" + pack.getTemplate().getID()));
+                GeneratorTypeAccessor.getValues().add(generatorType);
+            });
+        }
+
+        logger.info("Loaded packs.");
+    }
+
     @Override
     public void onInitialize() {
         instance = this;
@@ -305,9 +328,7 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
         }
         logger.info("Loaded addons.");
 
-        registry.loadAll(this);
 
-        logger.info("Loaded packs.");
 
         Registry.register(Registry.FEATURE, new Identifier("terra", "flora_populator"), POPULATOR_FEATURE);
         RegistryKey<ConfiguredFeature<?, ?>> floraKey = RegistryKey.of(Registry.CONFIGURED_FEATURE_WORLDGEN, new Identifier("terra", "flora_populator"));
@@ -317,27 +338,12 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
         Registry.register(Registry.CHUNK_GENERATOR, new Identifier("terra:terra"), FabricChunkGeneratorWrapper.CODEC);
         Registry.register(Registry.BIOME_SOURCE, new Identifier("terra:terra"), TerraBiomeSource.CODEC);
 
-        if(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            registry.forEach(pack -> {
-                final GeneratorType generatorType = new GeneratorType("terra." + pack.getTemplate().getID()) {
-                    @Override
-                    protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry, Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
-                        return new FabricChunkGeneratorWrapper(new TerraBiomeSource(biomeRegistry, seed, pack), seed, pack);
-                    }
-                };
-                //noinspection ConstantConditions
-                ((GeneratorTypeAccessor) generatorType).setTranslationKey(new LiteralText("Terra:" + pack.getTemplate().getID()));
-                GeneratorTypeAccessor.getValues().add(generatorType);
-            });
-        }
-
         CommandManager manager = new TerraCommandManager(this);
         try {
             CommandUtil.registerAll(manager);
         } catch(MalformedCommandException e) {
             e.printStackTrace(); // TODO do something here even though this should literally never happen
         }
-
 
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
                     int max = manager.getMaxArgumentDepth();
@@ -353,7 +359,7 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
                     //dispatcher.register(literal("te").redirect(root));
                 }
         );
-
+        logger.info("Finished initialization.");
     }
 
     private RequiredArgumentBuilder<ServerCommandSource, String> assemble(RequiredArgumentBuilder<ServerCommandSource, String> in, CommandManager manager) {

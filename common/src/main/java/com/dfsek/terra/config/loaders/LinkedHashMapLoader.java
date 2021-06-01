@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
 @SuppressWarnings("unchecked")
 public class LinkedHashMapLoader implements TypeLoader<LinkedHashMap<Object, Object>> {
     @Override
@@ -22,8 +23,10 @@ public class LinkedHashMapLoader implements TypeLoader<LinkedHashMap<Object, Obj
             for(Map.Entry<String, Object> entry : config.entrySet()) {
                 map.put(loader.loadType(key, entry.getKey()), loader.loadType(value, entry.getValue()));
             }
-        } else throw new LoadException("Unable to load config");
-
+        } else {
+            throw new LoadException("Unable to load config");
+        }
+    
         return map;
     }
 }

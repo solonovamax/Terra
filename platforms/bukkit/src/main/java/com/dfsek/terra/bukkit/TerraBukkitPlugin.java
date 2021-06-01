@@ -75,17 +75,6 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
     private final ItemHandle itemHandle = new BukkitItemHandle();
     private final GenericLoaders genericLoaders = new GenericLoaders(this);
     private final EventManager eventManager = new TerraEventManager(this);
-    public static final BukkitVersion BUKKIT_VERSION;
-
-    static {
-        String ver = Bukkit.getServer().getClass().getPackage().getName();
-        if(ver.contains("1_16")) BUKKIT_VERSION = BukkitVersion.V1_16;
-        else if(ver.contains("1_15")) BUKKIT_VERSION = BukkitVersion.V1_15;
-        else if(ver.contains("1_14")) BUKKIT_VERSION = BukkitVersion.V1_14;
-        else if(ver.contains("1_13")) BUKKIT_VERSION = BukkitVersion.V1_13;
-        else BUKKIT_VERSION = BukkitVersion.UNKNOWN;
-    }
-
     private final AddonRegistry addonRegistry = new AddonRegistry(new BukkitAddon(this), this);
     private final LockedRegistry<TerraAddon> addonLockedRegistry = new LockedRegistry<>(addonRegistry);
     private WorldHandle handle = new BukkitWorldHandle();
@@ -97,21 +86,23 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
     
     @Override
     public void onEnable() {
-        debugLogger = new DebugLogger(logger());
-
-        getLogger().info("Running on version " + BUKKIT_VERSION);
-        if(BUKKIT_VERSION == BukkitVersion.UNKNOWN) {
-            getLogger().warning("Terra is running on an unknown Bukkit version. Proceed with caution.");
-        }
-
+        logger.info("Logging!");
+        logger.info("Running on version {}", VersionUtil.getMinecraftVersion());
+        if(VersionUtil.getMinecraftVersion().getMinor() <= 15)
+            logger.warn("Terra is running on an outdated Bukkit version. Some functionality may be limited or not work as intended");
+        if(!VersionUtil.getSpigotVersionInfo().isSpigot())
+            logger.error("YOU ARE RUNNING A CRAFTBUKKIT OR BUKKIT SERVER JAR. PLEASE UPGRADE TO PAPER SPIGOT.");
+        if(VersionUtil.getSpigotVersionInfo().isYaptopia())
+            logger.warn("Yaptopia is a highly unstable fork of spigot. You may experience various issues with it.");
+    
         saveDefaultConfig();
-        
+    
         Metrics metrics = new Metrics(this, 9017); // Set up bStats. // Magic number go brrr
         metrics.addCustomChart(new Metrics.SingleLineChart("worlds", worldMap::size)); // World number chart.
-        
+    
         config.load(this); // Load master config.yml
         LangUtil.load(config.getLanguage(), this); // Load language.
-        
+    
         if(config.isDebugProfiler())
             profiler.start();
         
@@ -139,49 +130,57 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
         }
         
         BukkitCommandAdapter command = new BukkitCommandAdapter(manager);
-        
+    
         c.setExecutor(command);
         c.setTabCompleter(command);
-        
-        
+    
+    
         long save = config.getDataSaveInterval();
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, BukkitChunkGeneratorWrapper::saveAll, save,
                                                          save); // Schedule population data saving
         Bukkit.getPluginManager().registerEvents(new CommonListener(this), this); // Register master event listener
         PaperUtil.checkPaper(this);
-
-        if(PaperLib.isPaper()) {
-            try {
-                Class.forName("io.papermc.paper.event.world.StructureLocateEvent"); // Check if user is on Paper version with event.
-                Bukkit.getPluginManager().registerEvents(new PaperListener(this), this); // Register Paper events.
-            } catch(ClassNotFoundException e) {
-                registerSpigotEvents(true); // Outdated Paper version.
-            }
-        } else {
-            registerSpigotEvents(false);
-        }
-    }
     
-    private void registerSpigotEvents(boolean outdated) {
-        if(outdated) {
-            getLogger().severe("You are using an outdated version of Paper.");
-            getLogger().severe("This version does not contain StructureLocateEvent.");
-            getLogger().severe("Terra will now fall back to Spigot events.");
-            getLogger().severe("This will prevent cartographer villagers from spawning,");
-            getLogger().severe("and cause structure location to not function.");
-            getLogger().severe("If you want these functionalities, update to the latest build of Paper.");
-            getLogger().severe("If you use a fork, update to the latest version, then if you still");
-            getLogger().severe("receive this message, ask the fork developer to update upstream.");
-        } else {
-            getLogger().severe("Paper is not in use. Falling back to Spigot events.");
-            getLogger().severe("This will prevent cartographer villagers from spawning,");
-            getLogger().severe("and cause structure location to not function.");
-            getLogger().severe("If you want these functionalities (and all the other");
-            getLogger().severe("benefits that Paper offers), upgrade your server to Paper.");
-            getLogger().severe("Find out more at https://papermc.io/");
+        try {
+            Class.forName("io.papermc.paper.event.world.StructureLocateEvent"); // Check if user is on Paper version with event.
+            Bukkit.getPluginManager().registerEvents(new PaperListener(this), this); // Register Paper events.
+        } catch(ClassNotFoundException e) {
+            /*
+            The command
+            
+                fmt -w 72 -g 72 -u text | \
+                boxes -a c -p a1h3 -t 4e -d jstone | \
+                sed -Ee 's/\+-+\*\//|------------------------------------------------------------------------------|/g'
+                -e 's/^\s*(.*)$/"\1\\n"/g' -e 's/\///g' -e 's/\*|\+/./g' -e 's/$/ +/g' -e '/^"\| {3}-{72} {3}\|\\n" \+$/d'
+            
+            was used to create these boxes. Leaving this here in case we want to create more/modify them.
+             */
+            if(VersionUtil.getSpigotVersionInfo().isPaper()) { // logging with stack trace to be annoying.
+                logger.warn(".------------------------------------------------------------------------------.\n" +
+                            "|                                                                              |\n" +
+                            "|      You are using an outdated version of Paper. This version does not       |\n" +
+                            "|       contain StructureLocateEvent. Terra will now fall back to Spigot       |\n" +
+                            "|       events. This will prevent cartographer villagers from spawning,        |\n" +
+                            "|       and cause structure location to not function. If you want these        |\n" +
+                            "|      functionalities, update to the latest build of Paper. If you use a      |\n" +
+                            "|      fork, update to the latest version, then if you still receive this      |\n" +
+                            "|             message, ask the fork developer to update upstream.              |\n" +
+                            "|                                                                              |\n" +
+                            "|------------------------------------------------------------------------------|", e);
+            } else {
+                logger.warn(".------------------------------------------------------------------------------.\n" +
+                            "|                                                                              |\n" +
+                            "|    Paper is not in use. Falling back to Spigot events. This will prevent     |\n" +
+                            "|    cartographer villagers from spawning, and cause structure location to     |\n" +
+                            "|      not function. If you want these functionalities (and all the other      |\n" +
+                            "|     benefits that Paper offers), upgrade your server to Paper. Find out      |\n" +
+                            "|                         more at https://papermc.io/                          |\n" +
+                            "|                                                                              |\n" +
+                            "|------------------------------------------------------------------------------|", e);
+            }
+        
+            Bukkit.getPluginManager().registerEvents(new SpigotListener(this), this); // Register Spigot event listener
         }
-
-        Bukkit.getPluginManager().registerEvents(new SpigotListener(this), this); // Register Spigot event listener
     }
     
     @Override
@@ -289,35 +288,6 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
     @Override
     public Profiler getProfiler() {
         return profiler;
-    }
-    
-    public enum BukkitVersion {
-        V1_13(13),
-        
-        V1_14(14),
-        
-        V1_15(15),
-        
-        V1_16(16),
-        
-        UNKNOWN(Integer.MAX_VALUE); // Assume unknown version is latest.
-        
-        private final int index;
-        
-        BukkitVersion(int index) {
-            this.index = index;
-        }
-        
-        /**
-         * Gets if this version is above or equal to another.
-         *
-         * @param other Other version
-         *
-         * @return Whether this version is equal to or later than other.
-         */
-        public boolean above(BukkitVersion other) {
-            return this.index >= other.index;
-        }
     }
     
     

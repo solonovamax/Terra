@@ -23,6 +23,7 @@ allprojects {
     }
 
 }
+
 /**
  * Version class that does version stuff.
  */

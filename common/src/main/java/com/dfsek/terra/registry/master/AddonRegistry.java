@@ -18,19 +18,20 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+
 public class AddonRegistry extends OpenRegistry<TerraAddon> {
     private final TerraPlugin main;
-
+    
     public AddonRegistry(TerraPlugin main) {
-
+        
         this.main = main;
     }
-
+    
     public AddonRegistry(TerraAddon addon, TerraPlugin main) {
         this.main = main;
         add(addon.getName(), addon);
     }
-
+    
     @Override
     public boolean add(String identifier, TerraAddon addon) {
         if(contains(identifier)) throw new IllegalArgumentException("Addon " + identifier + " is already registered.");
@@ -38,22 +39,22 @@ public class AddonRegistry extends OpenRegistry<TerraAddon> {
         main.logger().info("Loaded addon " + addon.getName() + " v" + addon.getVersion() + ", by " + addon.getAuthor());
         return super.add(identifier, addon);
     }
-
+    
     @Override
     public void clear() {
         throw new UnsupportedOperationException();
     }
-
+    
     public boolean loadAll() {
         Injector<TerraPlugin> pluginInjector = new Injector<>(main);
         pluginInjector.addExplicitTarget(TerraPlugin.class);
-
+        
         boolean valid = true;
         File addonsFolder = new File(main.getDataFolder(), "addons");
         addonsFolder.mkdirs();
-
+        
         AddonPool pool = new AddonPool();
-
+        
         try {
             for(File jar : addonsFolder.listFiles(file -> file.getName().endsWith(".jar"))) {
                 main.logger().info("Loading Addon(s) from: " + jar.getName());
@@ -61,23 +62,23 @@ public class AddonRegistry extends OpenRegistry<TerraAddon> {
                     pool.add(new PreLoadAddon(addonClass, jar));
                 }
             }
-
+            
             pool.buildAll();
-
+            
             for(PreLoadAddon addon : pool.getAddons()) {
                 Class<? extends TerraAddon> addonClass = addon.getAddonClass();
                 Constructor<? extends TerraAddon> constructor;
-
+                
                 String logPrefix = "Terra:" + addon.getId();
                 Logger addonLogger = Logger.getLogger(logPrefix);
-
+                
                 if(!LogManager.getLogManager().addLogger(addonLogger)) {
                     addonLogger = LogManager.getLogManager().getLogger(logPrefix);
                 }
-
+                
                 Injector<Logger> loggerInjector = new Injector<>(addonLogger);
                 loggerInjector.addExplicitTarget(Logger.class);
-
+                
                 try {
                     constructor = addonClass.getConstructor();
                 } catch(NoSuchMethodException e) {
@@ -104,7 +105,7 @@ public class AddonRegistry extends OpenRegistry<TerraAddon> {
             e.printStackTrace();
             valid = false;
         }
-
+        
         return valid;
     }
 }

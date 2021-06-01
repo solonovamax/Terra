@@ -7,14 +7,15 @@ import com.dfsek.terra.forge.world.block.ForgeBlockData;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.DirectionProperty;
 
+
 public class ForgeDirectional extends ForgeBlockData implements Directional {
     private final DirectionProperty property;
-
+    
     public ForgeDirectional(BlockState delegate, DirectionProperty property) {
         super(delegate);
         this.property = property;
     }
-
+    
     @Override
     public BlockFace getFacing() {
         switch(delegate.getValue(property)) {
@@ -34,7 +35,7 @@ public class ForgeDirectional extends ForgeBlockData implements Directional {
                 throw new IllegalStateException();
         }
     }
-
+    
     @Override
     public void setFacing(BlockFace facing) {
         delegate = delegate.setValue(property, ForgeAdapter.adapt(facing));

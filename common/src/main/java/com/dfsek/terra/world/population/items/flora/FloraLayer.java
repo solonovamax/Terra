@@ -8,16 +8,17 @@ import com.dfsek.terra.api.util.collections.ProbabilityCollection;
 import com.dfsek.terra.api.world.flora.Flora;
 import com.dfsek.terra.world.population.items.PlaceableLayer;
 
-public class FloraLayer extends PlaceableLayer<Flora> {
 
+public class FloraLayer extends PlaceableLayer<Flora> {
+    
     public FloraLayer(double density, Range level, ProbabilityCollection<Flora> layer, NoiseSampler noise) {
         super(density, level, layer, noise);
     }
-
+    
     public double getDensity() {
         return density;
     }
-
+    
     @Override
     public void place(Chunk chunk, Vector2 coords) {
         Flora item = layer.get(noise, (chunk.getX() << 4) + coords.getX(), (chunk.getZ() << 4) + coords.getZ());

@@ -12,18 +12,19 @@ import net.minecraft.tileentity.SignTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IWorld;
 
+
 public class ForgeBlockState implements BlockState {
     protected final TileEntity blockEntity;
     private final IWorld worldAccess;
-
+    
     public ForgeBlockState(TileEntity blockEntity, IWorld worldAccess) {
         this.blockEntity = blockEntity;
         this.worldAccess = worldAccess;
     }
-
+    
     public static ForgeBlockState newInstance(Block block) {
         IWorld worldAccess = ((ForgeWorldHandle) block.getLocation().getWorld()).getWorld();
-
+        
         TileEntity entity = worldAccess.getBlockEntity(ForgeAdapter.adapt(block.getLocation().toVector()));
         if(entity instanceof SignTileEntity) {
             return new ForgeSign((SignTileEntity) entity, worldAccess);
@@ -34,40 +35,40 @@ public class ForgeBlockState implements BlockState {
         }
         return null;
     }
-
-    @Override
-    public TileEntity getHandle() {
-        return blockEntity;
-    }
-
-    @Override
-    public Block getBlock() {
-        return new ForgeBlock(blockEntity.getBlockPos(), blockEntity.getLevel());
-    }
-
-    @Override
-    public int getX() {
-        return blockEntity.getBlockPos().getX();
-    }
-
-    @Override
-    public int getY() {
-        return blockEntity.getBlockPos().getY();
-    }
-
-    @Override
-    public int getZ() {
-        return blockEntity.getBlockPos().getZ();
-    }
-
-    @Override
-    public BlockData getBlockData() {
-        return ForgeAdapter.adapt(blockEntity.getBlockState());
-    }
-
+    
     @Override
     public boolean update(boolean applyPhysics) {
         worldAccess.getChunk(blockEntity.getBlockPos()).setBlockEntity(blockEntity.getBlockPos(), blockEntity);
         return true;
+    }
+    
+    @Override
+    public Block getBlock() {
+        return new ForgeBlock(blockEntity.getBlockPos(), blockEntity.getLevel());
+    }
+    
+    @Override
+    public BlockData getBlockData() {
+        return ForgeAdapter.adapt(blockEntity.getBlockState());
+    }
+    
+    @Override
+    public int getX() {
+        return blockEntity.getBlockPos().getX();
+    }
+    
+    @Override
+    public int getY() {
+        return blockEntity.getBlockPos().getY();
+    }
+    
+    @Override
+    public int getZ() {
+        return blockEntity.getBlockPos().getZ();
+    }
+    
+    @Override
+    public TileEntity getHandle() {
+        return blockEntity;
     }
 }

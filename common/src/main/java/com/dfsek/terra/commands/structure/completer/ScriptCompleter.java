@@ -10,12 +10,14 @@ import com.dfsek.terra.api.structures.script.StructureScript;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class ScriptCompleter implements TabCompleter {
     @Inject
     private TerraPlugin main;
-
+    
     @Override
     public List<String> complete(CommandSender sender) {
-        return main.getWorld(((Player) sender).getWorld()).getConfig().getRegistry(StructureScript.class).entries().stream().map(StructureScript::getId).collect(Collectors.toList());
+        return main.getWorld(((Player) sender).getWorld()).getConfig().getRegistry(StructureScript.class).entries().stream().map(
+                StructureScript::getId).collect(Collectors.toList());
     }
 }

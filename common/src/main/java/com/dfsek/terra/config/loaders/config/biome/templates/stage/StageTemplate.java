@@ -7,10 +7,11 @@ import com.dfsek.terra.api.util.seeded.SeededBuilder;
 import com.dfsek.terra.api.util.seeded.StageSeeded;
 import com.dfsek.terra.api.world.biome.pipeline.stages.Stage;
 
+
 public abstract class StageTemplate implements ObjectTemplate<SeededBuilder<Stage>>, StageSeeded {
     @Value("noise")
     protected NoiseSeeded noise;
-
+    
     @Override
     public StageSeeded get() {
         return this;

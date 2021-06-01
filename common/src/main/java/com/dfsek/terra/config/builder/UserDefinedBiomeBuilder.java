@@ -18,57 +18,69 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 public class UserDefinedBiomeBuilder implements BiomeBuilder {
     private final BiomeTemplate template;
     private final ConfigPack pack;
-
+    
     private final Map<Long, UserDefinedBiome> biomeMap = new ConcurrentHashMap<>();
-
+    
     public UserDefinedBiomeBuilder(BiomeTemplate template, ConfigPack pack) {
         this.template = template;
         this.pack = pack;
     }
-
+    
     @Override
     public UserDefinedBiome apply(Long seed) {
         synchronized(biomeMap) {
             return biomeMap.computeIfAbsent(seed,
-                    s -> {
-                        NoiseSampler noise;
-                        NoiseSampler elevation;
-                        NoiseSampler carving;
-                        Scope varScope = new Scope().withParent(pack.getVarScope());
-
-                        template.getVariables().forEach(varScope::create);
-
-                        Map<String, NoiseSeeded> noiseBuilderMap = pack.getTemplate().getNoiseBuilderMap();
-                        Map<String, FunctionTemplate> functionTemplateMap = new LinkedHashMap<>(pack.getTemplate().getFunctions());
-
-                        functionTemplateMap.putAll(template.getFunctions());
-
-                        try {
-                            noise = new ExpressionSampler(template.getNoiseEquation(), varScope, seed, noiseBuilderMap, functionTemplateMap);
-                            elevation = template.getElevationEquation() == null ? new ConstantSampler(0) : new ExpressionSampler(template.getElevationEquation(), varScope, seed, noiseBuilderMap, functionTemplateMap);
-                            carving = new ExpressionSampler(template.getCarvingEquation(), varScope, seed, noiseBuilderMap, functionTemplateMap);
-                        } catch(ParseException e) {
-                            throw new RuntimeException(e);
-                        }
-
-                        WorldGenerator generator = new WorldGenerator(template.getPalette(), template.getSlant(), noise, elevation, carving, template.getBiomeNoise().apply(seed), template.getElevationWeight(),
-                                template.getBlendDistance(), template.getBlendStep(), template.getBlendWeight());
-                        return new UserDefinedBiome(template.getVanilla(), generator, template);
-                    }
-            );
+                                            s -> {
+                                                NoiseSampler noise;
+                                                NoiseSampler elevation;
+                                                NoiseSampler carving;
+                                                Scope varScope = new Scope().withParent(pack.getVarScope());
+        
+                                                template.getVariables().forEach(varScope::create);
+        
+                                                Map<String, NoiseSeeded> noiseBuilderMap = pack.getTemplate().getNoiseBuilderMap();
+                                                Map<String, FunctionTemplate> functionTemplateMap = new LinkedHashMap<>(
+                                                        pack.getTemplate().getFunctions());
+        
+                                                functionTemplateMap.putAll(template.getFunctions());
+        
+                                                try {
+                                                    noise = new ExpressionSampler(template.getNoiseEquation(), varScope, seed,
+                                                                                  noiseBuilderMap, functionTemplateMap);
+                                                    elevation = template.getElevationEquation() == null
+                                                                ? new ConstantSampler(0)
+                                                                : new ExpressionSampler(template.getElevationEquation(), varScope, seed,
+                                                                                        noiseBuilderMap, functionTemplateMap);
+                                                    carving = new ExpressionSampler(template.getCarvingEquation(), varScope, seed,
+                                                                                    noiseBuilderMap, functionTemplateMap);
+                                                } catch(ParseException e) {
+                                                    throw new RuntimeException(e);
+                                                }
+        
+                                                WorldGenerator generator = new WorldGenerator(template.getPalette(), template.getSlant(),
+                                                                                              noise, elevation, carving,
+                                                                                              template.getBiomeNoise().apply(seed),
+                                                                                              template.getElevationWeight(),
+                                                                                              template.getBlendDistance(),
+                                                                                              template.getBlendStep(),
+                                                                                              template.getBlendWeight());
+                                                return new UserDefinedBiome(template.getVanilla(), generator, template);
+                                            }
+                                           );
         }
     }
-
-    @Override
-    public ProbabilityCollection<Biome> getVanillaBiomes() {
-        return template.getVanilla();
-    }
-
+    
     @Override
     public BiomeTemplate getTemplate() {
         return template;
+    }
+    
+    @Override
+    public ProbabilityCollection<Biome> getVanillaBiomes() {
+        return template.getVanilla();
     }
 }

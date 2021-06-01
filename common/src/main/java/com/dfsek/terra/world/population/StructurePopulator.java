@@ -20,20 +20,21 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
+
 public class StructurePopulator implements TerraBlockPopulator, Chunkified {
     private final TerraPlugin main;
-
+    
     public StructurePopulator(TerraPlugin main) {
         this.main = main;
     }
-
+    
     @SuppressWarnings("try")
     @Override
     public void populate(@NotNull World world, @NotNull Chunk chunk) {
         TerraWorld tw = main.getWorld(world);
         try(ProfileFrame ignore = main.getProfiler().profile("structure")) {
             if(tw.getConfig().getTemplate().disableStructures()) return;
-
+    
             int cx = (chunk.getX() << 4);
             int cz = (chunk.getZ() << 4);
             if(!tw.isSafe()) return;
@@ -41,11 +42,14 @@ public class StructurePopulator implements TerraBlockPopulator, Chunkified {
             WorldConfig config = tw.getConfig();
             for(TerraStructure conf : config.getStructures()) {
                 Location spawn = conf.getSpawn().getNearestSpawn(cx + 8, cz + 8, world.getSeed()).toLocation(world);
-
+    
                 if(!((UserDefinedBiome) provider.getBiome(spawn)).getConfig().getStructures().contains(conf))
                     continue;
-                Random random = new FastRandom(MathUtil.getCarverChunkSeed(FastMath.floorDiv(spawn.getBlockX(), 16), FastMath.floorDiv(spawn.getBlockZ(), 16), world.getSeed()));
-                conf.getStructure().get(random).execute(spawn.setY(conf.getSpawnStart().get(random)), chunk, random, Rotation.fromDegrees(90 * random.nextInt(4)));
+                Random random = new FastRandom(
+                        MathUtil.getCarverChunkSeed(FastMath.floorDiv(spawn.getBlockX(), 16), FastMath.floorDiv(spawn.getBlockZ(), 16),
+                                                    world.getSeed()));
+                conf.getStructure().get(random).execute(spawn.setY(conf.getSpawnStart().get(random)), chunk, random,
+                                                        Rotation.fromDegrees(90 * random.nextInt(4)));
             }
         }
     }

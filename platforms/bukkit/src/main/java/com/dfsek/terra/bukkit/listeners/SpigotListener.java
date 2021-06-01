@@ -16,6 +16,7 @@ import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.VillagerAcquireTradeEvent;
 import org.bukkit.event.entity.VillagerCareerChangeEvent;
 
+
 /**
  * Listener to load on Spigot servers, contains Villager crash prevention and hacky ender eye redirection.
  * <p>
@@ -24,11 +25,11 @@ import org.bukkit.event.entity.VillagerCareerChangeEvent;
  */
 public class SpigotListener implements Listener {
     private final TerraPlugin main;
-
+    
     public SpigotListener(TerraPlugin main) {
         this.main = main;
     }
-
+    
     @EventHandler(priority = EventPriority.NORMAL)
     public void onEnderEye(EntitySpawnEvent e) {
         Entity entity = e.getEntity();
@@ -37,10 +38,12 @@ public class SpigotListener implements Listener {
             if(!BukkitAdapter.adapt(e.getEntity().getWorld()).isTerraWorld()) return;
             TerraWorld tw = main.getWorld(BukkitAdapter.adapt(e.getEntity().getWorld()));
             EnderSignal signal = (EnderSignal) entity;
-            TerraStructure config = tw.getConfig().getRegistry(TerraStructure.class).get(tw.getConfig().getTemplate().getLocatable().get("STRONGHOLD"));
+            TerraStructure config = tw.getConfig().getRegistry(TerraStructure.class).get(
+                    tw.getConfig().getTemplate().getLocatable().get("STRONGHOLD"));
             if(config != null) {
                 main.getDebugLogger().info("Overriding Ender Signal...");
-                AsyncStructureFinder finder = new AsyncStructureFinder(tw.getBiomeProvider(), config, BukkitAdapter.adapt(e.getLocation()), 0, 500, location -> {
+                AsyncStructureFinder finder = new AsyncStructureFinder(tw.getBiomeProvider(), config, BukkitAdapter.adapt(e.getLocation()),
+                                                                       0, 500, location -> {
                     if(location != null)
                         signal.setTargetLocation(BukkitAdapter.adapt(location.toLocation(BukkitAdapter.adapt(signal.getWorld()))));
                     main.getDebugLogger().info("Location: " + location);
@@ -50,7 +53,7 @@ public class SpigotListener implements Listener {
                 main.logger().warning("No overrides are defined for Strongholds. Ender Signals will not work correctly.");
         }
     }
-
+    
     @EventHandler
     public void onCartographerChange(VillagerAcquireTradeEvent e) {
         if(!BukkitAdapter.adapt(e.getEntity().getWorld()).isTerraWorld()) return;
@@ -62,7 +65,7 @@ public class SpigotListener implements Listener {
             e.setCancelled(true); // Cancel leveling if the villager is a Cartographer, to prevent crashing server.
         }
     }
-
+    
     @EventHandler
     public void onCartographerLevel(VillagerCareerChangeEvent e) {
         if(!BukkitAdapter.adapt(e.getEntity().getWorld()).isTerraWorld()) return;

@@ -18,6 +18,7 @@ import net.jafama.FastMath;
 
 import java.util.Map;
 
+
 public class LootFunction implements Function<Void> {
     private final Registry<LootTable> registry;
     private final Returnable<String> data;
@@ -25,8 +26,9 @@ public class LootFunction implements Function<Void> {
     private final Position position;
     private final TerraPlugin main;
     private final StructureScript script;
-
-    public LootFunction(Registry<LootTable> registry, Returnable<Number> x, Returnable<Number> y, Returnable<Number> z, Returnable<String> data, TerraPlugin main, Position position, StructureScript script) {
+    
+    public LootFunction(Registry<LootTable> registry, Returnable<Number> x, Returnable<Number> y, Returnable<Number> z,
+                        Returnable<String> data, TerraPlugin main, Position position, StructureScript script) {
         this.registry = registry;
         this.position = position;
         this.data = data;
@@ -36,31 +38,34 @@ public class LootFunction implements Function<Void> {
         this.main = main;
         this.script = script;
     }
-
+    
     @Override
     public Void apply(ImplementationArguments implementationArguments, Map<String, Variable<?>> variableMap) {
         TerraImplementationArguments arguments = (TerraImplementationArguments) implementationArguments;
-        Vector2 xz = new Vector2(x.apply(implementationArguments, variableMap).doubleValue(), z.apply(implementationArguments, variableMap).doubleValue());
-
+        Vector2 xz = new Vector2(x.apply(implementationArguments, variableMap).doubleValue(),
+                                 z.apply(implementationArguments, variableMap).doubleValue());
+        
         RotationUtil.rotateVector(xz, arguments.getRotation());
-
+        
         String id = data.apply(implementationArguments, variableMap);
         LootTable table = registry.get(id);
-
+        
         if(table == null) {
             main.logger().severe("No such loot table " + id);
             return null;
         }
-
-        arguments.getBuffer().addItem(new BufferedLootApplication(table, main, script), new Vector3(FastMath.roundToInt(xz.getX()), y.apply(implementationArguments, variableMap).intValue(), FastMath.roundToInt(xz.getZ())).toLocation(arguments.getBuffer().getOrigin().getWorld()));
+        
+        arguments.getBuffer().addItem(new BufferedLootApplication(table, main, script),
+                                      new Vector3(FastMath.roundToInt(xz.getX()), y.apply(implementationArguments, variableMap).intValue(),
+                                                  FastMath.roundToInt(xz.getZ())).toLocation(arguments.getBuffer().getOrigin().getWorld()));
         return null;
     }
-
+    
     @Override
     public Position getPosition() {
         return position;
     }
-
+    
     @Override
     public ReturnType returnType() {
         return ReturnType.VOID;

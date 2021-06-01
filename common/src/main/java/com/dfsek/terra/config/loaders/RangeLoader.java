@@ -8,6 +8,7 @@ import com.dfsek.terra.api.math.Range;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+
 @SuppressWarnings("unchecked")
 public class RangeLoader implements TypeLoader<Range> {
     @Override

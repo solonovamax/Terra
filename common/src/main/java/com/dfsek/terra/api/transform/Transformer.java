@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+
 /**
  * Class to translate types from one style/platform to another.
  *
@@ -14,15 +15,16 @@ import java.util.Map;
  */
 public class Transformer<F, T> {
     private final LinkedHashMap<Transform<F, T>, List<Validator<T>>> transformers;
-
+    
     private Transformer(LinkedHashMap<Transform<F, T>, List<Validator<T>>> transformer) {
         this.transformers = transformer;
     }
-
+    
     /**
      * Translate data from {@code from} type to {@code to} type.
      *
      * @param from Data to translate
+     *
      * @return Result
      */
     public T translate(F from) {
@@ -42,7 +44,7 @@ public class Transformer<F, T> {
         }
         throw new AttemptsFailedException("Could not transform input; all attempts failed: " + from.toString() + "\n", exceptions);
     }
-
+    
     /**
      * Builder pattern for building Transformers
      *
@@ -51,14 +53,14 @@ public class Transformer<F, T> {
      */
     public static final class Builder<F, T> {
         private final LinkedHashMap<Transform<F, T>, List<Validator<T>>> transforms = new LinkedHashMap<>();
-
+        
         @SafeVarargs
         @SuppressWarnings("varargs")
         public final Builder<F, T> addTransform(Transform<F, T> transform, Validator<T>... validators) {
             transforms.put(transform, Arrays.asList(validators));
             return this;
         }
-
+        
         public Transformer<F, T> build() {
             return new Transformer<>(transforms);
         }

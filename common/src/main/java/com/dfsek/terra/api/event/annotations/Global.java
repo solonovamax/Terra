@@ -7,6 +7,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+
 /**
  * Specifies that an event handler is to handle all {@link PackEvent}s, regardless of whether the pack
  * depends on the addon's listener.

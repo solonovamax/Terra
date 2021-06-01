@@ -9,7 +9,7 @@ import com.dfsek.terra.api.util.seeded.NoiseSeeded;
 public class NoiseConfigTemplate implements ConfigTemplate {
     @Value(".")
     private NoiseSeeded builder;
-
+    
     public NoiseSeeded getBuilder() {
         return builder;
     }

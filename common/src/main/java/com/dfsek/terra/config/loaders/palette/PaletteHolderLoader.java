@@ -11,6 +11,7 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
+
 @SuppressWarnings("unchecked")
 public class PaletteHolderLoader implements TypeLoader<PaletteHolder> {
     @Override

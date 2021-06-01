@@ -60,13 +60,14 @@ import com.dfsek.terra.world.population.items.tree.TreeLayer;
 
 import java.util.LinkedHashMap;
 
+
 public class GenericLoaders implements LoaderRegistrar {
     private final TerraPlugin main;
-
+    
     public GenericLoaders(TerraPlugin main) {
         this.main = main;
     }
-
+    
     @Override
     public void register(TypeRegistry registry) {
         registry.registerLoader(ProbabilityCollection.class, new ProbabilityCollectionLoader())
@@ -106,12 +107,14 @@ public class GenericLoaders implements LoaderRegistrar {
                 .registerLoader(ExpanderStage.Type.class, (t, object, cf) -> ExpanderStage.Type.valueOf((String) object))
                 .registerLoader(MutatorStage.Type.class, (t, object, cf) -> MutatorStage.Type.valueOf((String) object))
                 .registerLoader(CellularSampler.ReturnType.class, (t, object, cf) -> CellularSampler.ReturnType.valueOf((String) object))
-                .registerLoader(CellularSampler.DistanceFunction.class, (t, object, cf) -> CellularSampler.DistanceFunction.valueOf((String) object))
+                .registerLoader(CellularSampler.DistanceFunction.class,
+                                (t, object, cf) -> CellularSampler.DistanceFunction.valueOf((String) object))
                 .registerLoader(TerraFlora.Search.class, (t, o, l) -> TerraFlora.Search.valueOf(o.toString()));
-
+        
         if(main != null) {
             registry.registerLoader(TerraAddon.class, main.getAddons())
-                    .registerLoader(BlockType.class, (t, object, cf) -> main.getWorldHandle().createBlockData((String) object).getBlockType());
+                    .registerLoader(BlockType.class,
+                                    (t, object, cf) -> main.getWorldHandle().createBlockData((String) object).getBlockType());
         }
     }
 }

@@ -10,17 +10,19 @@ import com.dfsek.terra.world.population.items.ores.OreHolder;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+
 @SuppressWarnings("unchecked")
 public class OreHolderLoader implements TypeLoader<OreHolder> {
     @Override
     public OreHolder load(Type type, Object o, ConfigLoader configLoader) throws LoadException {
         OreHolder holder = new OreHolder();
         Map<String, Object> map = (Map<String, Object>) o;
-
+    
         for(Map.Entry<String, Object> entry : map.entrySet()) {
-            holder.add(configLoader.loadClass(Ore.class, entry.getKey()), configLoader.loadClass(OreConfig.class, entry.getValue()), entry.getKey());
+            holder.add(configLoader.loadClass(Ore.class, entry.getKey()), configLoader.loadClass(OreConfig.class, entry.getValue()),
+                       entry.getKey());
         }
-
+    
         return holder;
     }
 }

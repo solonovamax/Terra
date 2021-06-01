@@ -23,6 +23,7 @@ import com.dfsek.terra.commands.structure.completer.ScriptCompleter;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+
 @PlayerCommand
 @DebugCommand
 @WorldCommand
@@ -50,21 +51,21 @@ import java.util.concurrent.ThreadLocalRandom;
 )
 public class StructureLoadCommand implements CommandTemplate {
     @ArgumentTarget("rotation")
-    private Integer rotation = 0;
-
+    private final Integer rotation = 0;
+    
     @SwitchTarget("chunk")
     private boolean chunk;
-
+    
     @ArgumentTarget("structure")
     private StructureScript script;
-
+    
     @Inject
     private TerraPlugin main;
-
+    
     @Override
     public void execute(CommandSender sender) {
         Player player = (Player) sender;
-
+        
         long t = System.nanoTime();
         FastRandom random = new FastRandom(ThreadLocalRandom.current().nextLong());
         Rotation r;
@@ -84,7 +85,7 @@ public class StructureLoadCommand implements CommandTemplate {
             script.execute(player.getLocation(), random, r);
         }
         long l = System.nanoTime() - t;
-
+        
         sender.sendMessage("Took " + ((double) l) / 1000000 + "ms");
     }
 }

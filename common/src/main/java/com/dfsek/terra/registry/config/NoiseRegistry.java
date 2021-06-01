@@ -25,38 +25,39 @@ import com.dfsek.terra.config.loaders.config.sampler.templates.normalizer.Linear
 import com.dfsek.terra.config.loaders.config.sampler.templates.normalizer.NormalNormalizerTemplate;
 import com.dfsek.terra.registry.OpenRegistry;
 
+
 public class NoiseRegistry extends OpenRegistry<NoiseProvider> {
     public NoiseRegistry() {
         add("LINEAR", LinearNormalizerTemplate::new);
         add("NORMAL", NormalNormalizerTemplate::new);
         add("CLAMP", ClampNormalizerTemplate::new);
         add("EXPRESSION", ExpressionFunctionTemplate::new);
-
+    
         add("IMAGE", ImageSamplerTemplate::new);
-
+    
         add("DOMAINWARP", DomainWarpTemplate::new);
-
+    
         add("FBM", BrownianMotionTemplate::new);
         add("PINGPONG", PingPongTemplate::new);
         add("RIDGED", RidgedFractalTemplate::new);
-
+    
         add("OPENSIMPLEX2", () -> new SimpleNoiseTemplate(OpenSimplex2Sampler::new));
         add("OPENSIMPLEX2S", () -> new SimpleNoiseTemplate(OpenSimplex2SSampler::new));
         add("PERLIN", () -> new SimpleNoiseTemplate(PerlinSampler::new));
         add("SIMPLEX", () -> new SimpleNoiseTemplate(SimplexSampler::new));
         add("GABOR", GaborNoiseTemplate::new);
-
-
+    
+    
         add("VALUE", () -> new SimpleNoiseTemplate(ValueSampler::new));
         add("VALUECUBIC", () -> new SimpleNoiseTemplate(ValueCubicSampler::new));
-
+    
         add("CELLULAR", CellularNoiseTemplate::new);
-
+    
         add("WHITENOISE", () -> new SimpleNoiseTemplate(WhiteNoiseSampler::new));
         add("GAUSSIAN", () -> new SimpleNoiseTemplate(GaussianNoiseSampler::new));
-
+    
         add("CONSTANT", ConstantNoiseTemplate::new);
-
+    
         add("KERNEL", KernelTemplate::new);
     }
 }

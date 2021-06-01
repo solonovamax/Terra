@@ -32,35 +32,36 @@ import net.minecraft.world.WorldAccess;
 
 import java.util.Arrays;
 
+
 public final class FabricAdapter {
     public static BlockPos adapt(Vector3 v) {
         return new BlockPos(v.getBlockX(), v.getBlockY(), v.getBlockZ());
     }
-
+    
     public static Vector3 adapt(BlockPos pos) {
         return new Vector3(pos.getX(), pos.getY(), pos.getZ());
     }
-
+    
     public static FabricBlockData adapt(BlockState state) {
         if(state.contains(Properties.STAIR_SHAPE)) return new FabricStairs(state);
-
+        
         if(state.contains(Properties.SLAB_TYPE)) return new FabricSlab(state);
-
+        
         if(state.contains(Properties.AXIS)) return new FabricOrientable(state, Properties.AXIS);
         if(state.contains(Properties.HORIZONTAL_AXIS)) return new FabricOrientable(state, Properties.HORIZONTAL_AXIS);
-
+        
         if(state.contains(Properties.ROTATION)) return new FabricRotatable(state);
-
+        
         if(state.contains(Properties.FACING)) return new FabricDirectional(state, Properties.FACING);
         if(state.contains(Properties.HOPPER_FACING)) return new FabricDirectional(state, Properties.HOPPER_FACING);
         if(state.contains(Properties.HORIZONTAL_FACING)) return new FabricDirectional(state, Properties.HORIZONTAL_FACING);
-
+        
         if(state.getProperties().containsAll(Arrays.asList(Properties.NORTH, Properties.SOUTH, Properties.EAST, Properties.WEST)))
             return new FabricMultipleFacing(state);
         if(state.contains(Properties.WATERLOGGED)) return new FabricWaterlogged(state);
         return new FabricBlockData(state);
     }
-
+    
     public static Direction adapt(BlockFace face) {
         switch(face) {
             case NORTH:
@@ -79,11 +80,11 @@ public final class FabricAdapter {
                 throw new IllegalArgumentException("Illegal direction: " + face);
         }
     }
-
-
+    
+    
     public static com.dfsek.terra.api.platform.block.state.BlockState adapt(com.dfsek.terra.api.platform.block.Block block) {
         WorldAccess worldAccess = (WorldAccess) block.getLocation().getWorld();
-
+        
         BlockEntity entity = worldAccess.getBlockEntity(adapt(block.getLocation().toVector()));
         if(entity instanceof SignBlockEntity) {
             return (Sign) entity;
@@ -94,7 +95,7 @@ public final class FabricAdapter {
         }
         return null;
     }
-
+    
     public static Stairs.Shape adapt(StairShape shape) {
         switch(shape) {
             case OUTER_RIGHT:
@@ -111,7 +112,7 @@ public final class FabricAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static Bisected.Half adapt(BlockHalf half) {
         switch(half) {
             case BOTTOM:
@@ -122,7 +123,7 @@ public final class FabricAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static BlockFace adapt(Direction direction) {
         switch(direction) {
             case DOWN:
@@ -141,7 +142,7 @@ public final class FabricAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static Slab.Type adapt(SlabType type) {
         switch(type) {
             case BOTTOM:
@@ -154,7 +155,7 @@ public final class FabricAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static StairShape adapt(Stairs.Shape shape) {
         switch(shape) {
             case STRAIGHT:
@@ -171,7 +172,7 @@ public final class FabricAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static BlockHalf adapt(Bisected.Half half) {
         switch(half) {
             case TOP:
@@ -182,7 +183,7 @@ public final class FabricAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static SlabType adapt(Slab.Type type) {
         switch(type) {
             case DOUBLE:
@@ -195,7 +196,7 @@ public final class FabricAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static Axis adapt(Direction.Axis axis) {
         switch(axis) {
             case X:
@@ -208,7 +209,7 @@ public final class FabricAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static Direction.Axis adapt(Axis axis) {
         switch(axis) {
             case Z:

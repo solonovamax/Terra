@@ -12,11 +12,12 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+
 public class JarUtil {
     public static void copyResourcesToDirectory(JarFile fromJar, String sourceDir, String destDir) throws IOException {
         for(Enumeration<JarEntry> entries = fromJar.entries(); entries.hasMoreElements(); ) {
             JarEntry entry = entries.nextElement();
-            if(entry.getName().startsWith(sourceDir + "/") && ! entry.isDirectory()) {
+            if(entry.getName().startsWith(sourceDir + "/") && !entry.isDirectory()) {
                 File dest = new File(destDir + File.separator + entry.getName().substring(sourceDir.length() + 1));
                 if(dest.exists()) continue;
                 File parent = dest.getParentFile();
@@ -25,7 +26,7 @@ public class JarUtil {
                 }
                 try(FileOutputStream out = new FileOutputStream(dest); InputStream in = fromJar.getInputStream(entry)) {
                     byte[] buffer = new byte[(8192)];
-
+        
                     int s;
                     while((s = in.read(buffer)) > 0) {
                         out.write(buffer, 0, s);
@@ -36,11 +37,11 @@ public class JarUtil {
             }
         }
     }
-
+    
     public static JarFile getJarFile() throws URISyntaxException, IOException {
         return new JarFile(new File(getJarURL().toURI()));
     }
-
+    
     public static URL getJarURL() {
         return TerraPlugin.class.getProtectionDomain().getCodeSource().getLocation();
     }

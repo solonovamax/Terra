@@ -24,14 +24,16 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
-public class CavePopulator implements TerraBlockPopulator, Chunkified {
-    private static final Map<BlockType, BlockData> shiftStorage = new HashMap<>(); // Persist BlockData created for shifts, to avoid re-calculating each time.
-    private final TerraPlugin main;
 
+public class CavePopulator implements TerraBlockPopulator, Chunkified {
+    private static final Map<BlockType, BlockData> shiftStorage = new HashMap<>();
+    // Persist BlockData created for shifts, to avoid re-calculating each time.
+    private final TerraPlugin main;
+    
     public CavePopulator(TerraPlugin main) {
         this.main = main;
     }
-
+    
     @SuppressWarnings("try")
     @Override
     public void populate(@NotNull World world, @NotNull Chunk chunk) {
@@ -43,7 +45,7 @@ public class CavePopulator implements TerraBlockPopulator, Chunkified {
             if(!tw.isSafe()) return;
             WorldConfig config = tw.getConfig();
             if(config.getTemplate().disableCarvers()) return;
-
+    
             for(UserDefinedCarver c : config.getCarvers()) {
                 CarverTemplate template = c.getConfig();
                 Map<Location, BlockData> shiftCandidate = new HashMap<>();
@@ -92,8 +94,10 @@ public class CavePopulator implements TerraBlockPopulator, Chunkified {
                     do mut.subtract(0, 1, 0);
                     while(mut.getY() > 0 && mut.getBlock().getBlockData().matches(orig));
                     try {
-                        if(template.getShift().get(entry.getValue().getBlockType()).contains(mut.getBlock().getBlockData().getBlockType())) {
-                            mut.getBlock().setBlockData(shiftStorage.computeIfAbsent(entry.getValue().getBlockType(), BlockType::getDefaultData), false);
+                        if(template.getShift().get(entry.getValue().getBlockType()).contains(
+                                mut.getBlock().getBlockData().getBlockType())) {
+                            mut.getBlock().setBlockData(
+                                    shiftStorage.computeIfAbsent(entry.getValue().getBlockType(), BlockType::getDefaultData), false);
                         }
                     } catch(NullPointerException ignored) {
                     }
@@ -104,7 +108,7 @@ public class CavePopulator implements TerraBlockPopulator, Chunkified {
                     b.setBlockData(orig, true);
                 }
             }
-
+    
         }
     }
 }

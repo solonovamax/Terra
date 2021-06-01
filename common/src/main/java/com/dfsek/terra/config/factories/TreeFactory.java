@@ -5,6 +5,7 @@ import com.dfsek.terra.api.platform.world.Tree;
 import com.dfsek.terra.config.templates.TreeTemplate;
 import com.dfsek.terra.world.population.items.tree.TerraTree;
 
+
 public class TreeFactory implements ConfigFactory<TreeTemplate, Tree> {
     @Override
     public Tree build(TreeTemplate config, TerraPlugin main) {

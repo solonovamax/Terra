@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+
 public class ReflectionUtil {
     public static Field[] getFields(@NotNull Class<?> type) {
         Field[] result = type.getDeclaredFields();
@@ -19,7 +20,7 @@ public class ReflectionUtil {
         }
         return result;
     }
-
+    
     public static Method[] getMethods(@NotNull Class<?> type) {
         Method[] result = type.getDeclaredMethods();
         Class<?> parentClass = type.getSuperclass();
@@ -28,8 +29,9 @@ public class ReflectionUtil {
         }
         return result;
     }
-
-    public static <T extends Annotation> void ifAnnotationPresent(AnnotatedElement element, Class<? extends T> annotation, Consumer<T> operation) {
+    
+    public static <T extends Annotation> void ifAnnotationPresent(AnnotatedElement element, Class<? extends T> annotation,
+                                                                  Consumer<T> operation) {
         T a = element.getAnnotation(annotation);
         if(a != null) operation.accept(a);
     }

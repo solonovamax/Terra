@@ -8,24 +8,25 @@ import com.dfsek.tectonic.loading.object.ObjectTemplate;
 import com.dfsek.terra.api.math.noise.NoiseSampler;
 import com.dfsek.terra.api.util.seeded.NoiseSeeded;
 
+
 @SuppressWarnings("FieldMayBeFinal")
 public abstract class SamplerTemplate<T extends NoiseSampler> implements ValidatedConfigTemplate, ObjectTemplate<NoiseSeeded>, NoiseSeeded {
     @Value("dimensions")
     @Default
     private int dimensions = 2;
-
-    public int getDimensions() {
-        return dimensions;
-    }
-
+    
     @Override
     public boolean validate() throws ValidationException {
         if(dimensions != 2 && dimensions != 3) throw new ValidationException("Illegal amount of dimensions: " + dimensions);
         return true;
     }
-
+    
     @Override
     public NoiseSeeded get() {
         return this;
+    }
+    
+    public int getDimensions() {
+        return dimensions;
     }
 }

@@ -3,6 +3,7 @@ package com.dfsek.terra.api.event.events;
 import com.dfsek.terra.api.event.annotations.Global;
 import com.dfsek.terra.config.pack.ConfigPack;
 
+
 /**
  * An event with functionality directly linked to a {@link ConfigPack}.
  * <p>

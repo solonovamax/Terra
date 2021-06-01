@@ -12,16 +12,25 @@ import com.dfsek.terra.api.world.flora.Flora;
 
 import java.util.List;
 
+
 public class ConstantFlora implements Flora {
     private final List<BlockData> data;
-
+    
     private final MaterialSet spawns;
-
+    
     public ConstantFlora(MaterialSet spawns, List<BlockData> data) {
         this.data = data;
         this.spawns = spawns;
     }
-
+    
+    @Override
+    public boolean plant(Location l) {
+        for(int i = 1; i < data.size() + 1; i++) {
+            l.clone().add(0, i, 0).getBlock().setBlockData(data.get(i - 1), false);
+        }
+        return true;
+    }
+    
     @Override
     public List<Block> getValidSpawnsAt(Chunk chunk, int x, int z, Range check) {
         List<Block> blocks = new GlueList<>();
@@ -33,19 +42,11 @@ public class ConstantFlora implements Flora {
         }
         return blocks;
     }
-
+    
     private boolean valid(Block block) {
         for(int i = 1; i < data.size() + 1; i++) {
             block = block.getRelative(BlockFace.UP);
             if(!block.isEmpty()) return false;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean plant(Location l) {
-        for(int i = 1; i < data.size() + 1; i++) {
-            l.clone().add(0, i, 0).getBlock().setBlockData(data.get(i - 1), false);
         }
         return true;
     }

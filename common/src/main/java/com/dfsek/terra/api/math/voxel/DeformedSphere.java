@@ -3,6 +3,7 @@ package com.dfsek.terra.api.math.voxel;
 import com.dfsek.terra.api.math.noise.NoiseSampler;
 import com.dfsek.terra.api.math.vector.Vector3;
 
+
 public class DeformedSphere extends VoxelGeometry {
     public DeformedSphere(Vector3 start, int rad, double deform, NoiseSampler noise) {
         for(int x = -rad; x <= rad; x++) {

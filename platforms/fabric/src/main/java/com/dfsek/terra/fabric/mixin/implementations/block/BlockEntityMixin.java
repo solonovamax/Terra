@@ -14,6 +14,7 @@ import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+
 @Mixin(BlockEntity.class)
 @Implements(@Interface(iface = BlockState.class, prefix = "terra$", remap = Interface.Remap.NONE))
 public abstract class BlockEntityMixin {
@@ -22,39 +23,39 @@ public abstract class BlockEntityMixin {
     @Shadow
     @Nullable
     protected World world;
-
-    @Shadow
-    public abstract net.minecraft.block.BlockState getCachedState();
-
-    @Shadow
-    public abstract boolean hasWorld();
-
+    
     public Object terra$getHandle() {
         return this;
     }
-
-    public Block terra$getBlock() {
-        return new FabricBlock(pos, world);
-    }
-
-    public int terra$getX() {
-        return pos.getX();
-    }
-
-    public int terra$getY() {
-        return pos.getY();
-    }
-
-    public int terra$getZ() {
-        return pos.getZ();
-    }
-
-    public BlockData terra$getBlockData() {
-        return FabricAdapter.adapt(getCachedState());
-    }
-
+    
     public boolean terra$update(boolean applyPhysics) {
         if(hasWorld()) world.getChunk(pos).setBlockEntity(pos, (BlockEntity) (Object) this);
         return true;
     }
+    
+    public Block terra$getBlock() {
+        return new FabricBlock(pos, world);
+    }
+    
+    public BlockData terra$getBlockData() {
+        return FabricAdapter.adapt(getCachedState());
+    }
+    
+    public int terra$getX() {
+        return pos.getX();
+    }
+    
+    public int terra$getY() {
+        return pos.getY();
+    }
+    
+    public int terra$getZ() {
+        return pos.getZ();
+    }
+    
+    @Shadow
+    public abstract net.minecraft.block.BlockState getCachedState();
+    
+    @Shadow
+    public abstract boolean hasWorld();
 }

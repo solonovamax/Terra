@@ -14,6 +14,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Random;
 
+
 /**
  * Feature wrapper for Terra populator
  */
@@ -21,14 +22,15 @@ public class PopulatorFeature extends Feature<NoFeatureConfig> {
     public PopulatorFeature(Codec<NoFeatureConfig> codec) {
         super(codec);
     }
-
+    
     @Override
-    public boolean place(@NotNull ISeedReader world, @NotNull ChunkGenerator generator, @NotNull Random random, BlockPos pos, @NotNull NoFeatureConfig config) {
+    public boolean place(@NotNull ISeedReader world, @NotNull ChunkGenerator generator, @NotNull Random random, BlockPos pos,
+                         @NotNull NoFeatureConfig config) {
         ForgeChunkGeneratorWrapper gen = (ForgeChunkGeneratorWrapper) generator;
         ForgeChunkWorldAccess chunk = new ForgeChunkWorldAccess(world, pos.getX() >> 4, pos.getZ() >> 4);
         ForgeWorld world1 = new ForgeWorld(world.getLevel(), new ForgeChunkGenerator(generator));
         gen.getHandle().getPopulators().forEach(populator -> populator.populate(world1, chunk));
         return true;
     }
-
+    
 }

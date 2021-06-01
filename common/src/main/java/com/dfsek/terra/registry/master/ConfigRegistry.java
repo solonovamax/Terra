@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.zip.ZipFile;
 
+
 /**
  * Class to hold config packs
  */
@@ -17,7 +18,7 @@ public class ConfigRegistry extends OpenRegistry<ConfigPack> {
         ConfigPack pack = new ConfigPack(folder, main);
         add(pack.getTemplate().getID(), pack);
     }
-
+    
     public boolean loadAll(TerraPlugin main) {
         boolean valid = true;
         File packsFolder = new File(main.getDataFolder(), "packs");
@@ -41,7 +42,7 @@ public class ConfigRegistry extends OpenRegistry<ConfigPack> {
         }
         return valid;
     }
-
+    
     public void load(ZipFile file, TerraPlugin main) throws ConfigException {
         ConfigPack pack = new ConfigPack(file, main);
         add(pack.getTemplate().getID(), pack);

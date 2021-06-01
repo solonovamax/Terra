@@ -10,32 +10,33 @@ import org.bukkit.inventory.meta.Damageable;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class BukkitItemMeta implements ItemMeta {
     private final org.bukkit.inventory.meta.ItemMeta delegate;
-
+    
     protected BukkitItemMeta(org.bukkit.inventory.meta.ItemMeta delegate) {
         this.delegate = delegate;
     }
-
+    
     public static BukkitItemMeta newInstance(org.bukkit.inventory.meta.ItemMeta delegate) {
         if(delegate instanceof Damageable) return new BukkitDamageable((Damageable) delegate);
         return new BukkitItemMeta(delegate);
     }
-
+    
     @Override
-    public org.bukkit.inventory.meta.ItemMeta getHandle() {
-        return delegate;
+    public void addEnchantment(Enchantment enchantment, int level) {
+        delegate.addEnchant(((BukkitEnchantment) enchantment).getHandle(), level, true);
     }
-
+    
     @Override
     public Map<Enchantment, Integer> getEnchantments() {
         Map<Enchantment, Integer> map = new HashMap<>();
         delegate.getEnchants().forEach((enchantment, integer) -> map.put(BukkitAdapter.adapt(enchantment), integer));
         return map;
     }
-
+    
     @Override
-    public void addEnchantment(Enchantment enchantment, int level) {
-        delegate.addEnchant(((BukkitEnchantment) enchantment).getHandle(), level, true);
+    public org.bukkit.inventory.meta.ItemMeta getHandle() {
+        return delegate;
     }
 }

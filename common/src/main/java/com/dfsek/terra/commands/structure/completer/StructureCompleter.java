@@ -10,10 +10,11 @@ import com.dfsek.terra.world.population.items.TerraStructure;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class StructureCompleter implements TabCompleter {
     @Inject
     private TerraPlugin main;
-
+    
     @Override
     public List<String> complete(CommandSender sender) {
         Player player = (Player) sender;

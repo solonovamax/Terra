@@ -37,211 +37,160 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@SuppressWarnings({"FieldMayBeFinal", "unused"})
+
+@SuppressWarnings({ "FieldMayBeFinal", "unused" })
 public class BiomeTemplate extends AbstractableTemplate implements ValidatedConfigTemplate {
-
+    
     private final ConfigPack pack;
-
+    
     @Value("id")
     private String id;
-
+    
     @Value("extends")
     @Default
     private String extend = null;
-
+    
     @Value("variables")
     @Abstractable
     @Default
     private Map<String, Double> variables = new HashMap<>();
-
+    
     @Value("functions")
     @Default
     @Abstractable
     private LinkedHashMap<String, FunctionTemplate> functions = new LinkedHashMap<>();
-
+    
     @Value("beta.carving.equation")
     @Abstractable
     @Default
     private String carvingEquation = "0";
-
+    
     @Value("palette")
     @Abstractable
     private PaletteHolder palette;
-
+    
     @Value("slant")
     @Abstractable
     @Default
     private SlantHolder slant = null;
-
+    
     @Value("vanilla")
     @Abstractable
     private ProbabilityCollection<Biome> vanilla;
-
+    
     @Value("biome-noise")
     @Default
     @Abstractable
     private NoiseSeeded biomeNoise;
-
+    
     @Value("blend.distance")
     @Abstractable
     @Default
     private int blendDistance = 3;
-
+    
     @Value("blend.weight")
     @Abstractable
     @Default
     private double blendWeight = 1;
-
+    
     @Value("blend.step")
     @Abstractable
     @Default
     private int blendStep = 4;
-
+    
     @Value("erode")
     @Abstractable
     @Default
     private String erode = null;
-
+    
     @Value("structures")
     @Abstractable
     @Default
     private List<TerraStructure> structures = new GlueList<>();
-
+    
     @Value("noise-equation")
     @Abstractable
     private String noiseEquation;
-
+    
     @Value("ores")
     @Abstractable
     @Default
     private OreHolder oreHolder = new OreHolder();
-
+    
     @Value("ocean.level")
     @Abstractable
     @Default
     private int seaLevel = 62;
-
+    
     @Value("ocean.palette")
     @Abstractable
     @Default
     private Palette oceanPalette;
-
+    
     @Value("elevation.equation")
     @Default
     @Abstractable
     private String elevationEquation = null;
-
+    
     @Value("elevation.weight")
     @Default
     @Abstractable
     private double elevationWeight = 1;
-
+    
     @Value("flora")
     @Abstractable
     @Default
     private List<FloraLayer> flora = new GlueList<>();
-
+    
     @Value("trees")
     @Abstractable
     @Default
     private List<TreeLayer> trees = new GlueList<>();
-
+    
     @Value("slabs.enable")
     @Abstractable
     @Default
     private boolean doSlabs = false;
-
+    
     @Value("slabs.threshold")
     @Abstractable
     @Default
     private double slabThreshold = 0.0075D;
-
+    
     @Value("slabs.palettes")
     @Abstractable
     @Default
     private Map<BlockType, Palette> slabPalettes;
-
+    
     @Value("slabs.stair-palettes")
     @Abstractable
     @Default
     private Map<BlockType, Palette> stairPalettes;
-
+    
     @Value("interpolate-elevation")
     @Abstractable
     @Default
     private boolean interpolateElevation = true;
-
+    
     @Value("color")
     @Default
     private int color = 0;
-
+    
     @Value("tags")
     @Default
     @Abstractable
     private Set<String> tags = new HashSet<>();
-
+    
     @Value("carving")
     @Abstractable
     @Default
     private Map<UserDefinedCarver, Integer> carvers = new HashMap<>();
-
+    
     @Value("colors")
     @Abstractable
     @Default
     private Map<String, Integer> colors = new HashMap<>(); // Plain ol' map, so platforms can decide what to do with colors (if anything).
-
-    public Set<String> getTags() {
-        return tags;
-    }
-
-    public Map<String, Integer> getColors() {
-        return colors;
-    }
-
-    public Map<UserDefinedCarver, Integer> getCarvers() {
-        return carvers;
-    }
-
-    public Map<String, FunctionTemplate> getFunctions() {
-        return functions;
-    }
-
-    public double getBlendWeight() {
-        return blendWeight;
-    }
-
-    public int getColor() {
-        return color;
-    }
-
-    public int getBlendDistance() {
-        return blendDistance;
-    }
-
-    public boolean interpolateElevation() {
-        return interpolateElevation;
-    }
-
-    public String getExtend() {
-        return extend;
-    }
-
-    public SlantHolder getSlant() {
-        return slant;
-    }
-
-    public double getSlabThreshold() {
-        return slabThreshold;
-    }
-
-    public List<FloraLayer> getFlora() {
-        return flora;
-    }
-
-    public boolean doSlabs() {
-        return doSlabs;
-    }
-
+    
     public BiomeTemplate(ConfigPack pack, TerraPlugin main) {
         this.pack = pack;
         biomeNoise = new NoiseSeeded() {
@@ -249,7 +198,7 @@ public class BiomeTemplate extends AbstractableTemplate implements ValidatedConf
             public NoiseSampler apply(Long seed) {
                 return new ConstantSampler(0);
             }
-
+    
             @Override
             public int getDimensions() {
                 return 2;
@@ -257,98 +206,31 @@ public class BiomeTemplate extends AbstractableTemplate implements ValidatedConf
         };
         oceanPalette = new SinglePalette(main.getWorldHandle().createBlockData("minecraft:water"));
     }
-
-    public Map<BlockType, Palette> getSlabPalettes() {
-        return slabPalettes;
+    
+    public boolean interpolateElevation() {
+        return interpolateElevation;
     }
-
-    public Map<BlockType, Palette> getStairPalettes() {
-        return stairPalettes;
+    
+    public boolean doSlabs() {
+        return doSlabs;
     }
-
-    public NoiseSeeded getBiomeNoise() {
-        return biomeNoise;
-    }
-
-    public String getElevationEquation() {
-        return elevationEquation;
-    }
-
-    public String getCarvingEquation() {
-        return carvingEquation;
-    }
-
-    public ConfigPack getPack() {
-        return pack;
-    }
-
-    public int getSeaLevel() {
-        return seaLevel;
-    }
-
-    public Palette getOceanPalette() {
-        return oceanPalette;
-    }
-
-    public String getID() {
-        return id;
-    }
-
-    public PaletteHolder getPalette() {
-        return palette;
-    }
-
-    public List<TreeLayer> getTrees() {
-        return trees;
-    }
-
-    public ProbabilityCollection<Biome> getVanilla() {
-        return vanilla;
-    }
-
-    public String getErode() {
-        return erode;
-    }
-
-    public List<TerraStructure> getStructures() {
-        return structures;
-    }
-
-    public String getNoiseEquation() {
-        return noiseEquation;
-    }
-
-    public OreHolder getOreHolder() {
-        return oreHolder;
-    }
-
-    public double getElevationWeight() {
-        return elevationWeight;
-    }
-
-    public int getBlendStep() {
-        return blendStep;
-    }
-
-    public Map<String, Double> getVariables() {
-        return variables;
-    }
-
+    
     @Override
     public boolean validate() throws ValidationException {
         color |= 0xff000000; // Alpha adjustment
         Parser tester = new Parser();
         Scope testScope = new Scope().withParent(pack.getVarScope());
-
+        
         variables.forEach(testScope::create);
-
+        
         testScope.addInvocationVariable("x");
         testScope.addInvocationVariable("y");
         testScope.addInvocationVariable("z");
-
-
-        pack.getTemplate().getNoiseBuilderMap().forEach((id, builder) -> tester.registerFunction(id, new BlankFunction(builder.getDimensions()))); // Register dummy functions
-
+        
+        
+        pack.getTemplate().getNoiseBuilderMap().forEach(
+                (id, builder) -> tester.registerFunction(id, new BlankFunction(builder.getDimensions()))); // Register dummy functions
+        
         Map<String, FunctionTemplate> testFunctions = new LinkedHashMap<>(pack.getTemplate().getFunctions());
         testFunctions.putAll(functions);
         for(Map.Entry<String, FunctionTemplate> entry : testFunctions.entrySet()) {
@@ -358,25 +240,145 @@ public class BiomeTemplate extends AbstractableTemplate implements ValidatedConf
                 throw new ValidationException("Invalid function: ", e);
             }
         }
-
+        
         try {
             tester.parse(noiseEquation, testScope);
         } catch(ParseException e) {
             throw new ValidationException("Invalid noise equation: ", e);
         }
-
+        
         try {
             tester.parse(carvingEquation, testScope);
         } catch(ParseException e) {
             throw new ValidationException("Invalid carving equation: ", e);
         }
-
+        
         try {
             if(elevationEquation != null) tester.parse(elevationEquation, testScope);
         } catch(ParseException e) {
             throw new ValidationException("Invalid elevation equation: ", e);
         }
-
+        
         return true;
+    }
+    
+    public NoiseSeeded getBiomeNoise() {
+        return biomeNoise;
+    }
+    
+    public int getBlendDistance() {
+        return blendDistance;
+    }
+    
+    public int getBlendStep() {
+        return blendStep;
+    }
+    
+    public double getBlendWeight() {
+        return blendWeight;
+    }
+    
+    public Map<UserDefinedCarver, Integer> getCarvers() {
+        return carvers;
+    }
+    
+    public String getCarvingEquation() {
+        return carvingEquation;
+    }
+    
+    public int getColor() {
+        return color;
+    }
+    
+    public Map<String, Integer> getColors() {
+        return colors;
+    }
+    
+    public String getElevationEquation() {
+        return elevationEquation;
+    }
+    
+    public double getElevationWeight() {
+        return elevationWeight;
+    }
+    
+    public String getErode() {
+        return erode;
+    }
+    
+    public String getExtend() {
+        return extend;
+    }
+    
+    public List<FloraLayer> getFlora() {
+        return flora;
+    }
+    
+    public Map<String, FunctionTemplate> getFunctions() {
+        return functions;
+    }
+    
+    public String getID() {
+        return id;
+    }
+    
+    public String getNoiseEquation() {
+        return noiseEquation;
+    }
+    
+    public Palette getOceanPalette() {
+        return oceanPalette;
+    }
+    
+    public OreHolder getOreHolder() {
+        return oreHolder;
+    }
+    
+    public ConfigPack getPack() {
+        return pack;
+    }
+    
+    public PaletteHolder getPalette() {
+        return palette;
+    }
+    
+    public int getSeaLevel() {
+        return seaLevel;
+    }
+    
+    public Map<BlockType, Palette> getSlabPalettes() {
+        return slabPalettes;
+    }
+    
+    public double getSlabThreshold() {
+        return slabThreshold;
+    }
+    
+    public SlantHolder getSlant() {
+        return slant;
+    }
+    
+    public Map<BlockType, Palette> getStairPalettes() {
+        return stairPalettes;
+    }
+    
+    public List<TerraStructure> getStructures() {
+        return structures;
+    }
+    
+    public Set<String> getTags() {
+        return tags;
+    }
+    
+    public List<TreeLayer> getTrees() {
+        return trees;
+    }
+    
+    public ProbabilityCollection<Biome> getVanilla() {
+        return vanilla;
+    }
+    
+    public Map<String, Double> getVariables() {
+        return variables;
     }
 }

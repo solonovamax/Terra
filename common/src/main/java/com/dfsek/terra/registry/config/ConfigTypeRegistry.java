@@ -34,9 +34,10 @@ import java.util.LinkedHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
+
 public class ConfigTypeRegistry extends OpenRegistry<ConfigType<?, ?>> {
     private final BiConsumer<String, ConfigType<?, ?>> callback;
-
+    
     public ConfigTypeRegistry(ConfigPack pack, TerraPlugin main, BiConsumer<String, ConfigType<?, ?>> callback) {
         super(new LinkedHashMap<>()); // Ordered
         this.callback = callback;
@@ -46,72 +47,75 @@ public class ConfigTypeRegistry extends OpenRegistry<ConfigType<?, ?>> {
         add("CARVER", new ConfigBuilder<>(new CarverFactory(pack), CarverTemplate::new, UserDefinedCarver.class, CarverRegistry::new));
         add("STRUCTURE", new ConfigBuilder<>(new StructureFactory(), StructureTemplate::new, TerraStructure.class, StructureRegistry::new));
         add("TREE", new ConfigBuilder<>(new TreeFactory(), TreeTemplate::new, Tree.class, TreeRegistry::new));
-        add("BIOME", new ConfigBuilder<>(new BiomeFactory(pack), () -> new BiomeTemplate(pack, main), BiomeBuilder.class, BiomeRegistry::new));
+        add("BIOME",
+            new ConfigBuilder<>(new BiomeFactory(pack), () -> new BiomeTemplate(pack, main), BiomeBuilder.class, BiomeRegistry::new));
         add("PACK", new PackBuilder());
     }
-
+    
     @Override
     protected boolean add(String identifier, Entry<ConfigType<?, ?>> value) {
         callback.accept(identifier, value.getValue());
         return super.add(identifier, value);
     }
-
+    
     private static final class PackBuilder implements ConfigType<ConfigTemplate, ConfigPack> {
-
+        
+        @Override
+        public void callback(ConfigPack pack, TerraPlugin main, ConfigTemplate loadedConfig) {
+        
+        }
+        
+        @Override
+        public Supplier<OpenRegistry<ConfigPack>> registrySupplier() {
+            return OpenRegistry::new;
+        }
+        
         @Override
         public ConfigTemplate getTemplate(ConfigPack pack, TerraPlugin main) {
             return new ConfigTemplate() {
             };
         }
-
-        @Override
-        public void callback(ConfigPack pack, TerraPlugin main, ConfigTemplate loadedConfig) {
-
-        }
-
+        
         @Override
         public Class<ConfigPack> getTypeClass() {
             return ConfigPack.class;
         }
-
-        @Override
-        public Supplier<OpenRegistry<ConfigPack>> registrySupplier() {
-            return OpenRegistry::new;
-        }
     }
-
+    
+    
     private static final class ConfigBuilder<T extends AbstractableTemplate, O> implements ConfigType<T, O> {
         private final ConfigFactory<T, O> factory;
         private final Supplier<T> provider;
         private final Class<O> clazz;
         private final Supplier<OpenRegistry<O>> registrySupplier;
-
-        private ConfigBuilder(ConfigFactory<T, O> factory, Supplier<T> provider, Class<O> clazz, Supplier<OpenRegistry<O>> registrySupplier) {
+        
+        private ConfigBuilder(ConfigFactory<T, O> factory, Supplier<T> provider, Class<O> clazz,
+                              Supplier<OpenRegistry<O>> registrySupplier) {
             this.factory = factory;
             this.provider = provider;
             this.clazz = clazz;
             this.registrySupplier = registrySupplier;
         }
-
-        @Override
-        public T getTemplate(ConfigPack pack, TerraPlugin main) {
-            return provider.get();
-        }
-
+        
         @SuppressWarnings("deprecation")
         @Override
         public void callback(ConfigPack pack, TerraPlugin main, T loadedConfig) throws LoadException {
             pack.getRegistry(clazz).addUnchecked(loadedConfig.getID(), factory.build(loadedConfig, main));
         }
-
-        @Override
-        public Class<O> getTypeClass() {
-            return clazz;
-        }
-
+        
         @Override
         public Supplier<OpenRegistry<O>> registrySupplier() {
             return registrySupplier;
+        }
+        
+        @Override
+        public T getTemplate(ConfigPack pack, TerraPlugin main) {
+            return provider.get();
+        }
+        
+        @Override
+        public Class<O> getTypeClass() {
+            return clazz;
         }
     }
 }

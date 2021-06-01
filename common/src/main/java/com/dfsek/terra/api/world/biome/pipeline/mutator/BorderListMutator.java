@@ -6,21 +6,23 @@ import com.dfsek.terra.api.world.biome.TerraBiome;
 
 import java.util.Map;
 
+
 public class BorderListMutator implements BiomeMutator {
     private final String border;
     private final NoiseSampler noiseSampler;
     private final ProbabilityCollection<TerraBiome> replaceDefault;
     private final String defaultReplace;
     private final Map<TerraBiome, ProbabilityCollection<TerraBiome>> replace;
-
-    public BorderListMutator(Map<TerraBiome, ProbabilityCollection<TerraBiome>> replace, String border, String defaultReplace, NoiseSampler noiseSampler, ProbabilityCollection<TerraBiome> replaceDefault) {
+    
+    public BorderListMutator(Map<TerraBiome, ProbabilityCollection<TerraBiome>> replace, String border, String defaultReplace,
+                             NoiseSampler noiseSampler, ProbabilityCollection<TerraBiome> replaceDefault) {
         this.border = border;
         this.noiseSampler = noiseSampler;
         this.replaceDefault = replaceDefault;
         this.defaultReplace = defaultReplace;
         this.replace = replace;
     }
-
+    
     @Override
     public TerraBiome mutate(ViewPoint viewPoint, double x, double z) {
         TerraBiome origin = viewPoint.getBiome(0, 0);

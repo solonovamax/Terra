@@ -6,6 +6,7 @@ import com.dfsek.terra.api.platform.entity.Entity;
 import com.dfsek.terra.api.structures.structure.buffer.items.BufferedEntity;
 import com.dfsek.terra.config.pack.ConfigPack;
 
+
 /**
  * Called when an entity is spawned via {@link BufferedEntity}.
  */
@@ -13,18 +14,13 @@ public class EntitySpawnEvent implements PackEvent {
     private final ConfigPack pack;
     private final Entity entity;
     private final Location location;
-
+    
     public EntitySpawnEvent(ConfigPack pack, Entity entity, Location location) {
         this.pack = pack;
         this.entity = entity;
         this.location = location;
     }
-
-    @Override
-    public ConfigPack getPack() {
-        return pack;
-    }
-
+    
     /**
      * Get the entity that triggered the event.
      *
@@ -33,7 +29,7 @@ public class EntitySpawnEvent implements PackEvent {
     public Entity getEntity() {
         return entity;
     }
-
+    
     /**
      * Get the location of the entity.
      *
@@ -41,5 +37,10 @@ public class EntitySpawnEvent implements PackEvent {
      */
     public Location getLocation() {
         return location;
+    }
+    
+    @Override
+    public ConfigPack getPack() {
+        return pack;
     }
 }

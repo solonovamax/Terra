@@ -9,6 +9,7 @@ import com.dfsek.terra.api.world.flora.Flora;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+
 /**
  * Class to hold Type instances for types with generics.
  */
@@ -19,7 +20,11 @@ public final class Types {
     public static final Type TREE_PROBABILITY_COLLECTION_TYPE;
     public static final Type TERRA_BIOME_PROBABILITY_COLLECTION_TYPE;
     public static final Type TERRA_BIOME_TERRA_BIOME_PROBABILITY_COLLECTION_MAP;
-
+    private ProbabilityCollection<BlockData> blockDataProbabilityCollection;
+    private ProbabilityCollection<Flora> floraProbabilityCollection;
+    private ProbabilityCollection<Tree> treeProbabilityCollection;
+    private ProbabilityCollection<TerraBiome> terraBiomeProbabilityCollection;
+    private Map<TerraBiome, ProbabilityCollection<TerraBiome>> terraBiomeProbabilityCollectionMap;
     static {
         BLOCK_DATA_PROBABILITY_COLLECTION_TYPE = getType("blockDataProbabilityCollection");
         FLORA_PROBABILITY_COLLECTION_TYPE = getType("floraProbabilityCollection");
@@ -27,13 +32,7 @@ public final class Types {
         TERRA_BIOME_PROBABILITY_COLLECTION_TYPE = getType("terraBiomeProbabilityCollection");
         TERRA_BIOME_TERRA_BIOME_PROBABILITY_COLLECTION_MAP = getType("terraBiomeProbabilityCollectionMap");
     }
-
-    private ProbabilityCollection<BlockData> blockDataProbabilityCollection;
-    private ProbabilityCollection<Flora> floraProbabilityCollection;
-    private ProbabilityCollection<Tree> treeProbabilityCollection;
-    private ProbabilityCollection<TerraBiome> terraBiomeProbabilityCollection;
-    private Map<TerraBiome, ProbabilityCollection<TerraBiome>> terraBiomeProbabilityCollectionMap;
-
+    
     private static Type getType(String dummyFieldName) {
         try {
             return Types.class.getDeclaredField(dummyFieldName).getGenericType();

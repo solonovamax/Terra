@@ -6,22 +6,23 @@ import net.jafama.FastMath;
 import java.util.HashSet;
 import java.util.Set;
 
+
 @SuppressWarnings("unused")
 public class Rectangle extends Polygon {
     private final Vector2 min;
     private final Vector2 max;
-
+    
     public Rectangle(Vector2 min, Vector2 max) {
         this.max = new Vector2(FastMath.min(min.getX(), max.getX()), FastMath.min(min.getZ(), max.getZ()));
         this.min = new Vector2(FastMath.max(min.getX(), max.getX()), FastMath.max(min.getZ(), max.getZ()));
     }
-
+    
     public Rectangle(Vector2 center, double xRadius, double zRadius) {
         Vector2 rad = new Vector2(xRadius, zRadius);
         this.min = center.clone().subtract(rad);
         this.max = center.clone().add(rad);
     }
-
+    
     @Override
     public Set<Vector2> getContainedPixels() {
         Set<Vector2> pixels = new HashSet<>();

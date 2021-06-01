@@ -7,14 +7,15 @@ import com.dfsek.terra.fabric.block.FabricBlockData;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.property.DirectionProperty;
 
+
 public class FabricDirectional extends FabricBlockData implements Directional {
     private final DirectionProperty property;
-
+    
     public FabricDirectional(BlockState delegate, DirectionProperty property) {
         super(delegate);
         this.property = property;
     }
-
+    
     @Override
     public BlockFace getFacing() {
         switch(delegate.get(property)) {
@@ -34,7 +35,7 @@ public class FabricDirectional extends FabricBlockData implements Directional {
                 throw new IllegalStateException();
         }
     }
-
+    
     @Override
     public void setFacing(BlockFace facing) {
         delegate = delegate.with(property, FabricAdapter.adapt(facing));

@@ -7,6 +7,7 @@ import com.dfsek.terra.commands.geometry.GeometryCommand;
 import com.dfsek.terra.commands.profiler.ProfileCommand;
 import com.dfsek.terra.commands.structure.StructureCommand;
 
+
 public final class CommandUtil {
     public static void registerAll(CommandManager manager) throws MalformedCommandException {
         manager.register("structure", StructureCommand.class);

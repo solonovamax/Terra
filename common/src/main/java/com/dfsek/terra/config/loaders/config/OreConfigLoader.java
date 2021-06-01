@@ -8,6 +8,7 @@ import com.dfsek.terra.world.population.items.ores.OreConfig;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+
 @SuppressWarnings("unchecked")
 public class OreConfigLoader implements TypeLoader<OreConfig> {
     @Override

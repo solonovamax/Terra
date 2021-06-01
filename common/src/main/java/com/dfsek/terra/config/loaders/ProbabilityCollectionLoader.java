@@ -10,12 +10,13 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
 
+
 @SuppressWarnings("unchecked")
 public class ProbabilityCollectionLoader implements TypeLoader<ProbabilityCollection<Object>> {
     @Override
     public ProbabilityCollection<Object> load(Type type, Object o, ConfigLoader configLoader) throws LoadException {
         ProbabilityCollection<Object> collection = new ProbabilityCollection<>();
-
+    
         if(type instanceof ParameterizedType) {
             ParameterizedType pType = (ParameterizedType) type;
             Type generic = pType.getActualTypeArguments()[0];
@@ -39,9 +40,9 @@ public class ProbabilityCollectionLoader implements TypeLoader<ProbabilityCollec
                 throw new LoadException("Malformed Probability Collection: " + o);
             }
         } else throw new LoadException("Unable to load config! Could not retrieve parameterized type: " + type);
-
-
+    
+    
         return collection;
     }
-
+    
 }

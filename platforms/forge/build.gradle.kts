@@ -64,16 +64,20 @@ afterEvaluate {
 }
 
 configure<UserDevExtension> {
-    mappings(mapOf(
+    mappings(
+        mapOf(
             "channel" to "official",
             "version" to mcVersion
-    ))
+             )
+            )
     runs {
         val runConfig = Action<RunConfig> {
-            properties(mapOf(
+            properties(
+                mapOf(
                     "forge.logging.markers" to "SCAN,REGISTRIES,REGISTRYDUMP",
                     "forge.logging.console.level" to "debug"
-            ))
+                     )
+                      )
             arg("-mixin.config=terra.mixins.json")
             workingDirectory = project.file("run").canonicalPath
             source(sourceSets["main"])
@@ -111,7 +115,8 @@ javaComponent.addVariantsFromConfiguration(deobfElements.get()) {
 
 tasks.jar {
     manifest {
-        attributes(mapOf(
+        attributes(
+            mapOf(
                 "Specification-Title" to "terra",
                 "Specification-Vendor" to "Terra",
                 "Specification-Version" to "1.0",
@@ -119,7 +124,8 @@ tasks.jar {
                 "Implementation-Version" to project.version,
                 "Implementation-Vendor" to "terra",
                 "MixinConfigs" to "terra.mixins.json"
-        ))
+                 )
+                  )
     }
 }
 

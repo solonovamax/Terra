@@ -10,17 +10,18 @@ import com.dfsek.terra.api.structures.loot.LootTable;
 import com.dfsek.terra.api.structures.script.StructureScript;
 import com.dfsek.terra.api.util.FastRandom;
 
+
 public class BufferedLootApplication implements BufferedItem {
     private final LootTable table;
     private final TerraPlugin main;
     private final StructureScript structure;
-
+    
     public BufferedLootApplication(LootTable table, TerraPlugin main, StructureScript structure) {
         this.table = table;
         this.main = main;
         this.structure = structure;
     }
-
+    
     @Override
     public void paste(Location origin) {
         try {
@@ -31,11 +32,12 @@ public class BufferedLootApplication implements BufferedItem {
                 return;
             }
             Container container = (Container) data;
-
-            LootPopulateEvent event = new LootPopulateEvent(block, container, table, block.getLocation().getWorld().getTerraGenerator().getConfigPack(), structure);
+    
+            LootPopulateEvent event = new LootPopulateEvent(block, container, table,
+                                                            block.getLocation().getWorld().getTerraGenerator().getConfigPack(), structure);
             main.getEventManager().callEvent(event);
             if(event.isCancelled()) return;
-
+    
             event.getTable().fillInventory(container.getInventory(), new FastRandom(origin.hashCode()));
             data.update(false);
         } catch(Exception e) {

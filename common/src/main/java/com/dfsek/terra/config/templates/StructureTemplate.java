@@ -12,45 +12,46 @@ import com.dfsek.terra.api.util.collections.ProbabilityCollection;
 
 import java.util.List;
 
-@SuppressWarnings({"unused", "FieldMayBeFinal"})
+
+@SuppressWarnings({ "unused", "FieldMayBeFinal" })
 public class StructureTemplate extends AbstractableTemplate implements ConfigTemplate {
     @Value("id")
     private String id;
-
+    
     @Value("scripts")
     @Abstractable
     private ProbabilityCollection<StructureScript> structure;
-
+    
     @Value("spawn.start")
     @Abstractable
     private Range y;
-
+    
     @Value("spawn")
     @Abstractable
     private GridSpawn spawn;
-
+    
     @Value("features")
     @Abstractable
     @Default
     private List<Void> features = new GlueList<>();
-
-    public String getID() {
-        return id;
-    }
-
-    public ProbabilityCollection<StructureScript> getStructures() {
-        return structure;
-    }
-
-    public Range getY() {
-        return y;
-    }
-
+    
     public List<Void> getFeatures() {
         return features;
     }
-
+    
+    public String getID() {
+        return id;
+    }
+    
     public GridSpawn getSpawn() {
         return spawn;
+    }
+    
+    public ProbabilityCollection<StructureScript> getStructures() {
+        return structure;
+    }
+    
+    public Range getY() {
+        return y;
     }
 }

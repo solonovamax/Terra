@@ -20,61 +20,61 @@ import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+
 @Mixin(ServerWorld.class)
 @Implements(@Interface(iface = World.class, prefix = "terra$", remap = Interface.Remap.NONE))
 public abstract class ServerWorldMixin {
-    @Shadow
-    public abstract long getSeed();
-
-    public int terra$getMaxHeight() {
-        return ((ServerWorld) (Object) this).getDimensionHeight();
-    }
-
-    public ChunkGenerator terra$getGenerator() {
-        return (ChunkGenerator) ((ServerWorld) (Object) this).getChunkManager().getChunkGenerator();
-    }
-
-    public Chunk terra$getChunkAt(int x, int z) {
-        return (Chunk) ((ServerWorld) (Object) this).getChunk(x, z);
-    }
-
-    public Block terra$getBlockAt(int x, int y, int z) {
-        return new FabricBlock(new BlockPos(x, y, z), ((ServerWorld) (Object) this));
-    }
-
     public Entity terra$spawnEntity(Location location, EntityType entityType) {
         net.minecraft.entity.Entity entity = ((net.minecraft.entity.EntityType<?>) entityType).create(((ServerWorld) (Object) this));
         entity.setPos(location.getX(), location.getY(), location.getZ());
         ((ServerWorld) (Object) this).spawnEntity(entity);
         return (Entity) entity;
     }
-
+    
+    public Block terra$getBlockAt(int x, int y, int z) {
+        return new FabricBlock(new BlockPos(x, y, z), ((ServerWorld) (Object) this));
+    }
+    
+    public Chunk terra$getChunkAt(int x, int z) {
+        return (Chunk) ((ServerWorld) (Object) this).getChunk(x, z);
+    }
+    
+    public ChunkGenerator terra$getGenerator() {
+        return (ChunkGenerator) ((ServerWorld) (Object) this).getChunkManager().getChunkGenerator();
+    }
+    
+    public int terra$getMaxHeight() {
+        return ((ServerWorld) (Object) this).getDimensionHeight();
+    }
+    
+    public int terra$getMinHeight() {
+        return 0;
+    }
+    
     @Intrinsic
     public long terra$getSeed() {
         return getSeed();
     }
-
-    public int terra$getMinHeight() {
-        return 0;
-    }
-
-    public Object terra$getHandle() {
-        return this;
-    }
-
-    public boolean terra$isTerraWorld() {
-        return terra$getGenerator() instanceof GeneratorWrapper;
-    }
-
+    
     public TerraChunkGenerator terra$getTerraGenerator() {
         return ((FabricChunkGeneratorWrapper) terra$getGenerator()).getHandle();
     }
-
+    
+    public boolean terra$isTerraWorld() {
+        return terra$getGenerator() instanceof GeneratorWrapper;
+    }
+    
+    public Object terra$getHandle() {
+        return this;
+    }
+    
     /**
      * Overridden in the same manner as {@link ChunkRegionMixin#hashCode()}
      *
      * @param other Another object
+     *
      * @return Whether this world is the same as other.
+     *
      * @see ChunkRegionMixin#hashCode()
      */
     @SuppressWarnings("ConstantConditions")
@@ -83,4 +83,7 @@ public abstract class ServerWorldMixin {
         if(!(other instanceof ServerWorldAccess)) return false;
         return (ServerWorldAccess) this == (((ServerWorldAccess) other).toServerWorld());
     }
+    
+    @Shadow
+    public abstract long getSeed();
 }

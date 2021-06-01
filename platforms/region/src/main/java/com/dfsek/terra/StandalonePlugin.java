@@ -31,82 +31,54 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+
 public class StandalonePlugin implements TerraPlugin {
     private final ConfigRegistry registry = new ConfigRegistry();
     private final AddonRegistry addonRegistry = new AddonRegistry(this);
-
+    
     private final LockedRegistry<TerraAddon> addonLockedRegistry = new LockedRegistry<>(addonRegistry);
-
+    
     private final PluginConfig config = new PluginConfig();
     private final RawWorldHandle worldHandle = new RawWorldHandle();
     private final EventManager eventManager = new TerraEventManager(this);
-
+    
     private final Profiler profiler = new ProfilerImpl();
-
-    @Override
-    public WorldHandle getWorldHandle() {
-        return worldHandle;
-    }
-
-    @Override
-    public TerraWorld getWorld(World world) {
-        return new TerraWorld(world, registry.get("DEFAULT"), this);
-    }
-
+    
     @Override
     public com.dfsek.terra.api.util.logging.Logger logger() {
         return new JavaLogger(Logger.getLogger("Terra"));
     }
-
-    @Override
-    public PluginConfig getTerraConfig() {
-        return config;
-    }
-
-    @Override
-    public File getDataFolder() {
-        return new File(".");
-    }
-
-    @Override
-    public Language getLanguage() {
-        try {
-            return new Language(new File(getDataFolder(), "lang/en_us.yml"));
-        } catch(IOException e) {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    @Override
-    public CheckedRegistry<ConfigPack> getConfigRegistry() {
-        return new CheckedRegistry<>(registry);
-    }
-
-    @Override
-    public LockedRegistry<TerraAddon> getAddons() {
-        return addonLockedRegistry;
-    }
-
+    
     @Override
     public boolean reload() {
         throw new UnsupportedOperationException();
     }
-
-    @Override
-    public ItemHandle getItemHandle() {
-        return null;
-    }
-
+    
     @Override
     public void saveDefaultConfig() {
-
+    
     }
-
+    
     @Override
     public String platformName() {
         return "Standalone";
     }
-
+    
+    @Override
+    public LockedRegistry<TerraAddon> getAddons() {
+        return addonLockedRegistry;
+    }
+    
+    @Override
+    public CheckedRegistry<ConfigPack> getConfigRegistry() {
+        return new CheckedRegistry<>(registry);
+    }
+    
+    @Override
+    public File getDataFolder() {
+        return new File(".");
+    }
+    
     @Override
     public DebugLogger getDebugLogger() {
         Logger logger = Logger.getLogger("Terra");
@@ -115,19 +87,58 @@ public class StandalonePlugin implements TerraPlugin {
             public void info(String message) {
                 logger.info(message);
             }
-
+            
             @Override
             public void warning(String message) {
                 logger.warning(message);
             }
-
+            
             @Override
             public void severe(String message) {
                 logger.severe(message);
             }
         });
     }
-
+    
+    @Override
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+    
+    @Override
+    public ItemHandle getItemHandle() {
+        return null;
+    }
+    
+    @Override
+    public Language getLanguage() {
+        try {
+            return new Language(new File(getDataFolder(), "lang/en_us.yml"));
+        } catch(IOException e) {
+            throw new IllegalArgumentException();
+        }
+    }
+    
+    @Override
+    public Profiler getProfiler() {
+        return profiler;
+    }
+    
+    @Override
+    public PluginConfig getTerraConfig() {
+        return config;
+    }
+    
+    @Override
+    public TerraWorld getWorld(World world) {
+        return new TerraWorld(world, registry.get("DEFAULT"), this);
+    }
+    
+    @Override
+    public WorldHandle getWorldHandle() {
+        return worldHandle;
+    }
+    
     @Override
     public void register(TypeRegistry registry) {
         registry
@@ -135,20 +146,10 @@ public class StandalonePlugin implements TerraPlugin {
                 .registerLoader(Biome.class, (t, o, l) -> new RawBiome(o.toString()));
         new GenericLoaders(this).register(registry);
     }
-
+    
     public void load() {
         LangUtil.load("en_us", this);
         registry.loadAll(this);
         config.load(this);
-    }
-
-    @Override
-    public EventManager getEventManager() {
-        return eventManager;
-    }
-
-    @Override
-    public Profiler getProfiler() {
-        return profiler;
     }
 }

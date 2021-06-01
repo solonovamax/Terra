@@ -6,11 +6,12 @@ import com.dfsek.terra.forge.world.block.ForgeBlockData;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.properties.BlockStateProperties;
 
+
 public class ForgeRotatable extends ForgeBlockData implements Rotatable {
     public ForgeRotatable(BlockState delegate) {
         super(delegate);
     }
-
+    
     @Override
     public BlockFace getRotation() {
         int r = delegate.getValue(BlockStateProperties.ROTATION_16);
@@ -51,7 +52,7 @@ public class ForgeRotatable extends ForgeBlockData implements Rotatable {
                 throw new IllegalArgumentException("Unknown rotation " + r);
         }
     }
-
+    
     @Override
     public void setRotation(BlockFace face) {
         switch(face) {

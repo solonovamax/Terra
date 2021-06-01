@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
+
 public abstract class AsyncFeatureFinder<T> implements Runnable {
     protected final BiomeProvider provider;
     protected final T target;
@@ -17,11 +18,12 @@ public abstract class AsyncFeatureFinder<T> implements Runnable {
     protected final int centerX;
     protected final int centerZ;
     protected final World world;
+    protected final TerraPlugin main;
     private final Consumer<Vector3> callback;
     protected int searchSize = 1;
-    protected final TerraPlugin main;
-
-    public AsyncFeatureFinder(BiomeProvider provider, T target, @NotNull Location origin, int startRadius, int maxRadius, Consumer<Vector3> callback, TerraPlugin main) {
+    
+    public AsyncFeatureFinder(BiomeProvider provider, T target, @NotNull Location origin, int startRadius, int maxRadius,
+                              Consumer<Vector3> callback, TerraPlugin main) {
         this.provider = provider;
         this.target = target;
         this.main = main;
@@ -32,19 +34,19 @@ public abstract class AsyncFeatureFinder<T> implements Runnable {
         this.world = origin.getWorld();
         this.callback = callback;
     }
-
+    
     @Override
     public void run() {
         int x = centerX;
         int z = centerZ;
-
+        
         x /= searchSize;
         z /= searchSize;
-
+        
         int run = 1;
         boolean toggle = true;
         boolean found = false;
-
+        
         main:
         for(int i = startRadius; i < maxRadius; i++) {
             for(int j = 0; j < run; j++) {
@@ -69,29 +71,29 @@ public abstract class AsyncFeatureFinder<T> implements Runnable {
         Vector3 finalSpawn = found ? finalizeVector(new Vector3(x, 0, z)) : null;
         callback.accept(finalSpawn);
     }
-
-
+    
+    
     public abstract Vector3 finalizeVector(Vector3 orig);
-
-    public abstract boolean isValid(int x, int z, T target);
-
-    public T getTarget() {
-        return target;
-    }
-
-    public World getWorld() {
-        return world;
-    }
-
+    
     public BiomeProvider getProvider() {
         return provider;
     }
-
+    
     public int getSearchSize() {
         return searchSize;
     }
-
+    
     public void setSearchSize(int searchSize) {
         this.searchSize = searchSize;
     }
+    
+    public T getTarget() {
+        return target;
+    }
+    
+    public World getWorld() {
+        return world;
+    }
+    
+    public abstract boolean isValid(int x, int z, T target);
 }

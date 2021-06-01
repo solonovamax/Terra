@@ -12,16 +12,18 @@ import org.json.simple.parser.ParseException;
 import java.util.List;
 import java.util.Random;
 
+
 /**
  * Class representation of a Loot Table to populate chest loot.
  */
 public class LootTable {
     private final List<Pool> pools = new GlueList<>();
-
+    
     /**
      * Instantiates a LootTable from a JSON String.
      *
      * @param json The JSON String representing the loot table.
+     *
      * @throws ParseException if malformed JSON is passed.
      */
     public LootTable(String json, TerraPlugin main) throws ParseException {
@@ -32,21 +34,7 @@ public class LootTable {
             pools.add(new Pool((JSONObject) pool, main));
         }
     }
-
-    /**
-     * Fetches a list of ItemStacks from the loot table using the given Random instance.
-     *
-     * @param r The Random instance to use.
-     * @return List&lt;ItemStack&gt; - The list of loot fetched.
-     */
-    public List<ItemStack> getLoot(Random r) {
-        List<ItemStack> itemList = new GlueList<>();
-        for(Pool pool : pools) {
-            itemList.addAll(pool.getItems(r));
-        }
-        return itemList;
-    }
-
+    
     /**
      * Fills an Inventory with loot.
      *
@@ -76,5 +64,20 @@ public class LootTable {
                 attempts++;
             }
         }
+    }
+    
+    /**
+     * Fetches a list of ItemStacks from the loot table using the given Random instance.
+     *
+     * @param r The Random instance to use.
+     *
+     * @return List&lt;ItemStack&gt; - The list of loot fetched.
+     */
+    public List<ItemStack> getLoot(Random r) {
+        List<ItemStack> itemList = new GlueList<>();
+        for(Pool pool : pools) {
+            itemList.addAll(pool.getItems(r));
+        }
+        return itemList;
     }
 }

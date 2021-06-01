@@ -17,51 +17,62 @@ import org.bukkit.block.data.type.Slab;
 import org.bukkit.block.data.type.Stairs;
 import org.bukkit.block.data.type.Wall;
 
+
 public class BukkitBlockData implements BlockData {
     private org.bukkit.block.data.BlockData delegate;
-
+    
     protected BukkitBlockData(org.bukkit.block.data.BlockData delegate) {
         this.delegate = delegate;
     }
-
+    
     public static BukkitBlockData newInstance(org.bukkit.block.data.BlockData bukkitData) {
-
+        
         if(bukkitData instanceof Rail) return new BukkitRail((Rail) bukkitData);
         if(bukkitData instanceof Stairs) return new BukkitStairs((Stairs) bukkitData);
         if(bukkitData instanceof Slab) return new BukkitSlab((Slab) bukkitData);
-        if(TerraBukkitPlugin.BUKKIT_VERSION.above(TerraBukkitPlugin.BukkitVersion.V1_16) && bukkitData instanceof Wall) { // Wall only exists on 1.16 and up.
+        if(TerraBukkitPlugin.BUKKIT_VERSION.above(TerraBukkitPlugin.BukkitVersion.V1_16) &&
+           bukkitData instanceof Wall) { // Wall only exists on 1.16 and up.
             return new BukkitWall((Wall) bukkitData);
         }
-
+        
         if(bukkitData instanceof RedstoneWire) return new BukkitRedstoneWire((RedstoneWire) bukkitData);
         if(bukkitData instanceof AnaloguePowerable) return new BukkitAnaloguePowerable((AnaloguePowerable) bukkitData);
-
+        
         if(bukkitData instanceof MultipleFacing) return new BukkitMultipleFacing((MultipleFacing) bukkitData);
         if(bukkitData instanceof Rotatable) return new BukkitRotatable((Rotatable) bukkitData);
         if(bukkitData instanceof Directional) return new BukkitDirectional((Directional) bukkitData);
         if(bukkitData instanceof Orientable) return new BukkitOrientable((Orientable) bukkitData);
-
+        
         if(bukkitData instanceof Waterlogged) return new BukkitWaterlogged((Waterlogged) bukkitData);
-
+        
         return new BukkitBlockData(bukkitData);
     }
-
-
-    @Override
-    public org.bukkit.block.data.BlockData getHandle() {
-        return delegate;
-    }
-
-    @Override
-    public BlockType getBlockType() {
-        return BukkitAdapter.adapt(delegate.getMaterial());
-    }
-
+    
     @Override
     public boolean matches(BlockData data) {
         return delegate.getMaterial() == ((BukkitBlockData) data).getHandle().getMaterial();
     }
-
+    
+    @Override
+    public String getAsString() {
+        return delegate.getAsString(false);
+    }
+    
+    @Override
+    public BlockType getBlockType() {
+        return BukkitAdapter.adapt(delegate.getMaterial());
+    }
+    
+    @Override
+    public boolean isAir() {
+        return delegate.getMaterial().isAir();
+    }
+    
+    @Override
+    public boolean isStructureVoid() {
+        return delegate.getMaterial() == Material.STRUCTURE_VOID;
+    }
+    
     @Override
     public BukkitBlockData clone() {
         try {
@@ -72,19 +83,9 @@ public class BukkitBlockData implements BlockData {
             throw new Error(e);
         }
     }
-
+    
     @Override
-    public String getAsString() {
-        return delegate.getAsString(false);
-    }
-
-    @Override
-    public boolean isAir() {
-        return delegate.getMaterial().isAir();
-    }
-
-    @Override
-    public boolean isStructureVoid() {
-        return delegate.getMaterial() == Material.STRUCTURE_VOID;
+    public org.bukkit.block.data.BlockData getHandle() {
+        return delegate;
     }
 }

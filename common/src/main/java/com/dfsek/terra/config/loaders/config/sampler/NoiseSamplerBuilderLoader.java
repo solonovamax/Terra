@@ -14,14 +14,15 @@ import java.lang.reflect.Type;
 import java.util.Locale;
 import java.util.Map;
 
+
 @SuppressWarnings("unchecked")
 public class NoiseSamplerBuilderLoader implements TypeLoader<NoiseSeeded> {
     private final Registry<NoiseProvider> noiseRegistry;
-
+    
     public NoiseSamplerBuilderLoader(Registry<NoiseProvider> noiseRegistry) {
         this.noiseRegistry = noiseRegistry;
     }
-
+    
     @Override
     public NoiseSeeded load(Type t, Object c, ConfigLoader loader) throws LoadException {
         Map<String, Object> map = (Map<String, Object>) c;

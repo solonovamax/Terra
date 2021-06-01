@@ -4,8 +4,9 @@ import com.dfsek.terra.api.platform.Handle;
 
 import java.util.Map;
 
-public interface ItemMeta extends Handle {
-    Map<Enchantment, Integer> getEnchantments();
 
+public interface ItemMeta extends Handle {
     void addEnchantment(Enchantment enchantment, int level);
+    
+    Map<Enchantment, Integer> getEnchantments();
 }

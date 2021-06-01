@@ -7,6 +7,7 @@ import com.dfsek.terra.registry.OpenRegistry;
 
 import java.lang.reflect.Type;
 
+
 public class BiomeRegistry extends OpenRegistry<BiomeBuilder> {
     @Override
     public BiomeBuilder load(Type type, Object o, ConfigLoader configLoader) throws LoadException {

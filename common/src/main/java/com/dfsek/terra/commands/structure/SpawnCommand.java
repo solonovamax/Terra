@@ -20,6 +20,7 @@ import com.dfsek.terra.api.util.FastRandom;
 
 import java.util.HashMap;
 
+
 @DebugCommand
 @PlayerCommand
 @WorldCommand
@@ -29,7 +30,7 @@ import java.util.HashMap;
 public class SpawnCommand implements CommandTemplate {
     @Inject
     private TerraPlugin main;
-
+    
     @Override
     public void execute(CommandSender sender) {
         Player player = (Player) sender;
@@ -38,11 +39,12 @@ public class SpawnCommand implements CommandTemplate {
         int y = p.getBlockY();
         int z = p.getBlockZ();
         Position dummy = new Position(0, 0);
-
-        String check = new CheckFunction(main, new NumericConstant(0, dummy), new NumericConstant(0, dummy), new NumericConstant(0, dummy), dummy).apply(new TerraImplementationArguments(new StructureBuffer(
+        
+        String check = new CheckFunction(main, new NumericConstant(0, dummy), new NumericConstant(0, dummy), new NumericConstant(0, dummy),
+                                         dummy).apply(new TerraImplementationArguments(new StructureBuffer(
                 new com.dfsek.terra.api.math.vector.Location(player.getWorld(), x, y, z)
         ), Rotation.NONE, new FastRandom(), 0), new HashMap<>());
-
+        
         sender.sendMessage("Found: " + check);
     }
 }

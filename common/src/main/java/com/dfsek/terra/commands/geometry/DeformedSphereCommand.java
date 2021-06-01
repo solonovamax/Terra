@@ -18,6 +18,7 @@ import com.dfsek.terra.api.platform.entity.Player;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+
 @DebugCommand
 @PlayerCommand
 @Command(
@@ -40,23 +41,23 @@ import java.util.concurrent.ThreadLocalRandom;
 public class DeformedSphereCommand implements CommandTemplate {
     @ArgumentTarget("radius")
     private Integer radius;
-
+    
     @ArgumentTarget("deform")
     private Double deform;
-
+    
     @ArgumentTarget("frequency")
     private Double frequency;
-
+    
     @Inject
     private TerraPlugin main;
-
+    
     @Override
     public void execute(CommandSender sender) {
         Player player = (Player) sender;
-
+        
         OpenSimplex2Sampler noise = new OpenSimplex2Sampler(ThreadLocalRandom.current().nextInt());
         noise.setFrequency(frequency);
-
+        
         DeformedSphere sphere = new DeformedSphere(player.getLocation().toVector(), radius, deform, noise);
         for(Vector3 v : sphere.getGeometry()) {
             v.toLocation(player.getWorld()).getBlock().setBlockData(main.getWorldHandle().createBlockData("minecraft:stone"), false);

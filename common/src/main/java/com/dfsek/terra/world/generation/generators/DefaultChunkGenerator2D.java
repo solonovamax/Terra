@@ -33,15 +33,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+
 public class DefaultChunkGenerator2D implements TerraChunkGenerator {
     private final ConfigPack configPack;
     private final TerraPlugin main;
-
+    
     private final Carver carver;
     private final List<TerraBlockPopulator> blockPopulators = new ArrayList<>();
-
+    
     private final SamplerCache cache;
-
+    
     public DefaultChunkGenerator2D(ConfigPack c, TerraPlugin main, SamplerCache cache) {
         this.configPack = c;
         this.main = main;
@@ -53,44 +54,9 @@ public class DefaultChunkGenerator2D implements TerraChunkGenerator {
         carver = new NoiseCarver(new Range(0, 255), main.getWorldHandle().createBlockData("minecraft:air"), main);
         this.cache = cache;
     }
-
+    
     @Override
-    public boolean isParallelCapable() {
-        return true;
-    }
-
-    @Override
-    public boolean shouldGenerateCaves() {
-        return configPack.getTemplate().vanillaCaves();
-    }
-
-    @Override
-    public boolean shouldGenerateDecorations() {
-        return configPack.getTemplate().vanillaDecorations();
-    }
-
-    @Override
-    public boolean shouldGenerateMobs() {
-        return configPack.getTemplate().vanillaMobs();
-    }
-
-    @Override
-    public boolean shouldGenerateStructures() {
-        return configPack.getTemplate().vanillaStructures();
-    }
-
-    @Override
-    public ConfigPack getConfigPack() {
-        return configPack;
-    }
-
-    @Override
-    public TerraPlugin getMain() {
-        return main;
-    }
-
-    @Override
-    @SuppressWarnings({"try"})
+    @SuppressWarnings({ "try" })
     public ChunkData generateChunkData(@NotNull World world, Random random, int chunkX, int chunkZ, ChunkData chunk) {
         TerraWorld tw = main.getWorld(world);
         BiomeProvider grid = tw.getBiomeProvider();
@@ -98,26 +64,28 @@ public class DefaultChunkGenerator2D implements TerraChunkGenerator {
             if(!tw.isSafe()) return chunk;
             int xOrig = (chunkX << 4);
             int zOrig = (chunkZ << 4);
-
+    
             Sampler sampler = cache.getChunk(chunkX, chunkZ);
-
+    
             for(int x = 0; x < 16; x++) {
                 for(int z = 0; z < 16; z++) {
                     int paletteLevel = 0;
                     int seaPaletteLevel = 0;
-
+    
                     int cx = xOrig + x;
                     int cz = zOrig + z;
-
+    
                     TerraBiome b = grid.getBiome(xOrig + x, zOrig + z);
                     BiomeTemplate c = ((UserDefinedBiome) b).getConfig();
-
+    
                     Palette seaPalette = c.getOceanPalette();
-
+    
                     int height = FastMath.min((int) sampler.sample(x, 0, z), world.getMaxHeight() - 1);
-
+    
                     for(int y = FastMath.max(height, c.getSeaLevel()); y >= 0; y--) {
-                        BlockData data = y > height ? seaPalette.get(seaPaletteLevel++, cx, y, cz) : PaletteUtil.getPalette(x, y, z, c, sampler).get(paletteLevel++, cx, y, cz);
+                        BlockData data = y > height ? seaPalette.get(seaPaletteLevel++, cx, y, cz) : PaletteUtil.getPalette(x, y, z, c,
+                                                                                                                            sampler).get(
+                                paletteLevel++, cx, y, cz);
                         chunk.setBlock(x, y, z, data);
                     }
                 }
@@ -128,19 +96,54 @@ public class DefaultChunkGenerator2D implements TerraChunkGenerator {
             return chunk;
         }
     }
-
+    
     @Override
     public void generateBiomes(@NotNull World world, @NotNull Random random, int chunkX, int chunkZ, @NotNull BiomeGrid biome) {
         DefaultChunkGenerator3D.biomes(world, chunkX, chunkZ, biome, main);
     }
-
+    
+    @Override
+    public boolean shouldGenerateCaves() {
+        return configPack.getTemplate().vanillaCaves();
+    }
+    
+    @Override
+    public boolean shouldGenerateDecorations() {
+        return configPack.getTemplate().vanillaDecorations();
+    }
+    
+    @Override
+    public boolean shouldGenerateMobs() {
+        return configPack.getTemplate().vanillaMobs();
+    }
+    
+    @Override
+    public boolean shouldGenerateStructures() {
+        return configPack.getTemplate().vanillaStructures();
+    }
+    
     @Override
     public Sampler createSampler(int chunkX, int chunkZ, BiomeProvider provider, World world, int elevationSmooth) {
         return new Sampler2D(chunkX, chunkZ, provider, world, elevationSmooth);
     }
-
+    
+    @Override
+    public ConfigPack getConfigPack() {
+        return configPack;
+    }
+    
+    @Override
+    public TerraPlugin getMain() {
+        return main;
+    }
+    
     @Override
     public List<TerraBlockPopulator> getPopulators() {
         return blockPopulators;
+    }
+    
+    @Override
+    public boolean isParallelCapable() {
+        return true;
     }
 }

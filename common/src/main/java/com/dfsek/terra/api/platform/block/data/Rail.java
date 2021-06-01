@@ -2,11 +2,12 @@ package com.dfsek.terra.api.platform.block.data;
 
 import com.dfsek.terra.api.platform.block.BlockData;
 
+
 public interface Rail extends BlockData {
     Shape getShape();
-
+    
     void setShape(Shape newShape);
-
+    
     enum Shape {
         ASCENDING_EAST,
         ASCENDING_NORTH,

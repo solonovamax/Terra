@@ -12,26 +12,27 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Random;
 
+
 public interface TerraChunkGenerator {
     ChunkData generateChunkData(@NotNull World world, Random random, int x, int z, ChunkData original);
-
+    
     void generateBiomes(@NotNull World world, @NotNull Random random, int x, int z, @NotNull BiomeGrid biome);
-
-    boolean isParallelCapable();
-
+    
     boolean shouldGenerateCaves();
-
+    
     boolean shouldGenerateDecorations();
-
+    
     boolean shouldGenerateMobs();
-
+    
     boolean shouldGenerateStructures();
-
-    ConfigPack getConfigPack();
-
-    TerraPlugin getMain();
-
+    
     Sampler createSampler(int chunkX, int chunkZ, BiomeProvider provider, World world, int elevationSmooth);
-
+    
+    ConfigPack getConfigPack();
+    
+    TerraPlugin getMain();
+    
     List<TerraBlockPopulator> getPopulators();
+    
+    boolean isParallelCapable();
 }

@@ -8,31 +8,32 @@ import com.dfsek.terra.api.util.collections.ProbabilityCollection;
 import java.util.Map;
 import java.util.TreeMap;
 
-@SuppressWarnings({"unchecked", "rawtypes", "RedundantSuppression"})
+
+@SuppressWarnings({ "unchecked", "rawtypes", "RedundantSuppression" })
 public class CarverPalette {
     private final boolean blacklist;
     private final MaterialSet replace;
     private final TreeMap<Integer, ProbabilityCollection<BlockData>> map = new TreeMap<>();
     private ProbabilityCollection<BlockData>[] layers;
-
+    
     public CarverPalette(MaterialSet replaceable, boolean blacklist) {
         this.blacklist = blacklist;
         this.replace = replaceable;
     }
-
+    
     public CarverPalette add(ProbabilityCollection<BlockData> collection, int y) {
         map.put(y, collection);
         return this;
     }
-
+    
     public ProbabilityCollection<BlockData> get(int y) {
         return layers[y];
     }
-
+    
     public boolean canReplace(BlockType material) {
         return blacklist != replace.contains(material);
     }
-
+    
     /**
      * Build the palette to an array.
      */

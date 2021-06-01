@@ -6,6 +6,7 @@ import com.dfsek.terra.api.platform.CommandSender;
 import java.util.Arrays;
 import java.util.List;
 
+
 public class RotationCompleter implements TabCompleter {
     @Override
     public List<String> complete(CommandSender sender) {

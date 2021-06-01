@@ -11,17 +11,24 @@ import com.dfsek.terra.api.world.flora.Flora;
 
 import java.util.List;
 
+
 /**
  * Flora that is just 1 layer of a single block.
  */
 public class BlockFlora implements Flora {
-
+    
     private final BlockData data;
-
+    
     public BlockFlora(BlockData data) {
         this.data = data;
     }
-
+    
+    @Override
+    public boolean plant(Location location) {
+        location.add(0, 1, 0).getBlock().setBlockData(data, true);
+        return true;
+    }
+    
     @Override
     public List<Block> getValidSpawnsAt(Chunk chunk, int x, int z, Range range) {
         Block current = chunk.getBlock(x, range.getMin(), z);
@@ -34,11 +41,5 @@ public class BlockFlora implements Flora {
             }
         }
         return blocks;
-    }
-
-    @Override
-    public boolean plant(Location location) {
-        location.add(0, 1, 0).getBlock().setBlockData(data, true);
-        return true;
     }
 }

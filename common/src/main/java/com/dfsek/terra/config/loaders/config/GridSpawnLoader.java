@@ -7,6 +7,7 @@ import com.dfsek.terra.api.math.GridSpawn;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+
 @SuppressWarnings("unchecked")
 public class GridSpawnLoader implements TypeLoader<GridSpawn> {
     @Override

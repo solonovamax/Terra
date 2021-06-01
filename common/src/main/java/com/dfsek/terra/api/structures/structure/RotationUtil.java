@@ -18,9 +18,10 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Set;
 
+
 public class RotationUtil {
     private static final Set<BlockFace> CARDINALS = Sets.newHashSet(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
-
+    
     /**
      * Rotate and mirror a coordinate pair.
      *
@@ -43,12 +44,13 @@ public class RotationUtil {
         orig.setX(copy.getX());
         orig.setZ(copy.getZ());
     }
-
+    
     /**
      * Get the BlockFace with rotation and mirrors applied to it
      *
      * @param f BlockFace to apply rotation to
      * @param r Rotation
+     *
      * @return Rotated BlockFace
      */
     public static BlockFace getRotatedFace(BlockFace f, Rotation r) {
@@ -60,11 +62,12 @@ public class RotationUtil {
         }
         return n;
     }
-
+    
     /**
      * Get an integer representation of a BlockFace, to perform math on.
      *
      * @param f BlockFace to get integer for
+     *
      * @return integer representation of BlockFace
      */
     public static int faceRotation(BlockFace f) {
@@ -105,11 +108,12 @@ public class RotationUtil {
                 return -1;
         }
     }
-
+    
     /**
      * Convert integer to BlockFace representation
      *
      * @param r integer to get BlockFace for
+     *
      * @return BlockFace represented by integer.
      */
     public static BlockFace fromRotation(int r) {
@@ -150,7 +154,7 @@ public class RotationUtil {
                 throw new IllegalArgumentException();
         }
     }
-
+    
     public static Axis getRotatedAxis(Axis orig, Rotation r) {
         Axis other = orig;
         final boolean shouldSwitch = r.equals(Rotation.CW_90) || r.equals(Rotation.CCW_90);
@@ -164,12 +168,13 @@ public class RotationUtil {
         }
         return other;
     }
-
+    
     /**
      * Method to rotate the incredibly obnoxious Rail.Shape enum
      *
      * @param orig Original shape
      * @param r    Rotate
+     *
      * @return Rotated/mirrored shape
      */
     @SuppressWarnings("fallthrough")
@@ -247,7 +252,7 @@ public class RotationUtil {
         }
         return orig;
     }
-
+    
     public static void rotateBlockData(BlockData data, Rotation r) {
         if(data instanceof Rotatable) {
             BlockFace rt = getRotatedFace(((Rotatable) data).getRotation(), r);

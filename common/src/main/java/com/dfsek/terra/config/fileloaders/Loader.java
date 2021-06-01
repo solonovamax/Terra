@@ -11,9 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
 public abstract class Loader {
     protected final Map<String, InputStream> streams = new HashMap<>();
-
+    
     /**
      * Do something with the InputStreams.
      *
@@ -22,30 +23,31 @@ public abstract class Loader {
     public Loader then(ExceptionalConsumer<List<Configuration>> consumer) throws ConfigException {
         List<Configuration> list = new GlueList<>();
         streams.forEach((id, stream) -> {
-                    list.add(new Configuration(stream, id));
+            list.add(new Configuration(stream, id));
         });
         consumer.accept(list);
         return this;
     }
-
+    
     public Loader thenNames(ExceptionalConsumer<List<String>> consumer) throws ConfigException {
         consumer.accept(new GlueList<>(streams.keySet()));
         return this;
     }
-
+    
     public Loader thenEntries(ExceptionalConsumer<Set<Map.Entry<String, InputStream>>> consumer) throws ConfigException {
         consumer.accept(streams.entrySet());
         return this;
     }
-
+    
     /**
      * Get a single file from this Loader.
      *
      * @param singleFile File to get
+     *
      * @return InputStream from file.
      */
     public abstract InputStream get(String singleFile) throws IOException;
-
+    
     /**
      * Open a subdirectory.
      *
@@ -57,9 +59,7 @@ public abstract class Loader {
         load(directory, extension);
         return this;
     }
-
-    protected abstract void load(String directory, String extension);
-
+    
     /**
      * Close all InputStreams opened.
      */
@@ -74,4 +74,6 @@ public abstract class Loader {
         streams.clear();
         return this;
     }
+    
+    protected abstract void load(String directory, String extension);
 }

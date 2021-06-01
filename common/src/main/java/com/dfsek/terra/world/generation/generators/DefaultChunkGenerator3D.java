@@ -41,91 +41,75 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+
 public class DefaultChunkGenerator3D implements TerraChunkGenerator {
     private final ConfigPack configPack;
     private final TerraPlugin main;
     private final BlockType water;
     private final SinglePalette blank;
     private final List<TerraBlockPopulator> blockPopulators = new ArrayList<>();
-
+    
     private final Carver carver;
-
+    
     public DefaultChunkGenerator3D(ConfigPack c, TerraPlugin main) {
         this.configPack = c;
         this.main = main;
-
+        
         blockPopulators.add(new CavePopulator(main));
         blockPopulators.add(new StructurePopulator(main));
         blockPopulators.add(new OrePopulator(main));
         blockPopulators.add(new TreePopulator(main));
         blockPopulators.add(new FloraPopulator(main));
-
+        
         carver = new NoiseCarver(new Range(0, 255), main.getWorldHandle().createBlockData("minecraft:air"), main);
         water = main.getWorldHandle().createBlockData("minecraft:water").getBlockType();
         blank = new SinglePalette(main.getWorldHandle().createBlockData("minecraft:air"));
     }
-
-    @Override
-    public boolean isParallelCapable() {
-        return true;
+    
+    @SuppressWarnings({ "try" })
+    static void biomes(@NotNull World world, int chunkX, int chunkZ, @NotNull BiomeGrid biome, TerraPlugin main) {
+        try(ProfileFrame ignore = main.getProfiler().profile("biomes")) {
+            int xOrig = (chunkX << 4);
+            int zOrig = (chunkZ << 4);
+            BiomeProvider grid = main.getWorld(world).getBiomeProvider();
+            for(int x = 0; x < 4; x++) {
+                for(int z = 0; z < 4; z++) {
+                    int cx = xOrig + (x << 2);
+                    int cz = zOrig + (z << 2);
+                    TerraBiome b = grid.getBiome(cx, cz);
+                    
+                    biome.setBiome(cx, cz, b.getVanillaBiomes().get(b.getGenerator(world).getBiomeNoise(), cx, 0, cz));
+                }
+            }
+        }
     }
-
+    
     @Override
-    public boolean shouldGenerateCaves() {
-        return configPack.getTemplate().vanillaCaves();
-    }
-
-    @Override
-    public boolean shouldGenerateDecorations() {
-        return configPack.getTemplate().vanillaDecorations();
-    }
-
-    @Override
-    public boolean shouldGenerateMobs() {
-        return configPack.getTemplate().vanillaMobs();
-    }
-
-    @Override
-    public boolean shouldGenerateStructures() {
-        return configPack.getTemplate().vanillaStructures();
-    }
-
-    @Override
-    public ConfigPack getConfigPack() {
-        return configPack;
-    }
-
-    @Override
-    public TerraPlugin getMain() {
-        return main;
-    }
-
-    @Override
-    @SuppressWarnings({"try"})
+    @SuppressWarnings({ "try" })
     public ChunkData generateChunkData(@NotNull World world, Random random, int chunkX, int chunkZ, ChunkData chunk) {
         try(ProfileFrame ignore = main.getProfiler().profile("chunk_base_3d")) {
             TerraWorld tw = main.getWorld(world);
             BiomeProvider grid = tw.getBiomeProvider();
-
+            
             if(!tw.isSafe()) return chunk;
             int xOrig = (chunkX << 4);
             int zOrig = (chunkZ << 4);
-
+            
             Sampler sampler = tw.getConfig().getSamplerCache().getChunk(chunkX, chunkZ);
-
+            
             for(int x = 0; x < 16; x++) {
                 for(int z = 0; z < 16; z++) {
                     int paletteLevel = 0;
-
+    
                     int cx = xOrig + x;
                     int cz = zOrig + z;
-
+    
                     TerraBiome b = grid.getBiome(cx, cz);
                     BiomeTemplate c = ((UserDefinedBiome) b).getConfig();
-
+    
                     int sea = c.getSeaLevel();
                     Palette seaPalette = c.getOceanPalette();
-
+    
                     boolean justSet = false;
                     BlockData data = null;
                     for(int y = world.getMaxHeight() - 1; y >= world.getMinHeight(); y--) {
@@ -134,20 +118,23 @@ public class DefaultChunkGenerator3D implements TerraChunkGenerator {
                             data = PaletteUtil.getPalette(x, y, z, c, sampler).get(paletteLevel, cx, y, cz);
                             chunk.setBlock(x, y, z, data);
                             if(paletteLevel == 0 && c.doSlabs() && y < 255) {
-                                prepareBlockPartFloor(data, chunk.getBlockData(x, y + 1, z), chunk, new Vector3(x, y + 1, z), c.getSlabPalettes(),
-                                        c.getStairPalettes(), c.getSlabThreshold(), sampler);
+                                prepareBlockPartFloor(data, chunk.getBlockData(x, y + 1, z), chunk, new Vector3(x, y + 1, z),
+                                                      c.getSlabPalettes(),
+                                                      c.getStairPalettes(), c.getSlabThreshold(), sampler);
                             }
                             paletteLevel++;
                         } else if(y <= sea) {
                             chunk.setBlock(x, y, z, seaPalette.get(sea - y, x + xOrig, y, z + zOrig));
                             if(justSet && c.doSlabs()) {
-                                prepareBlockPartCeiling(data, chunk.getBlockData(x, y, z), chunk, new Vector3(x, y, z), c.getSlabPalettes(), c.getStairPalettes(), c.getSlabThreshold(), sampler);
+                                prepareBlockPartCeiling(data, chunk.getBlockData(x, y, z), chunk, new Vector3(x, y, z), c.getSlabPalettes(),
+                                                        c.getStairPalettes(), c.getSlabThreshold(), sampler);
                             }
                             justSet = false;
                             paletteLevel = 0;
                         } else {
                             if(justSet && c.doSlabs()) {
-                                prepareBlockPartCeiling(data, chunk.getBlockData(x, y, z), chunk, new Vector3(x, y, z), c.getSlabPalettes(), c.getStairPalettes(), c.getSlabThreshold(), sampler);
+                                prepareBlockPartCeiling(data, chunk.getBlockData(x, y, z), chunk, new Vector3(x, y, z), c.getSlabPalettes(),
+                                                        c.getStairPalettes(), c.getSlabThreshold(), sampler);
                             }
                             justSet = false;
                             paletteLevel = 0;
@@ -161,7 +148,57 @@ public class DefaultChunkGenerator3D implements TerraChunkGenerator {
             return chunk;
         }
     }
-
+    
+    @Override
+    public void generateBiomes(@NotNull World world, @NotNull Random random, int chunkX, int chunkZ, @NotNull BiomeGrid biome) {
+        biomes(world, chunkX, chunkZ, biome, main);
+    }
+    
+    @Override
+    public boolean shouldGenerateCaves() {
+        return configPack.getTemplate().vanillaCaves();
+    }
+    
+    @Override
+    public boolean shouldGenerateDecorations() {
+        return configPack.getTemplate().vanillaDecorations();
+    }
+    
+    @Override
+    public boolean shouldGenerateMobs() {
+        return configPack.getTemplate().vanillaMobs();
+    }
+    
+    @Override
+    public boolean shouldGenerateStructures() {
+        return configPack.getTemplate().vanillaStructures();
+    }
+    
+    @Override
+    public Sampler createSampler(int chunkX, int chunkZ, BiomeProvider provider, World world, int elevationSmooth) {
+        return new Sampler3D(chunkX, chunkZ, provider, world, elevationSmooth);
+    }
+    
+    @Override
+    public ConfigPack getConfigPack() {
+        return configPack;
+    }
+    
+    @Override
+    public TerraPlugin getMain() {
+        return main;
+    }
+    
+    @Override
+    public List<TerraBlockPopulator> getPopulators() {
+        return blockPopulators;
+    }
+    
+    @Override
+    public boolean isParallelCapable() {
+        return true;
+    }
+    
     private void prepareBlockPartFloor(BlockData down, BlockData orig, ChunkData chunk, Vector3 block, Map<BlockType, Palette> slabs,
                                        Map<BlockType, Palette> stairs, double thresh, Sampler sampler) {
         if(sampler.sample(block.getX(), block.getY() - 0.4, block.getZ()) > thresh) {
@@ -182,7 +219,7 @@ public class DefaultChunkGenerator3D implements TerraChunkGenerator {
             chunk.setBlock(block.getBlockX(), block.getBlockY(), block.getBlockZ(), slab);
         }
     }
-
+    
     private void prepareBlockPartCeiling(BlockData up, BlockData orig, ChunkData chunk, Vector3 block, Map<BlockType, Palette> slabs,
                                          Map<BlockType, Palette> stairs, double thresh, Sampler sampler) {
         if(sampler.sample(block.getX(), block.getY() + 0.4, block.getZ()) > thresh) {
@@ -206,11 +243,11 @@ public class DefaultChunkGenerator3D implements TerraChunkGenerator {
             chunk.setBlock(block.getBlockX(), block.getBlockY(), block.getBlockZ(), slab);
         }
     }
-
+    
     private boolean placeStair(BlockData orig, ChunkData chunk, Vector3 block, double thresh, Sampler sampler, Stairs stairNew) {
-
+        
         if(sampler.sample(block.getBlockX() - 0.55, block.getY(), block.getZ()) > thresh) {
-
+            
             stairNew.setFacing(BlockFace.WEST);
         } else if(sampler.sample(block.getBlockX(), block.getY(), block.getZ() - 0.55) > thresh) {
             stairNew.setFacing(BlockFace.NORTH);
@@ -225,38 +262,5 @@ public class DefaultChunkGenerator3D implements TerraChunkGenerator {
             return true;
         }
         return false;
-    }
-
-    @SuppressWarnings({"try"})
-    static void biomes(@NotNull World world, int chunkX, int chunkZ, @NotNull BiomeGrid biome, TerraPlugin main) {
-        try(ProfileFrame ignore = main.getProfiler().profile("biomes")) {
-            int xOrig = (chunkX << 4);
-            int zOrig = (chunkZ << 4);
-            BiomeProvider grid = main.getWorld(world).getBiomeProvider();
-            for(int x = 0; x < 4; x++) {
-                for(int z = 0; z < 4; z++) {
-                    int cx = xOrig + (x << 2);
-                    int cz = zOrig + (z << 2);
-                    TerraBiome b = grid.getBiome(cx, cz);
-
-                    biome.setBiome(cx, cz, b.getVanillaBiomes().get(b.getGenerator(world).getBiomeNoise(), cx, 0, cz));
-                }
-            }
-        }
-    }
-
-    @Override
-    public void generateBiomes(@NotNull World world, @NotNull Random random, int chunkX, int chunkZ, @NotNull BiomeGrid biome) {
-        biomes(world, chunkX, chunkZ, biome, main);
-    }
-
-    @Override
-    public Sampler createSampler(int chunkX, int chunkZ, BiomeProvider provider, World world, int elevationSmooth) {
-        return new Sampler3D(chunkX, chunkZ, provider, world, elevationSmooth);
-    }
-
-    @Override
-    public List<TerraBlockPopulator> getPopulators() {
-        return blockPopulators;
     }
 }

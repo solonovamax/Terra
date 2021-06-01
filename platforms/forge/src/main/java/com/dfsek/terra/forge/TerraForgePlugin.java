@@ -108,33 +108,36 @@ import java.util.zip.ZipFile;
 import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
 import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 
+
 @Mod("terra")
 @Mod.EventBusSubscriber(modid = "terra", bus = Mod.EventBusSubscriber.Bus.MOD)
 public class TerraForgePlugin implements TerraPlugin {
-    public static final PopulatorFeature POPULATOR_FEATURE = (PopulatorFeature) new PopulatorFeature(NoFeatureConfig.CODEC).setRegistryName("terra", "terra");
-    public static final ConfiguredFeature<?, ?> POPULATOR_CONFIGURED_FEATURE = POPULATOR_FEATURE.configured(IFeatureConfig.NONE).decorated(DecoratedPlacement.NOPE.configured(NoPlacementConfig.INSTANCE));
-
+    public static final PopulatorFeature POPULATOR_FEATURE = (PopulatorFeature) new PopulatorFeature(NoFeatureConfig.CODEC).setRegistryName(
+            "terra", "terra");
+    public static final ConfiguredFeature<?, ?> POPULATOR_CONFIGURED_FEATURE = POPULATOR_FEATURE.configured(IFeatureConfig.NONE).decorated(
+            DecoratedPlacement.NOPE.configured(NoPlacementConfig.INSTANCE));
+    
     private static TerraForgePlugin INSTANCE;
     private final Map<Long, TerraWorld> worldMap = new HashMap<>();
     private final EventManager eventManager = new TerraEventManager(this);
     private final GenericLoaders genericLoaders = new GenericLoaders(this);
     private final Profiler profiler = new ProfilerImpl();
-
+    
     private final CommandManager manager = new TerraCommandManager(this);
-
+    
     private final com.dfsek.terra.api.util.logging.Logger logger = new com.dfsek.terra.api.util.logging.Logger() {
         private final org.apache.logging.log4j.Logger logger = LogManager.getLogger();
-
+        
         @Override
         public void info(String message) {
             logger.info(message);
         }
-
+        
         @Override
         public void warning(String message) {
             logger.warn(message);
         }
-
+        
         @Override
         public void severe(String message) {
             logger.error(message);
@@ -150,9 +153,10 @@ public class TerraForgePlugin implements TerraPlugin {
     private final PluginConfig config = new PluginConfig();
     private final Transformer<String, Biome> biomeFixer = new Transformer.Builder<String, Biome>()
             .addTransform(id -> ForgeRegistries.BIOMES.getValue(ResourceLocation.tryParse(id)), new NotNullValidator<>())
-            .addTransform(id -> ForgeRegistries.BIOMES.getValue(ResourceLocation.tryParse("minecraft:" + id.toLowerCase())), new NotNullValidator<>()).build();
+            .addTransform(id -> ForgeRegistries.BIOMES.getValue(ResourceLocation.tryParse("minecraft:" + id.toLowerCase())),
+                          new NotNullValidator<>()).build();
     private File dataFolder;
-
+    
     public TerraForgePlugin() {
         if(INSTANCE != null) throw new IllegalStateException("Only one TerraPlugin instance may exist.");
         INSTANCE = this;
@@ -160,16 +164,37 @@ public class TerraForgePlugin implements TerraPlugin {
         MinecraftForge.EVENT_BUS.register(getClass());
         MinecraftForge.EVENT_BUS.register(ForgeEvents.class);
     }
-
+    
     public static TerraForgePlugin getInstance() {
         return INSTANCE;
     }
-
+    
     public static String createBiomeID(ConfigPack pack, String biomeID) {
         return pack.getTemplate().getID().toLowerCase() + "/" + biomeID.toLowerCase(Locale.ROOT);
     }
-
-    private static RequiredArgumentBuilder<CommandSource, String> assemble(RequiredArgumentBuilder<CommandSource, String> in, CommandManager manager) {
+    
+    @SubscribeEvent
+    public static void register(RegistryEvent.Register<Biome> event) {
+        INSTANCE.setup(); // Setup now because we need the biomes, and this event happens after blocks n stuff
+        INSTANCE.getConfigRegistry().forEach(pack -> pack.getRegistry(BiomeBuilder.class)
+                                                         .forEach((id, biome) -> event.getRegistry()
+                                                                                      .register(INSTANCE.createBiome(
+                                                                                              biome)))); // Register all Terra biomes.
+    }
+    
+    @SubscribeEvent
+    public static void registerLevels(RegistryEvent.Register<ForgeWorldType> event) {
+        INSTANCE.logger().info("Registering level types...");
+        event.getRegistry().register(TerraLevelType.FORGE_WORLD_TYPE);
+    }
+    
+    @SubscribeEvent
+    public static void registerPop(RegistryEvent.Register<Feature<?>> event) {
+        event.getRegistry().register(POPULATOR_FEATURE);
+    }
+    
+    private static RequiredArgumentBuilder<CommandSource, String> assemble(RequiredArgumentBuilder<CommandSource, String> in,
+                                                                           CommandManager manager) {
         return in.suggests((context, builder) -> {
             List<String> args = parseCommand(context.getInput());
             CommandSender sender = ForgeAdapter.adapt(context.getSource());
@@ -189,7 +214,7 @@ public class TerraForgePlugin implements TerraPlugin {
             return 1;
         });
     }
-
+    
     private static List<String> parseCommand(String command) {
         if(command.startsWith("/terra ")) command = command.substring("/terra ".length());
         else if(command.startsWith("/te ")) command = command.substring("/te ".length());
@@ -197,34 +222,19 @@ public class TerraForgePlugin implements TerraPlugin {
         if(command.endsWith(" ")) c.add("");
         return c;
     }
-
-    @SubscribeEvent
-    public static void register(RegistryEvent.Register<Biome> event) {
-        INSTANCE.setup(); // Setup now because we need the biomes, and this event happens after blocks n stuff
-        INSTANCE.getConfigRegistry().forEach(pack -> pack.getRegistry(BiomeBuilder.class).forEach((id, biome) -> event.getRegistry().register(INSTANCE.createBiome(biome)))); // Register all Terra biomes.
-    }
-
-    @SubscribeEvent
-    public static void registerLevels(RegistryEvent.Register<ForgeWorldType> event) {
-        INSTANCE.logger().info("Registering level types...");
-        event.getRegistry().register(TerraLevelType.FORGE_WORLD_TYPE);
-    }
-
-    @SubscribeEvent
-    public static void registerPop(RegistryEvent.Register<Feature<?>> event) {
-        event.getRegistry().register(POPULATOR_FEATURE);
-    }
-
+    
     public Biome createBiome(BiomeBuilder biome) {
         BiomeTemplate template = biome.getTemplate();
         Map<String, Integer> colors = template.getColors();
-
+        
         Biome vanilla = ((ForgeBiome) new ArrayList<>(biome.getVanillaBiomes().getContents()).get(0)).getHandle();
-
+        
         BiomeGenerationSettings.Builder generationSettings = new BiomeGenerationSettings.Builder();
-        generationSettings.surfaceBuilder(SurfaceBuilder.DEFAULT.configured(new SurfaceBuilderConfig(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.DIRT.defaultBlockState(), Blocks.GRAVEL.defaultBlockState()))); // It needs a surfacebuilder, even though we dont use it.
+        generationSettings.surfaceBuilder(SurfaceBuilder.DEFAULT.configured(
+                new SurfaceBuilderConfig(Blocks.GRASS_BLOCK.defaultBlockState(), Blocks.DIRT.defaultBlockState(),
+                                         Blocks.GRAVEL.defaultBlockState()))); // It needs a surfacebuilder, even though we dont use it.
         generationSettings.addFeature(GenerationStage.Decoration.VEGETAL_DECORATION, POPULATOR_CONFIGURED_FEATURE);
-
+        
         BiomeAmbience vanillaEffects = vanilla.getSpecialEffects();
         BiomeAmbience.Builder effects = new BiomeAmbience.Builder()
                 .waterColor(colors.getOrDefault("water", vanillaEffects.getWaterColor()))
@@ -232,7 +242,7 @@ public class TerraForgePlugin implements TerraPlugin {
                 .fogColor(colors.getOrDefault("fog", vanillaEffects.getFogColor()))
                 .skyColor(colors.getOrDefault("sky", vanillaEffects.getSkyColor()))
                 .grassColorModifier(vanillaEffects.getGrassColorModifier());
-
+        
         if(colors.containsKey("grass")) {
             effects.grassColorOverride(colors.get("grass"));
         } else {
@@ -244,7 +254,7 @@ public class TerraForgePlugin implements TerraPlugin {
         } else {
             vanillaEffects.getFoliageColorOverride().ifPresent(effects::foliageColorOverride);
         }
-
+        
         return new Biome.Builder()
                 .precipitation(vanilla.getPrecipitation())
                 .biomeCategory(vanilla.getBiomeCategory())
@@ -257,96 +267,36 @@ public class TerraForgePlugin implements TerraPlugin {
                 .generationSettings(generationSettings.build())
                 .build().setRegistryName("terra", createBiomeID(template.getPack(), template.getID()));
     }
-
+    
     public void setup() {
         this.dataFolder = Paths.get("config", "Terra").toFile();
         saveDefaultConfig();
         config.load(this);
         LangUtil.load(config.getLanguage(), this);
         logger.info("Initializing Terra...");
-
+        
         if(!addonRegistry.loadAll()) {
             throw new IllegalStateException("Failed to load addons. Please correct addon installations to continue.");
         }
         logger.info("Loaded addons.");
-
+        
         registry.loadAll(this);
-
+        
         logger.info("Loaded packs.");
-
-
+        
+        
         try {
             CommandUtil.registerAll(manager);
         } catch(MalformedCommandException e) {
             e.printStackTrace(); // TODO do something here even though this should literally never happen
         }
     }
-
-    @Override
-    public WorldHandle getWorldHandle() {
-        return worldHandle;
-    }
-
-    @Override
-    public TerraWorld getWorld(World world) {
-        return worldMap.computeIfAbsent(world.getSeed(), w -> {
-            logger.info("Loading world " + w);
-            return new TerraWorld(world, ((ForgeChunkGeneratorWrapper) ((ForgeChunkGenerator) world.getGenerator()).getHandle()).getPack(), this);
-        });
-    }
-
-    @Override
-    public JarFile getModJar() throws URISyntaxException, IOException {
-        File modsDir = new File("./mods");
-
-        if(!modsDir.exists()) return JarUtil.getJarFile();
-
-        for(File file : Objects.requireNonNull(modsDir.listFiles((dir, name) -> name.endsWith(".jar")))) {
-            try(ZipFile zipFile = new ZipFile(file)) {
-                if(zipFile.getEntry(Type.getInternalName(TerraPlugin.class) + ".class") != null) {
-                    return new JarFile(file);
-                }
-            }
-        }
-        return JarUtil.getJarFile();
-    }
-
-    public TerraWorld getWorld(long seed) {
-        TerraWorld world = worldMap.get(seed);
-        if(world == null) throw new IllegalArgumentException("No world exists with seed " + seed);
-        return world;
-    }
-
+    
     @Override
     public com.dfsek.terra.api.util.logging.Logger logger() {
         return logger;
     }
-
-    @Override
-    public PluginConfig getTerraConfig() {
-        return config;
-    }
-
-    @Override
-    public File getDataFolder() {
-        return dataFolder;
-    }
-
-    @Override
-    public Language getLanguage() {
-        return LangUtil.getLanguage();
-    }
-
-    @Override
-    public CheckedRegistry<ConfigPack> getConfigRegistry() {
-        return checkedRegistry;
-    }
-
-    @Override
-    public LockedRegistry<TerraAddon> getAddons() {
-        return addonLockedRegistry;
-    }
-
+    
     @Override
     public boolean reload() {
         config.load(this);
@@ -362,12 +312,7 @@ public class TerraForgePlugin implements TerraPlugin {
         worldMap.putAll(newMap);
         return succeed;
     }
-
-    @Override
-    public ItemHandle getItemHandle() {
-        return itemHandle;
-    }
-
+    
     @Override
     public void saveDefaultConfig() {
         try(InputStream stream = getClass().getResourceAsStream("/config.yml")) {
@@ -377,69 +322,138 @@ public class TerraForgePlugin implements TerraPlugin {
             e.printStackTrace();
         }
     }
-
+    
     @Override
     public String platformName() {
         return "Forge";
     }
-
-    @Override
-    public DebugLogger getDebugLogger() {
-        return debugLogger;
-    }
-
+    
     @Override
     public void register(TypeRegistry registry) {
         genericLoaders.register(registry);
         registry
                 .registerLoader(BlockData.class, (t, o, l) -> worldHandle.createBlockData((String) o))
-                .registerLoader(com.dfsek.terra.api.platform.world.Biome.class, (t, o, l) -> new ForgeBiome(biomeFixer.translate((String) o)));
+                .registerLoader(com.dfsek.terra.api.platform.world.Biome.class,
+                                (t, o, l) -> new ForgeBiome(biomeFixer.translate((String) o)));
     }
-
+    
+    @Override
+    public LockedRegistry<TerraAddon> getAddons() {
+        return addonLockedRegistry;
+    }
+    
+    @Override
+    public CheckedRegistry<ConfigPack> getConfigRegistry() {
+        return checkedRegistry;
+    }
+    
+    @Override
+    public DebugLogger getDebugLogger() {
+        return debugLogger;
+    }
+    
     @Override
     public EventManager getEventManager() {
         return eventManager;
     }
-
+    
+    @Override
+    public File getDataFolder() {
+        return dataFolder;
+    }
+    
+    @Override
+    public ItemHandle getItemHandle() {
+        return itemHandle;
+    }
+    
+    @Override
+    public Language getLanguage() {
+        return LangUtil.getLanguage();
+    }
+    
     @Override
     public Profiler getProfiler() {
         return profiler;
     }
-
+    
+    @Override
+    public JarFile getModJar() throws URISyntaxException, IOException {
+        File modsDir = new File("./mods");
+        
+        if(!modsDir.exists()) return JarUtil.getJarFile();
+        
+        for(File file : Objects.requireNonNull(modsDir.listFiles((dir, name) -> name.endsWith(".jar")))) {
+            try(ZipFile zipFile = new ZipFile(file)) {
+                if(zipFile.getEntry(Type.getInternalName(TerraPlugin.class) + ".class") != null) {
+                    return new JarFile(file);
+                }
+            }
+        }
+        return JarUtil.getJarFile();
+    }
+    
+    @Override
+    public PluginConfig getTerraConfig() {
+        return config;
+    }
+    
+    @Override
+    public TerraWorld getWorld(World world) {
+        return worldMap.computeIfAbsent(world.getSeed(), w -> {
+            logger.info("Loading world " + w);
+            return new TerraWorld(world, ((ForgeChunkGeneratorWrapper) ((ForgeChunkGenerator) world.getGenerator()).getHandle()).getPack(),
+                                  this);
+        });
+    }
+    
+    @Override
+    public WorldHandle getWorldHandle() {
+        return worldHandle;
+    }
+    
+    public TerraWorld getWorld(long seed) {
+        TerraWorld world = worldMap.get(seed);
+        if(world == null) throw new IllegalArgumentException("No world exists with seed " + seed);
+        return world;
+    }
+    
+    
     @Mod.EventBusSubscriber(modid = "terra", bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static final class ForgeEvents {
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         @SubscribeEvent
         public static void registerCommands(RegisterCommandsEvent event) {
             int max = INSTANCE.manager.getMaxArgumentDepth();
             RequiredArgumentBuilder<CommandSource, String> arg = argument("arg" + (max - 1), StringArgumentType.word());
             for(int i = 0; i < max; i++) {
                 RequiredArgumentBuilder<CommandSource, String> next = argument("arg" + (max - i - 1), StringArgumentType.word());
-
+                
                 arg = next.then(assemble(arg, INSTANCE.manager));
             }
-
+            
             event.getDispatcher().register(literal("terra").executes(context -> 1).then((ArgumentBuilder) assemble(arg, INSTANCE.manager)));
             event.getDispatcher().register(literal("te").executes(context -> 1).then((ArgumentBuilder) assemble(arg, INSTANCE.manager)));
         }
     }
-
+    
+    
     @Addon("Terra-Forge")
     @Author("Terra")
     @Version("1.0.0")
     private static final class ForgeAddon extends TerraAddon implements EventListener {
-
+        
         private final TerraPlugin main;
-
+        
         private ForgeAddon(TerraPlugin main) {
             this.main = main;
         }
-
+        
         @Override
         public void initialize() {
             main.getEventManager().registerListener(this, this);
         }
-
+        
         @Priority(Priority.LOWEST)
         @Global
         public void injectTrees(ConfigPackPreLoadEvent event) {
@@ -464,8 +478,8 @@ public class TerraForgePlugin implements TerraPlugin {
             injectTree(treeRegistry, "CRIMSON_FUNGUS", Features.CRIMSON_FUNGI);
             injectTree(treeRegistry, "WARPED_FUNGUS", Features.WARPED_FUNGI);
         }
-
-
+        
+        
         private void injectTree(CheckedRegistry<Tree> registry, String id, ConfiguredFeature<?, ?> tree) {
             try {
                 registry.add(id, new ForgeTree(tree, id, TerraForgePlugin.getInstance()));
@@ -473,13 +487,14 @@ public class TerraForgePlugin implements TerraPlugin {
             }
         }
     }
-
+    
+    
     @Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static final class ClientEvents {
         @SubscribeEvent
         public static void register(FMLClientSetupEvent event) {
             INSTANCE.logger.info("Client setup...");
-
+    
             ForgeWorldType world = TerraLevelType.FORGE_WORLD_TYPE;
             ForgeWorldTypeScreens.registerFactory(world, (returnTo, dimensionGeneratorSettings) -> new Screen(world.getDisplayName()) {
                 private final MutableInteger num = new MutableInteger(0);
@@ -489,17 +504,18 @@ public class TerraForgePlugin implements TerraPlugin {
                     if(num.get() >= packs.size()) num.set(0);
                     button.setMessage(new StringTextComponent("Pack: " + packs.get(num.get()).getTemplate().getID()));
                 });
-
+    
                 @Override
                 protected void init() {
                     packs.clear();
                     INSTANCE.registry.forEach((Consumer<ConfigPack>) packs::add);
-                    addButton(new Button(0, 0, 120, 20, new StringTextComponent("Close"), btn -> Minecraft.getInstance().setScreen(returnTo)));
+                    addButton(new Button(0, 0, 120, 20, new StringTextComponent("Close"),
+                                         btn -> Minecraft.getInstance().setScreen(returnTo)));
                     toggle.setMessage(new StringTextComponent("Pack: " + packs.get(num.get()).getTemplate().getID()));
                     addButton(toggle);
                 }
             });
         }
     }
-
+    
 }

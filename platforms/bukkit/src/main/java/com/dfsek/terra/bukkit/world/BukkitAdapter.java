@@ -32,23 +32,24 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
+
 /**
  * Utility class to adapt Bukkit enums to Terra enums.
  */
 public final class BukkitAdapter {
     public static Transformer<TreeType, String> TREE_TRANSFORMER = new Transformer.Builder<TreeType, String>()
             .addTransform(new MapTransform<TreeType, String>()
-                    .add(TreeType.COCOA_TREE, "JUNGLE_COCOA")
-                    .add(TreeType.BIG_TREE, "LARGE_OAK")
-                    .add(TreeType.TALL_REDWOOD, "LARGE_SPRUCE")
-                    .add(TreeType.REDWOOD, "SPRUCE")
-                    .add(TreeType.TREE, "OAK")
-                    .add(TreeType.MEGA_REDWOOD, "MEGA_SPRUCE")
-                    .add(TreeType.SWAMP, "SWAMP_OAK"))
+                                  .add(TreeType.COCOA_TREE, "JUNGLE_COCOA")
+                                  .add(TreeType.BIG_TREE, "LARGE_OAK")
+                                  .add(TreeType.TALL_REDWOOD, "LARGE_SPRUCE")
+                                  .add(TreeType.REDWOOD, "SPRUCE")
+                                  .add(TreeType.TREE, "OAK")
+                                  .add(TreeType.MEGA_REDWOOD, "MEGA_SPRUCE")
+                                  .add(TreeType.SWAMP, "SWAMP_OAK"))
             .addTransform(TreeType::toString)
             .build();
-
-
+    
+    
     public static Stairs.Shape adapt(org.bukkit.block.data.type.Stairs.Shape shape) {
         switch(shape) {
             case STRAIGHT:
@@ -65,15 +66,15 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static BlockData adapt(org.bukkit.block.data.BlockData data) {
         return BukkitBlockData.newInstance(data);
     }
-
+    
     public static org.bukkit.block.data.BlockData adapt(BlockData data) {
         return ((BukkitBlockData) data).getHandle();
     }
-
+    
     public static Axis adapt(org.bukkit.Axis axis) {
         switch(axis) {
             case X:
@@ -86,7 +87,7 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static Bisected.Half adapt(org.bukkit.block.data.Bisected.Half half) {
         switch(half) {
             case BOTTOM:
@@ -97,7 +98,7 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static BlockFace adapt(org.bukkit.block.BlockFace face) {
         switch(face) {
             case DOWN:
@@ -142,7 +143,7 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static Slab.Type adapt(org.bukkit.block.data.type.Slab.Type type) {
         switch(type) {
             case BOTTOM:
@@ -155,7 +156,7 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static RedstoneWire.Connection adapt(org.bukkit.block.data.type.RedstoneWire.Connection connection) {
         switch(connection) {
             case NONE:
@@ -168,7 +169,7 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static org.bukkit.block.data.type.RedstoneWire.Connection adapt(RedstoneWire.Connection connection) {
         switch(connection) {
             case SIDE:
@@ -181,7 +182,7 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static org.bukkit.block.data.type.Stairs.Shape adapt(Stairs.Shape shape) {
         switch(shape) {
             case STRAIGHT:
@@ -198,7 +199,7 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static Rail.Shape adapt(org.bukkit.block.data.Rail.Shape shape) {
         switch(shape) {
             case SOUTH_WEST:
@@ -225,7 +226,7 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static org.bukkit.block.data.Rail.Shape adapt(Rail.Shape shape) {
         switch(shape) {
             case EAST_WEST:
@@ -252,8 +253,8 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
-
+    
+    
     public static org.bukkit.block.data.Bisected.Half adapt(Bisected.Half half) {
         switch(half) {
             case TOP:
@@ -264,7 +265,7 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static org.bukkit.Axis adapt(Axis axis) {
         switch(axis) {
             case Z:
@@ -277,7 +278,7 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static org.bukkit.block.BlockFace adapt(BlockFace face) {
         switch(face) {
             case DOWN:
@@ -322,7 +323,7 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static org.bukkit.block.data.type.Slab.Type adapt(Slab.Type type) {
         switch(type) {
             case TOP:
@@ -335,77 +336,77 @@ public final class BukkitAdapter {
                 throw new IllegalStateException();
         }
     }
-
+    
     public static Location adapt(com.dfsek.terra.api.math.vector.Location location) {
         return new Location(((BukkitWorld) location.getWorld()).getHandle(), location.getX(), location.getY(), location.getZ());
     }
-
+    
     public static com.dfsek.terra.api.math.vector.Location adapt(Location location) {
         return new com.dfsek.terra.api.math.vector.Location(adapt(location.getWorld()), location.getX(), location.getY(), location.getZ());
     }
-
+    
     public static Vector adapt(Vector3 vector3) {
         return new Vector(vector3.getX(), vector3.getY(), vector3.getZ());
     }
-
+    
     public static Vector3 adapt(Vector vector) {
         return new Vector3(vector.getX(), vector.getY(), vector.getZ());
     }
-
+    
     public static CommandSender adapt(org.bukkit.command.CommandSender sender) {
         if(sender instanceof Player) return new BukkitPlayer((Player) sender);
         if(sender instanceof Entity) return new BukkitEntity((Entity) sender);
         return new BukkitCommandSender(sender);
     }
-
+    
     public static org.bukkit.command.CommandSender adapt(CommandSender sender) {
         return ((BukkitCommandSender) sender).getHandle();
     }
-
+    
     public static World adapt(org.bukkit.World world) {
         return new BukkitWorld(world);
     }
-
+    
     public static org.bukkit.World adapt(World world) {
         return (org.bukkit.World) world.getHandle();
     }
-
+    
     public static Chunk adapt(org.bukkit.Chunk chunk) {
         return new BukkitChunk(chunk);
     }
-
+    
     public static org.bukkit.Chunk adapt(Chunk chunk) {
         return (org.bukkit.Chunk) chunk.getHandle();
     }
-
+    
     public static Enchantment adapt(org.bukkit.enchantments.Enchantment enchantment) {
         return new BukkitEnchantment(enchantment);
     }
-
+    
     public static org.bukkit.enchantments.Enchantment adapt(Enchantment enchantment) {
         return ((BukkitEnchantment) enchantment).getHandle();
     }
-
+    
     public static Player adapt(com.dfsek.terra.api.platform.entity.Player player) {
         return ((BukkitPlayer) player).getHandle();
     }
-
+    
     public static com.dfsek.terra.api.platform.entity.Player adapt(Player player) {
         return new BukkitPlayer(player);
     }
-
+    
     public static BukkitBlockTypeAndItem adapt(Material material) {
         return new BukkitBlockTypeAndItem(material);
     }
-
+    
     public static Material adapt(BlockType type) {
         return ((BukkitBlockTypeAndItem) type).getHandle();
     }
-
+    
     public static ItemStack adapt(org.bukkit.inventory.ItemStack in) {
         return new BukkitItemStack(in);
     }
-
+    
     public static org.bukkit.inventory.ItemStack adapt(ItemStack in) {
         return ((BukkitItemStack) in).getHandle();
     }

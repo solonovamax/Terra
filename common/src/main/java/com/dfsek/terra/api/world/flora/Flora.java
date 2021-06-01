@@ -7,8 +7,9 @@ import com.dfsek.terra.api.platform.world.Chunk;
 
 import java.util.List;
 
-public interface Flora {
-    List<Block> getValidSpawnsAt(Chunk chunk, int x, int z, Range check);
 
+public interface Flora {
     boolean plant(Location l);
+    
+    List<Block> getValidSpawnsAt(Chunk chunk, int x, int z, Range check);
 }

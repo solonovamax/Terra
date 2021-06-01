@@ -9,37 +9,35 @@ import com.dfsek.terra.api.platform.world.generator.ChunkGenerator;
 import com.dfsek.terra.api.platform.world.generator.GeneratorWrapper;
 import com.dfsek.terra.api.world.generation.TerraChunkGenerator;
 
-import java.io.File;
-import java.util.UUID;
 
 public interface World extends Handle {
-    long getSeed();
-
-    int getMaxHeight();
-
-    ChunkGenerator getGenerator();
-
-    Chunk getChunkAt(int x, int z);
-
-    default Chunk getChunkAt(Location location) {
-        return getChunkAt(location.getBlockX() >> 4, location.getBlockZ() >> 4);
-    }
-
+    Entity spawnEntity(Location location, EntityType entityType);
+    
     Block getBlockAt(int x, int y, int z);
-
+    
     default Block getBlockAt(Location l) {
         return getBlockAt(l.getBlockX(), l.getBlockY(), l.getBlockZ());
     }
-
-    Entity spawnEntity(Location location, EntityType entityType);
-
-    int getMinHeight();
-
-    default boolean isTerraWorld() {
-        return getGenerator().getHandle() instanceof GeneratorWrapper;
+    
+    Chunk getChunkAt(int x, int z);
+    
+    default Chunk getChunkAt(Location location) {
+        return getChunkAt(location.getBlockX() >> 4, location.getBlockZ() >> 4);
     }
-
+    
+    ChunkGenerator getGenerator();
+    
+    int getMaxHeight();
+    
+    int getMinHeight();
+    
+    long getSeed();
+    
     default TerraChunkGenerator getTerraGenerator() {
         return ((GeneratorWrapper) getGenerator().getHandle()).getHandle();
+    }
+    
+    default boolean isTerraWorld() {
+        return getGenerator().getHandle() instanceof GeneratorWrapper;
     }
 }

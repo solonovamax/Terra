@@ -11,9 +11,10 @@ import java.util.jar.JarFile;
 
 import static com.dfsek.terra.api.util.JarUtil.copyResourcesToDirectory;
 
+
 public final class LangUtil {
     private static Language language;
-
+    
     public static void load(String langID, TerraPlugin main) {
         Logger logger = main.logger();
         File file = new File(main.getDataFolder(), "lang");
@@ -34,11 +35,11 @@ public final class LangUtil {
             logger.severe("Double-check your configuration before reporting this to Terra!");
         }
     }
-
+    
     public static Language getLanguage() {
         return language;
     }
-
+    
     public static void send(String messageID, CommandSender sender, String... args) {
         language.getMessage(messageID).send(sender, args);
     }

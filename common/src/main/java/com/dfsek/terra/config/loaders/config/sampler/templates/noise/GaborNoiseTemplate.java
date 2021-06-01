@@ -5,27 +5,28 @@ import com.dfsek.tectonic.annotations.Value;
 import com.dfsek.terra.api.math.noise.NoiseSampler;
 import com.dfsek.terra.api.math.noise.samplers.noise.GaborNoiseSampler;
 
+
 public class GaborNoiseTemplate extends NoiseTemplate<GaborNoiseSampler> {
     @Value("rotation")
     @Default
-    private double rotation = 0.25;
-
+    private final double rotation = 0.25;
+    
     @Value("isotropic")
     @Default
-    private boolean isotropic = true;
-
+    private final boolean isotropic = true;
+    
     @Value("deviation")
     @Default
-    private double deviation = 1.0;
-
+    private final double deviation = 1.0;
+    
     @Value("impulses")
     @Default
-    private double impulses = 64d;
-
+    private final double impulses = 64d;
+    
     @Value("frequency_0")
     @Default
-    private double f0 = 0.625;
-
+    private final double f0 = 0.625;
+    
     @Override
     public NoiseSampler apply(Long seed) {
         GaborNoiseSampler gaborNoiseSampler = new GaborNoiseSampler((int) (long) seed + salt);

@@ -6,19 +6,20 @@ import com.dfsek.terra.api.platform.block.Block;
 import com.dfsek.terra.api.platform.block.BlockData;
 import com.dfsek.terra.api.platform.block.data.Waterlogged;
 
+
 public class BufferedBlock implements BufferedItem {
     private final BlockData data;
     private final boolean overwrite;
     private final TerraPlugin main;
     private final boolean waterlog;
-
+    
     public BufferedBlock(BlockData data, boolean overwrite, TerraPlugin main, boolean waterlog) {
         this.data = data;
         this.overwrite = overwrite;
         this.main = main;
         this.waterlog = waterlog;
     }
-
+    
     @Override
     public void paste(Location origin) {
         Block block = origin.getBlock();

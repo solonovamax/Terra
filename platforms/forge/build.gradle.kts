@@ -43,6 +43,9 @@ val forgeVersion = "36.1.13"
 val mcVersion = "1.16.5"
 dependencies {
     "shadedApi"(project(":common"))
+    
+    "shadedImplementation"("org.apache.logging.log4j:log4j-slf4j-impl:2.8.1")
+    
     "minecraft"("net.minecraftforge:forge:$mcVersion-$forgeVersion")
     "annotationProcessor"("org.spongepowered:mixin:0.8.2:processor")
 }
@@ -64,16 +67,20 @@ afterEvaluate {
 }
 
 configure<UserDevExtension> {
-    mappings(mapOf(
+    mappings(
+        mapOf(
             "channel" to "official",
             "version" to mcVersion
-    ))
+             )
+            )
     runs {
         val runConfig = Action<RunConfig> {
-            properties(mapOf(
+            properties(
+                mapOf(
                     "forge.logging.markers" to "SCAN,REGISTRIES,REGISTRYDUMP",
                     "forge.logging.console.level" to "debug"
-            ))
+                     )
+                      )
             arg("-mixin.config=terra.mixins.json")
             workingDirectory = project.file("run").canonicalPath
             source(sourceSets["main"])
@@ -111,7 +118,8 @@ javaComponent.addVariantsFromConfiguration(deobfElements.get()) {
 
 tasks.jar {
     manifest {
-        attributes(mapOf(
+        attributes(
+            mapOf(
                 "Specification-Title" to "terra",
                 "Specification-Vendor" to "Terra",
                 "Specification-Version" to "1.0",
@@ -119,7 +127,8 @@ tasks.jar {
                 "Implementation-Version" to project.version,
                 "Implementation-Vendor" to "terra",
                 "MixinConfigs" to "terra.mixins.json"
-        ))
+                 )
+                  )
     }
 }
 

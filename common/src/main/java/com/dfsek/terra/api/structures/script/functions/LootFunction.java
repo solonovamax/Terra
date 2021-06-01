@@ -15,18 +15,25 @@ import com.dfsek.terra.api.structures.structure.RotationUtil;
 import com.dfsek.terra.api.structures.structure.buffer.items.BufferedLootApplication;
 import com.dfsek.terra.api.structures.tokenizer.Position;
 import net.jafama.FastMath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Map;
 
+
 public class LootFunction implements Function<Void> {
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    
     private final Registry<LootTable> registry;
     private final Returnable<String> data;
     private final Returnable<Number> x, y, z;
     private final Position position;
     private final TerraPlugin main;
     private final StructureScript script;
-
-    public LootFunction(Registry<LootTable> registry, Returnable<Number> x, Returnable<Number> y, Returnable<Number> z, Returnable<String> data, TerraPlugin main, Position position, StructureScript script) {
+    
+    public LootFunction(Registry<LootTable> registry, Returnable<Number> x, Returnable<Number> y, Returnable<Number> z,
+                        Returnable<String> data, TerraPlugin main, Position position, StructureScript script) {
         this.registry = registry;
         this.position = position;
         this.data = data;
@@ -48,7 +55,7 @@ public class LootFunction implements Function<Void> {
         LootTable table = registry.get(id);
 
         if(table == null) {
-            main.logger().severe("No such loot table " + id);
+            logger.error("No such loot table '{}'.", id);
             return null;
         }
 

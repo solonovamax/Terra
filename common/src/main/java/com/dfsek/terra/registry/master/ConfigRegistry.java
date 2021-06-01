@@ -2,48 +2,57 @@ package com.dfsek.terra.registry.master;
 
 import com.dfsek.tectonic.exception.ConfigException;
 import com.dfsek.terra.api.TerraPlugin;
+import com.dfsek.terra.config.fileloaders.FolderLoader;
+import com.dfsek.terra.config.fileloaders.ZIPLoader;
 import com.dfsek.terra.config.pack.ConfigPack;
 import com.dfsek.terra.registry.OpenRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.util.Objects;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+
 
 /**
  * Class to hold config packs
  */
 public class ConfigRegistry extends OpenRegistry<ConfigPack> {
-    public void load(File folder, TerraPlugin main) throws ConfigException {
-        ConfigPack pack = new ConfigPack(folder, main);
-        add(pack.getTemplate().getID(), pack);
-    }
-
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    
+    
     public boolean loadAll(TerraPlugin main) {
         boolean valid = true;
         File packsFolder = new File(main.getDataFolder(), "packs");
+        //noinspection ResultOfMethodCallIgnored
         packsFolder.mkdirs();
-        for(File dir : packsFolder.listFiles(File::isDirectory)) {
+        
+        for(File file : Objects.requireNonNull(packsFolder.listFiles())) {
             try {
-                load(dir, main);
-            } catch(ConfigException e) {
-                e.printStackTrace();
-                valid = false;
-            }
-        }
-        for(File zip : packsFolder.listFiles(file -> file.getName().endsWith(".zip") || file.getName().endsWith(".terra"))) {
-            try {
-                main.getDebugLogger().info("Loading ZIP archive: " + zip.getName());
-                load(new ZipFile(zip), main);
-            } catch(IOException | ConfigException e) {
-                e.printStackTrace();
+                if(file.isDirectory()) {
+                    logger.info("Attempting to load config pack from folder '{}'.", file.getName());
+                    
+                    ConfigPack pack = new ConfigPack(main, new FolderLoader(file.toPath()));
+                    add(pack.getTemplate().getID(), pack);
+                } else if(file.getName().endsWith(".zip") || file.getName().endsWith(".terra")) {
+                    logger.info("Attempting to load config pack from ZIP archive '{}'.", file.getName());
+                    
+                    ConfigPack pack = new ConfigPack(main, new ZIPLoader(new ZipFile(file)));
+                    add(pack.getTemplate().getID(), pack);
+                }
+            } catch(FileNotFoundException e) {
+            
+            } catch(ZipException e) {
+                logger.warn("'{}' is not a valid ZIP archive", file.getName(), e);
+            } catch(ConfigException | IOException e) {
+                logger.error("Failed to load config pack '{}'", file.getName(), e);
                 valid = false;
             }
         }
         return valid;
-    }
-
-    public void load(ZipFile file, TerraPlugin main) throws ConfigException {
-        ConfigPack pack = new ConfigPack(file, main);
-        add(pack.getTemplate().getID(), pack);
     }
 }

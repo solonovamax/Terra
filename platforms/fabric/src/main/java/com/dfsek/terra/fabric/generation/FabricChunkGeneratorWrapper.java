@@ -37,67 +37,75 @@ import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 import net.minecraft.world.gen.feature.StructureFeature;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+
 public class FabricChunkGeneratorWrapper extends ChunkGenerator implements GeneratorWrapper {
-    private final long seed;
-    private final DefaultChunkGenerator3D delegate;
-    private final TerraBiomeSource biomeSource;
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     public static final Codec<ConfigPack> PACK_CODEC = (RecordCodecBuilder.create(config -> config.group(
             Codec.STRING.fieldOf("pack").forGetter(pack -> pack.getTemplate().getID())
-    ).apply(config, config.stable(TerraFabricPlugin.getInstance().getConfigRegistry()::get))));
+                                                                                                        )
+                                                                                                  .apply(config, config.stable(
+                                                                                                          TerraFabricPlugin.getInstance()
+                                                                                                                           .getConfigRegistry()::get))));
     public static final Codec<FabricChunkGeneratorWrapper> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             TerraBiomeSource.CODEC.fieldOf("biome_source").forGetter(generator -> generator.biomeSource),
             Codec.LONG.fieldOf("seed").stable().forGetter(generator -> generator.seed),
             PACK_CODEC.fieldOf("pack").stable().forGetter(generator -> generator.pack))
-            .apply(instance, instance.stable(FabricChunkGeneratorWrapper::new)));
+                                                                                                                 .apply(instance,
+                                                                                                                        instance.stable(
+                                                                                                                                FabricChunkGeneratorWrapper::new)));
+    private final long seed;
+    private final DefaultChunkGenerator3D delegate;
+    private final TerraBiomeSource biomeSource;
     private final ConfigPack pack;
-
-    public ConfigPack getPack() {
-        return pack;
-    }
-
+    
     public FabricChunkGeneratorWrapper(TerraBiomeSource biomeSource, long seed, ConfigPack configPack) {
         super(biomeSource, new StructuresConfig(false));
         this.pack = configPack;
-
+        
         this.delegate = new DefaultChunkGenerator3D(pack, TerraFabricPlugin.getInstance());
-        delegate.getMain().logger().info("Loading world with config pack " + pack.getTemplate().getID());
+        logger.info("Loading world with config pack {}", pack.getTemplate().getID());
         this.biomeSource = biomeSource;
-
+        
         this.seed = seed;
     }
-
-
+    
+    @Override
+    public void carve(long seed, BiomeAccess access, Chunk chunk, GenerationStep.Carver carver) {
+        // No caves
+    }
+    
     @Override
     protected Codec<? extends ChunkGenerator> getCodec() {
         return CODEC;
     }
-
+    
     @Override
     public ChunkGenerator withSeed(long seed) {
         return new FabricChunkGeneratorWrapper((TerraBiomeSource) this.biomeSource.withSeed(seed), seed, pack);
     }
-
-    @Override
-    public void buildSurface(ChunkRegion region, Chunk chunk) {
-
-    }
-
+    
     @Nullable
     @Override
-    public BlockPos locateStructure(ServerWorld world, StructureFeature<?> feature, BlockPos center, int radius, boolean skipExistingChunks) {
+    public BlockPos locateStructure(ServerWorld world, StructureFeature<?> feature, BlockPos center, int radius,
+                                    boolean skipExistingChunks) {
         String name = Objects.requireNonNull(Registry.STRUCTURE_FEATURE.getId(feature)).toString();
         TerraWorld terraWorld = TerraFabricPlugin.getInstance().getWorld((World) world);
         TerraStructure located = pack.getRegistry(TerraStructure.class).get(pack.getTemplate().getLocatable().get(name));
         if(located != null) {
             CompletableFuture<BlockPos> result = new CompletableFuture<>();
-            AsyncStructureFinder finder = new AsyncStructureFinder(terraWorld.getBiomeProvider(), located, FabricAdapter.adapt(center).toLocation((World) world), 0, 500, location -> {
-                result.complete(FabricAdapter.adapt(location));
-            }, TerraFabricPlugin.getInstance());
+            AsyncStructureFinder finder = new AsyncStructureFinder(terraWorld.getBiomeProvider(), located,
+                                                                   FabricAdapter.adapt(center).toLocation((World) world), 0, 500,
+                                                                   location -> {
+                                                                       result.complete(FabricAdapter.adapt(location));
+                                                                   }, TerraFabricPlugin.getInstance());
             finder.run(); // Do this synchronously.
             try {
                 return result.get();
@@ -105,35 +113,29 @@ public class FabricChunkGeneratorWrapper extends ChunkGenerator implements Gener
                 throw new RuntimeException(e);
             }
         }
-        TerraFabricPlugin.getInstance().logger().warning("No overrides are defined for \"" + name + "\"");
+        logger.warn("No overrides are defined for \"{}\"", name);
         return null;
     }
-
+    
+    @Override
+    public void buildSurface(ChunkRegion region, Chunk chunk) {
+    
+    }
+    
     @Override
     public void generateFeatures(ChunkRegion region, StructureAccessor accessor) {
         super.generateFeatures(region, accessor);
     }
-
+    
     @Override
     public void populateNoise(WorldAccess world, StructureAccessor accessor, Chunk chunk) {
         delegate.generateChunkData((World) world, new FastRandom(), chunk.getPos().x, chunk.getPos().z, (ChunkData) chunk);
     }
-
+    
     @Override
-    public void carve(long seed, BiomeAccess access, Chunk chunk, GenerationStep.Carver carver) {
-        // No caves
-    }
-
-    @Override
-    public void setStructureStarts(DynamicRegistryManager dynamicRegistryManager, StructureAccessor structureAccessor, Chunk chunk, StructureManager structureManager, long worldSeed) {
-
-    }
-
-
-
-    @Override
-    public boolean isStrongholdStartingChunk(ChunkPos chunkPos) {
-        return false;
+    public void setStructureStarts(DynamicRegistryManager dynamicRegistryManager, StructureAccessor structureAccessor, Chunk chunk,
+                                   StructureManager structureManager, long worldSeed) {
+        
     }
 
     @Override
@@ -142,16 +144,16 @@ public class FabricChunkGeneratorWrapper extends ChunkGenerator implements Gener
         Sampler sampler = world.getConfig().getSamplerCache().getChunk(FastMath.floorDiv(x, 16), FastMath.floorDiv(z, 16));
         int cx = FastMath.floorMod(x, 16);
         int cz = FastMath.floorMod(z, 16);
-
+    
         int height = world.getWorld().getMaxHeight();
-
-        while (height >= 0 && sampler.sample(cx, height - 1, cz) < 0) {
+    
+        while(height >= 0 && sampler.sample(cx, height - 1, cz) < 0) {
             height--;
         }
-
+    
         return height;
     }
-
+    
     @Override
     public BlockView getColumnSample(int x, int z) {
         int height = 64; // TODO: implementation
@@ -167,10 +169,19 @@ public class FabricChunkGeneratorWrapper extends ChunkGenerator implements Gener
                 array[y] = Blocks.STONE.getDefaultState();
             }
         }
-
+        
         return new VerticalBlockSample(array);
     }
-
+    
+    @Override
+    public boolean isStrongholdStartingChunk(ChunkPos chunkPos) {
+        return false;
+    }
+    
+    public ConfigPack getPack() {
+        return pack;
+    }
+    
     @Override
     public TerraChunkGenerator getHandle() {
         return delegate;

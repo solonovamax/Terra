@@ -5,13 +5,19 @@ import com.dfsek.terra.api.math.vector.Location;
 import com.dfsek.terra.api.platform.block.Block;
 import com.dfsek.terra.api.platform.block.BlockData;
 import com.dfsek.terra.api.platform.block.data.Waterlogged;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
+
 
 public class BufferedBlock implements BufferedItem {
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private final TerraPlugin main;
     private final BlockData data;
     private final boolean overwrite;
-    private final TerraPlugin main;
     private final boolean waterlog;
-
+    
     public BufferedBlock(BlockData data, boolean overwrite, TerraPlugin main, boolean waterlog) {
         this.data = data;
         this.overwrite = overwrite;
@@ -29,8 +35,7 @@ public class BufferedBlock implements BufferedItem {
                 block.setBlockData(data, false);
             }
         } catch(RuntimeException e) {
-            main.logger().severe("Failed to place block at location " + origin + ": " + e.getMessage());
-            main.getDebugLogger().stack(e);
+            logger.warn("Failed to place block at location {}.", origin, e);
         }
     }
 }

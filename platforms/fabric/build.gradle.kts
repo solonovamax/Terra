@@ -22,11 +22,13 @@ group = "com.dfsek.terra.fabric"
 
 dependencies {
     "shadedApi"(project(":common"))
-
+    
+    "shadedImplementation"("org.apache.logging.log4j:log4j-slf4j-impl:2.8.1")
+    
     "minecraft"("com.mojang:minecraft:1.16.5")
     "mappings"("net.fabricmc:yarn:1.16.5+build.5:v2")
     "modImplementation"("net.fabricmc:fabric-loader:0.11.2")
-
+    
     "modImplementation"("net.fabricmc.fabric-api:fabric-api:0.31.0+1.16")
 }
 
@@ -67,10 +69,10 @@ publishing {
             artifact(tasks["jar"])
         }
     }
-
+    
     repositories {
         val mavenUrl = "https://repo.codemc.io/repository/maven-releases/"
-
+        
         maven(mavenUrl) {
             val mavenUsername: String? by project
             val mavenPassword: String? by project

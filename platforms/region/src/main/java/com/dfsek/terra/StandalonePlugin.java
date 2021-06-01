@@ -12,8 +12,6 @@ import com.dfsek.terra.api.platform.world.Biome;
 import com.dfsek.terra.api.platform.world.World;
 import com.dfsek.terra.api.registry.CheckedRegistry;
 import com.dfsek.terra.api.registry.LockedRegistry;
-import com.dfsek.terra.api.util.logging.DebugLogger;
-import com.dfsek.terra.api.util.logging.JavaLogger;
 import com.dfsek.terra.config.GenericLoaders;
 import com.dfsek.terra.config.PluginConfig;
 import com.dfsek.terra.config.lang.LangUtil;
@@ -29,7 +27,6 @@ import com.dfsek.terra.world.TerraWorld;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Logger;
 
 public class StandalonePlugin implements TerraPlugin {
     private final ConfigRegistry registry = new ConfigRegistry();
@@ -51,11 +48,6 @@ public class StandalonePlugin implements TerraPlugin {
     @Override
     public TerraWorld getWorld(World world) {
         return new TerraWorld(world, registry.get("DEFAULT"), this);
-    }
-
-    @Override
-    public com.dfsek.terra.api.util.logging.Logger logger() {
-        return new JavaLogger(Logger.getLogger("Terra"));
     }
 
     @Override
@@ -108,47 +100,25 @@ public class StandalonePlugin implements TerraPlugin {
     }
 
     @Override
-    public DebugLogger getDebugLogger() {
-        Logger logger = Logger.getLogger("Terra");
-        return new DebugLogger(new com.dfsek.terra.api.util.logging.Logger() {
-            @Override
-            public void info(String message) {
-                logger.info(message);
-            }
-
-            @Override
-            public void warning(String message) {
-                logger.warning(message);
-            }
-
-            @Override
-            public void severe(String message) {
-                logger.severe(message);
-            }
-        });
-    }
-
-    @Override
     public void register(TypeRegistry registry) {
-        registry
-                .registerLoader(BlockData.class, (t, o, l) -> worldHandle.createBlockData((String) o))
+        registry.registerLoader(BlockData.class, (t, o, l) -> worldHandle.createBlockData((String) o))
                 .registerLoader(Biome.class, (t, o, l) -> new RawBiome(o.toString()));
         new GenericLoaders(this).register(registry);
     }
-
-    public void load() {
-        LangUtil.load("en_us", this);
-        registry.loadAll(this);
-        config.load(this);
-    }
-
+    
     @Override
     public EventManager getEventManager() {
         return eventManager;
     }
-
+    
     @Override
     public Profiler getProfiler() {
         return profiler;
+    }
+    
+    public void load() {
+        LangUtil.load("en_us", this);
+        registry.loadAll(this);
+        config.load(this);
     }
 }

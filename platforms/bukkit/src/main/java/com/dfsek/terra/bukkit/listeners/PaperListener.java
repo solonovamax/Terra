@@ -8,8 +8,13 @@ import com.dfsek.terra.world.population.items.TerraStructure;
 import io.papermc.paper.event.world.StructureLocateEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 
 public class PaperListener implements Listener {
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final TerraPlugin main;
 
     public PaperListener(TerraPlugin main) {
@@ -21,18 +26,18 @@ public class PaperListener implements Listener {
         if(!BukkitAdapter.adapt(e.getWorld()).isTerraWorld()) return;
         e.setResult(null); // Assume no result.
         String name = "minecraft:" + e.getType().getName();
-        main.getDebugLogger().info("Overriding structure location for \"" + name + "\"");
+        logger.info("Overriding structure location for \"{}\"", name);
         TerraWorld tw = main.getWorld(BukkitAdapter.adapt(e.getWorld()));
         TerraStructure config = tw.getConfig().getRegistry(TerraStructure.class).get(tw.getConfig().getTemplate().getLocatable().get(name));
         if(config != null) {
             AsyncStructureFinder finder = new AsyncStructureFinder(tw.getBiomeProvider(), config, BukkitAdapter.adapt(e.getOrigin()), 0, 500, location -> {
                 if(location != null)
                     e.setResult(BukkitAdapter.adapt(location.toLocation(BukkitAdapter.adapt(e.getWorld()))));
-                main.getDebugLogger().info("Location: " + location);
+                logger.info("Location: {}", location);
             }, main);
             finder.run(); // Do this synchronously.
         } else {
-            main.logger().warning("No overrides are defined for \"" + name + "\"");
+            logger.warn("No overrides are defined for '{}'", name);
         }
 
     }

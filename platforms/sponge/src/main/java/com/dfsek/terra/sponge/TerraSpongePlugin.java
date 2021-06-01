@@ -10,7 +10,6 @@ import com.dfsek.terra.api.platform.handle.WorldHandle;
 import com.dfsek.terra.api.platform.world.World;
 import com.dfsek.terra.api.registry.CheckedRegistry;
 import com.dfsek.terra.api.registry.LockedRegistry;
-import com.dfsek.terra.api.util.logging.DebugLogger;
 import com.dfsek.terra.config.PluginConfig;
 import com.dfsek.terra.config.lang.Language;
 import com.dfsek.terra.config.pack.ConfigPack;
@@ -72,11 +71,6 @@ public class TerraSpongePlugin implements TerraPlugin {
     }
 
     @Override
-    public com.dfsek.terra.api.util.logging.Logger logger() {
-        return new SpongeLogger(logger);
-    }
-
-    @Override
     public PluginConfig getTerraConfig() {
         return config;
     }
@@ -123,11 +117,6 @@ public class TerraSpongePlugin implements TerraPlugin {
     @Override
     public String platformName() {
         return "Sponge";
-    }
-
-    @Override
-    public DebugLogger getDebugLogger() {
-        return null;
     }
 
     @Override

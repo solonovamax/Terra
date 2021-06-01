@@ -8,8 +8,6 @@ import com.dfsek.terra.api.platform.world.World;
 import com.dfsek.terra.api.registry.CheckedRegistry;
 import com.dfsek.terra.api.registry.LockedRegistry;
 import com.dfsek.terra.api.util.JarUtil;
-import com.dfsek.terra.api.util.logging.DebugLogger;
-import com.dfsek.terra.api.util.logging.Logger;
 import com.dfsek.terra.config.PluginConfig;
 import com.dfsek.terra.config.lang.Language;
 import com.dfsek.terra.config.pack.ConfigPack;
@@ -29,8 +27,6 @@ public interface TerraPlugin extends LoaderRegistrar {
 
     TerraWorld getWorld(World world);
 
-    Logger logger();
-
     PluginConfig getTerraConfig();
 
     File getDataFolder();
@@ -48,8 +44,6 @@ public interface TerraPlugin extends LoaderRegistrar {
     void saveDefaultConfig();
 
     String platformName();
-
-    DebugLogger getDebugLogger();
 
     EventManager getEventManager();
 

@@ -9,8 +9,13 @@ import com.dfsek.terra.api.platform.block.state.Container;
 import com.dfsek.terra.api.structures.loot.LootTable;
 import com.dfsek.terra.api.structures.script.StructureScript;
 import com.dfsek.terra.api.util.FastRandom;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 
 public class BufferedLootApplication implements BufferedItem {
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final LootTable table;
     private final TerraPlugin main;
     private final StructureScript structure;
@@ -27,7 +32,7 @@ public class BufferedLootApplication implements BufferedItem {
             Block block = origin.getBlock();
             BlockState data = block.getState();
             if(!(data instanceof Container)) {
-                main.logger().severe("Failed to place loot at " + origin + "; block " + data + " is not container.");
+                logger.warn("Failed to place loot at {}; block {} is not a container.", origin, data);
                 return;
             }
             Container container = (Container) data;
@@ -39,8 +44,7 @@ public class BufferedLootApplication implements BufferedItem {
             event.getTable().fillInventory(container.getInventory(), new FastRandom(origin.hashCode()));
             data.update(false);
         } catch(Exception e) {
-            main.logger().warning("Could not apply loot at " + origin + ": " + e.getMessage());
-            e.printStackTrace();
+            logger.warn("Could not apply loot at {}.", origin, e);
         }
     }
 }

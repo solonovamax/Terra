@@ -6,23 +6,35 @@ import com.dfsek.terra.api.util.collections.MaterialSet;
 import com.dfsek.terra.api.world.flora.Flora;
 import com.dfsek.terra.registry.OpenRegistry;
 import com.dfsek.terra.world.population.items.flora.ConstantFlora;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.Callable;
 
-public class FloraRegistry extends OpenRegistry<Flora> {
-    private final TerraPlugin main;
 
+public class FloraRegistry extends OpenRegistry<Flora> {
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    
+    private final TerraPlugin main;
+    
     public FloraRegistry(TerraPlugin main) {
         this.main = main;
         MaterialSet grassy = MaterialSet.get(create("minecraft:grass_block"), create("minecraft:podzol"));
-        addItem("TALL_GRASS", () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:tall_grass[half=lower]"), data("minecraft:tall_grass[half=upper]"))));
-        addItem("TALL_FERN", () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:large_fern[half=lower]"), data("minecraft:large_fern[half=upper]"))));
-        addItem("SUNFLOWER", () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:sunflower[half=lower]"), data("minecraft:sunflower[half=upper]"))));
-        addItem("ROSE_BUSH", () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:rose_bush[half=lower]"), data("minecraft:rose_bush[half=upper]"))));
-        addItem("LILAC", () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:lilac[half=lower]"), data("minecraft:lilac[half=upper]"))));
-        addItem("PEONY", () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:peony[half=lower]"), data("minecraft:peony[half=upper]"))));
+        addItem("TALL_GRASS", () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:tall_grass[half=lower]"),
+                                                                            data("minecraft:tall_grass[half=upper]"))));
+        addItem("TALL_FERN", () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:large_fern[half=lower]"),
+                                                                           data("minecraft:large_fern[half=upper]"))));
+        addItem("SUNFLOWER", () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:sunflower[half=lower]"),
+                                                                           data("minecraft:sunflower[half=upper]"))));
+        addItem("ROSE_BUSH", () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:rose_bush[half=lower]"),
+                                                                           data("minecraft:rose_bush[half=upper]"))));
+        addItem("LILAC",
+                () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:lilac[half=lower]"), data("minecraft:lilac[half=upper]"))));
+        addItem("PEONY",
+                () -> new ConstantFlora(grassy, Arrays.asList(data("minecraft:peony[half=lower]"), data("minecraft:peony[half=upper]"))));
         addItem("GRASS", () -> new ConstantFlora(grassy, Collections.singletonList(data("minecraft:grass"))));
         addItem("FERN", () -> new ConstantFlora(grassy, Collections.singletonList(data("minecraft:fern"))));
         addItem("AZURE_BLUET", () -> new ConstantFlora(grassy, Collections.singletonList(data("minecraft:azure_bluet"))));
@@ -61,7 +73,7 @@ public class FloraRegistry extends OpenRegistry<Flora> {
             entry.getValue(); // Mark as not dead.
             add(id, entry);
         } catch(Exception e) {
-            main.logger().warning("Failed to load Flora item: " + id + ": " + e.getMessage());
+            logger.error("Failed to load Flora item: '{}'", id, e);
         }
     }
 

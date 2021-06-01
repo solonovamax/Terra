@@ -3,8 +3,13 @@ package com.dfsek.terra.api.structures.structure.buffer.items;
 import com.dfsek.terra.api.TerraPlugin;
 import com.dfsek.terra.api.math.vector.Location;
 import com.dfsek.terra.api.platform.block.state.BlockState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandles;
 
 public class BufferedStateManipulator implements BufferedItem {
+    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final TerraPlugin main;
     private final String data;
 
@@ -20,8 +25,7 @@ public class BufferedStateManipulator implements BufferedItem {
             state.applyState(data);
             state.update(false);
         } catch(Exception e) {
-            main.logger().warning("Could not apply BlockState at " + origin + ": " + e.getMessage());
-            e.printStackTrace();
+            logger.warn("Could not apply BlockState at {}.", origin, e);
         }
     }
 }

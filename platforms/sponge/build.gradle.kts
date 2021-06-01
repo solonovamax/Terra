@@ -17,8 +17,11 @@ repositories {
 dependencies {
     "compileOnly"("org.spongepowered:spongeapi:7.2.0")
     "shadedApi"(project(":common"))
+    
     "shadedImplementation"("org.yaml:snakeyaml:1.27")
     "shadedImplementation"("com.googlecode.json-simple:json-simple:1.1.1")
+    
+    "shadedImplementation"("org.apache.logging.log4j:log4j-slf4j-impl:2.8.1")
 }
 
 sponge {

@@ -12,10 +12,10 @@ import java.util.regex.Pattern;
 public final class VersionUtil {
     private static final Logger logger = LoggerFactory.getLogger(VersionUtil.class);
     public static final SpigotVersionInfo SPIGOT_VERSION_INFO = new SpigotVersionInfo();
-    public static final MinecraftVersionInfo MINECRAFT_VERSION = new MinecraftVersionInfo();
+    public static final MinecraftVersionInfo MINECRAFT_VERSION_INFO = new MinecraftVersionInfo();
     
-    public static MinecraftVersionInfo getMinecraftVersion() {
-        return MINECRAFT_VERSION;
+    public static MinecraftVersionInfo getMinecraftVersionInfo() {
+        return MINECRAFT_VERSION_INFO;
     }
     
     public static SpigotVersionInfo getSpigotVersionInfo() {
@@ -29,9 +29,10 @@ public final class VersionUtil {
         private final boolean isTuinity;
         private final boolean isPurpur;
         private final boolean isYaptopia;
+        private final boolean isMohist;
         
         public SpigotVersionInfo() {
-            
+            logger.debug("Parsing spigot version info...");
             isPaper = PaperLib.isPaper();
             isSpigot = PaperLib.isSpigot();
             
@@ -55,28 +56,49 @@ public final class VersionUtil {
                 isPurpur = true;
             } catch(ClassNotFoundException ignored) {}
             this.isPurpur = isPurpur;
-            
+    
             boolean isYaptopia = false;
             try {
                 Class.forName("org.yatopiamc.yatopia.server.YatopiaConfig");
                 isYaptopia = true;
             } catch(ClassNotFoundException ignored) {}
             this.isYaptopia = isYaptopia;
+    
+            boolean isMohist = false;
+            try {
+                Class.forName("com.mohistmc.MohistMC");
+                // it's mohist
+                isMohist = true;
+            } catch(ClassNotFoundException ignore) {}
+            this.isMohist = isMohist;
+    
+            logger.debug("Spigot version info parsed successfully.");
         }
         
         @Override
         public String toString() {
-            if(isYaptopia) return "Yaptopia";
-            else if(isPurpur) return "Purpur";
-            else if(isTuinity) return "Tuinity";
-            else if(isAirplane) return "Airplane";
-            else if(isPaper) return "Paper";
-            else if(isSpigot) return "Spigot";
-            else return "Craftbukkit";
+            if(isYaptopia)
+                return "Yaptopia";
+            else if(isPurpur)
+                return "Purpur";
+            else if(isTuinity)
+                return "Tuinity";
+            else if(isAirplane)
+                return "Airplane";
+            else if(isPaper)
+                return "Paper";
+            else if(isSpigot)
+                return "Spigot";
+            else
+                return "Craftbukkit";
         }
         
         public boolean isAirplane() {
             return isAirplane;
+        }
+        
+        public boolean isMohist() {
+            return isMohist;
         }
         
         public boolean isPaper() {
@@ -108,13 +130,17 @@ public final class VersionUtil {
         private final int minor;
         private final int patch;
         
-        public MinecraftVersionInfo(int major, int minor, int patch) {
+        public MinecraftVersionInfo() {
+            this(Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]);
+        }
+        
+        private MinecraftVersionInfo(int major, int minor, int patch) {
             this.major = major;
             this.minor = minor;
             this.patch = patch;
         }
         
-        public MinecraftVersionInfo(String versionString) {
+        private MinecraftVersionInfo(String versionString) {
             Matcher versionMatcher = versionPattern.matcher(versionString);
             if(versionMatcher.find()) {
                 major = Integer.parseInt(versionMatcher.group(1));
@@ -124,11 +150,8 @@ public final class VersionUtil {
                 major = -1;
                 minor = -1;
                 patch = -1;
+                logger.error("Error while parsing minecraft version info. Continuing launch, but setting all versions to -1.");
             }
-        }
-        
-        public MinecraftVersionInfo() {
-            this(Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3]);
         }
         
         @Override

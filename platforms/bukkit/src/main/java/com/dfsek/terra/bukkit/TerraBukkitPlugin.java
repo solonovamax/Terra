@@ -64,7 +64,6 @@ import java.util.Objects;
 
 public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
-    
     private final Map<String, DefaultChunkGenerator3D> generatorMap = new HashMap<>();
     private final Map<World, TerraWorld> worldMap = new HashMap<>();
     private final Map<String, ConfigPack> worlds = new HashMap<>();
@@ -86,14 +85,10 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
     
     @Override
     public void onEnable() {
-        logger.info("Logging!");
-        logger.info("Running on version {}", VersionUtil.getMinecraftVersion());
-        if(VersionUtil.getMinecraftVersion().getMinor() <= 15)
-            logger.warn("Terra is running on an outdated Bukkit version. Some functionality may be limited or not work as intended");
-        if(!VersionUtil.getSpigotVersionInfo().isSpigot())
-            logger.error("YOU ARE RUNNING A CRAFTBUKKIT OR BUKKIT SERVER JAR. PLEASE UPGRADE TO PAPER SPIGOT.");
-        if(VersionUtil.getSpigotVersionInfo().isYaptopia())
-            logger.warn("Yaptopia is a highly unstable fork of spigot. You may experience various issues with it.");
+        // Check for version-y stuff at startup
+        boolean shouldInitialize = doVersionCheck();
+        if(!shouldInitialize)
+            return;
     
         saveDefaultConfig();
     
@@ -149,14 +144,15 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
             The command
             
                 fmt -w 72 -g 72 -u text | \
-                boxes -a c -p a1h3 -t 4e -d jstone | \
-                sed -Ee 's/\+-+\*\//|------------------------------------------------------------------------------|/g'
+                boxes -a c -p a1h3 -t 4e -d jstone -s82 | \
+                sed -Ee 's/\+-+\*\//|------------------------------------------------------------------------------|/g' \
                 -e 's/^\s*(.*)$/"\1\\n"/g' -e 's/\///g' -e 's/\*|\+/./g' -e 's/$/ +/g' -e '/^"\| {3}-{72} {3}\|\\n" \+$/d'
             
             was used to create these boxes. Leaving this here in case we want to create more/modify them.
              */
             if(VersionUtil.getSpigotVersionInfo().isPaper()) { // logging with stack trace to be annoying.
-                logger.warn(".------------------------------------------------------------------------------.\n" +
+                logger.warn("\n" +
+                            ".------------------------------------------------------------------------------.\n" +
                             "|                                                                              |\n" +
                             "|      You are using an outdated version of Paper. This version does not       |\n" +
                             "|       contain StructureLocateEvent. Terra will now fall back to Spigot       |\n" +
@@ -168,7 +164,8 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
                             "|                                                                              |\n" +
                             "|------------------------------------------------------------------------------|", e);
             } else {
-                logger.warn(".------------------------------------------------------------------------------.\n" +
+                logger.warn("\n" +
+                            ".------------------------------------------------------------------------------.\n" +
                             "|                                                                              |\n" +
                             "|    Paper is not in use. Falling back to Spigot events. This will prevent     |\n" +
                             "|    cartographer villagers from spawning, and cause structure location to     |\n" +
@@ -203,8 +200,81 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
         genericLoaders.register(registry);
     }
     
+    private boolean doVersionCheck() {
+        logger.info("Running on version {} with {}.", VersionUtil.getMinecraftVersionInfo(), VersionUtil.getSpigotVersionInfo());
+        
+        if(VersionUtil.getMinecraftVersionInfo().getMinor() <= 15)
+            logger.warn("Terra is running on an outdated Bukkit version. Some functionality may be limited or not work as intended");
+        
+        if(!VersionUtil.getSpigotVersionInfo().isSpigot())
+            logger.error("YOU ARE RUNNING A CRAFTBUKKIT OR BUKKIT SERVER JAR. PLEASE UPGRADE TO PAPER SPIGOT.");
+        
+        if(VersionUtil.getSpigotVersionInfo().isYaptopia())
+            logger.warn("Yaptopia is a highly unstable fork of spigot. You may experience various issues with it.");
+        
+        if(!VersionUtil.getSpigotVersionInfo().isMohist()) {
+            if(System.getProperty("IKnowMohistCausesLotsOfIssuesButIWillUseItAnyways") == null) {
+                //noinspection CodeBlock2Expr
+                Runnable runnable = () -> {
+                    logger.error("\n" +
+                                 ".----------------------------------------------------------------------------------.\n" +
+                                 "|                                                                                  |\n" +
+                                 "|                                ⚠ !! Warning !! ⚠                               |\n" +
+                                 "|                                                                                  |\n" +
+                                 "|                         You are currently using Mohist.                          |\n" +
+                                 "|                                                                                  |\n" +
+                                 "|                                Do not use Mohist.                                |\n" +
+                                 "|                                                                                  |\n" +
+                                 "|   The concept of combining the rigid Bukkit platform, which assumes a 100%       |\n" +
+                                 "|   Vanilla server, with the flexible Forge platform, which allows changing        |\n" +
+                                 "|   core components of the game, simply does not work. These platforms are         |\n" +
+                                 "|   incompatible at a conceptual level, the only way to combine them would         |\n" +
+                                 "|   be to make incompatible changes to both. As a result, Mohist's Bukkit          |\n" +
+                                 "|   API implementation is not compliant. This will cause many plugins to           |\n" +
+                                 "|   break. Rather than fix their platform, Mohist has chosen to distribute         |\n" +
+                                 "|   unofficial builds of plugins they deem to be \"fixed\". These builds are not     |\n" +
+                                 "|   \"fixed\", they are simply hacked together to work with Mohist's half-baked      |\n" +
+                                 "|   Bukkit implementation. To distribute these as \"fixed\" versions implies that:   |\n" +
+                                 "|       - These builds are endorsed by the original developers. (They are not)     |\n" +
+                                 "|       - The issue is on the plugin's end, not Mohist's. (It is not. The issue    |\n" +
+                                 "|       is that Mohist chooses to not create a compliant Bukkit implementation)    |\n" +
+                                 "|   Please, do not use Mohist. It causes issues with most plugins, and rather      |\n" +
+                                 "|   than fixing their platform, Mohist has chosen to distribute unofficial         |\n" +
+                                 "|   hacked-together builds of plugins, calling them \"fixed\". If you want           |\n" +
+                                 "|   to use a server API with Forge mods, look at the Sponge project, an            |\n" +
+                                 "|   API that is designed to be implementation-agnostic, with first-party           |\n" +
+                                 "|   support for the Forge mod loader. You are bound to encounter issues if         |\n" +
+                                 "|   you use Terra with Mohist. We will provide NO SUPPORT for servers running      |\n" +
+                                 "|   Mohist. If you wish to proceed anyways, you can add the JVM System Property    |\n" +
+                                 "|   \"IKnowMohistCausesLotsOfIssuesButIWillUseItAnyways\" to enable the plugin. No   |\n" +
+                                 "|   support will be provided for servers running Mohist.                           |\n" +
+                                 "|                                                                                  |\n" +
+                                 "|                   Because of this **TERRA HAS BEEN DISABLED**.                   |\n" +
+                                 "|                    Do not come ask us why it is not working.                     |\n" +
+                                 "|                                                                                  |\n" +
+                                 "|----------------------------------------------------------------------------------|");
+                };
+                
+                runnable.run();
+                //noinspection deprecation
+                Bukkit.getScheduler().scheduleAsyncDelayedTask(this, runnable, 200L);
+                // Bukkit.shutdown(); // we're not *that* evil
+                setEnabled(false);
+                return false;
+            } else {
+                logger.warn("You are using Mohist, so we will not give you any support for issues that may arise. " +
+                            "Since you enabled the \"IKnowMohistCausesLotsOfIssuesButIWillUseItAnyways\" flag, we won't disable Terra. " +
+                            "But be warned.");
+                logger.warn("I felt a great disturbance in the JVM, as if millions of plugins suddenly cried out in stack traces and" +
+                            " were suddenly silenced. I fear something terrible has happened.\n- Astrash");
+            }
+        }
+        return true;
+    }
+    
     public void setHandle(WorldHandle handle) {
-        logger.warn(".------------------------------------------------------------------------------.\n" +
+        logger.warn("\n" +
+                    ".------------------------------------------------------------------------------.\n" +
                     "|                                                                              |\n" +
                     "|   A third-party addon has injected a custom WorldHandle! If you encounter    |\n" +
                     "|      issues, try *without* the addon before reporting to Terra. Report       |\n" +

@@ -12,18 +12,20 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class BukkitItemHandle implements ItemHandle {
 
+public class BukkitItemHandle implements ItemHandle {
+    
     @Override
     public Item createItem(String data) {
         return BukkitAdapter.adapt(Material.matchMaterial(data));
     }
-
+    
     @Override
     public Enchantment getEnchantment(String id) {
-        return BukkitAdapter.adapt(org.bukkit.enchantments.Enchantment.getByKey(NamespacedKey.minecraft(MinecraftUtils.stripMinecraftNamespace(id))));
+        return BukkitAdapter.adapt(
+                org.bukkit.enchantments.Enchantment.getByKey(NamespacedKey.minecraft(MinecraftUtils.stripMinecraftNamespace(id))));
     }
-
+    
     @Override
     public Set<Enchantment> getEnchantments() {
         return Arrays.stream(org.bukkit.enchantments.Enchantment.values()).map(BukkitAdapter::adapt).collect(Collectors.toSet());

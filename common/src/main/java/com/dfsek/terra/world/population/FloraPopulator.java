@@ -18,23 +18,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+
 /**
  * Populates Flora
  */
 public class FloraPopulator implements TerraBlockPopulator {
     private final TerraPlugin main;
-
+    
     public FloraPopulator(TerraPlugin main) {
         this.main = main;
     }
-
+    
     @SuppressWarnings("try")
     @Override
     public void populate(@NotNull World world, @NotNull Chunk chunk) {
         TerraWorld tw = main.getWorld(world);
         try(ProfileFrame ignore = main.getProfiler().profile("flora")) {
             if(tw.getConfig().getTemplate().disableFlora()) return;
-
+    
             if(!tw.isSafe()) return;
             BiomeProvider provider = tw.getBiomeProvider();
             Map<Vector2, List<FloraLayer>> layers = new HashMap<>();
@@ -45,9 +46,9 @@ public class FloraPopulator implements TerraBlockPopulator {
                     layers.put(l, biome.getConfig().getFlora());
                 }
             }
-
+    
             Random random = PopulationUtil.getRandom(chunk);
-
+    
             int iter = 0;
             boolean finished = false;
             while(!finished) {

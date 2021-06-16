@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 
+
 @Command
 @DebugCommand
 public class ProfileQueryCommand implements CommandTemplate {

@@ -10,16 +10,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+
 @Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Argument {
     String value();
-
+    
     boolean required() default true;
-
+    
     Class<? extends TabCompleter> tabCompleter() default NothingCompleter.class;
-
+    
     Class<? extends ArgumentParser<?>> argumentParser() default StringArgumentParser.class;
-
+    
     String defaultValue() default "";
 }

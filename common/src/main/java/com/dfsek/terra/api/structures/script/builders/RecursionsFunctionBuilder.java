@@ -8,17 +8,18 @@ import com.dfsek.terra.api.structures.tokenizer.Position;
 
 import java.util.List;
 
+
 public class RecursionsFunctionBuilder implements FunctionBuilder<RecursionsFunction> {
     @Override
     public RecursionsFunction build(List<Returnable<?>> argumentList, Position position) throws ParseException {
         return new RecursionsFunction(position);
     }
-
+    
     @Override
     public int argNumber() {
         return 0;
     }
-
+    
     @Override
     public Returnable.ReturnType getArgument(int position) {
         return null;

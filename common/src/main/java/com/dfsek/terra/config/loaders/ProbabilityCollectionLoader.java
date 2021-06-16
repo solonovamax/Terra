@@ -44,8 +44,9 @@ public class ProbabilityCollectionLoader implements TypeLoader<ProbabilityCollec
                 logger.warn("While attempting to load probability collection, provided object was not of the right type.");
                 throw new LoadException("Malformed Probability Collection: " + o);
             }
-        } else throw new LoadException("Unable to load config! Could not retrieve parameterized type: " + type);
-        
+        } else {
+            throw new LoadException("Unable to load config! Could not retrieve parameterized type: " + type);
+        }
         
         return collection;
     }

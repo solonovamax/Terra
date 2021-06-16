@@ -75,12 +75,14 @@ public class ForgeChunkGeneratorWrapper extends ChunkGenerator implements Genera
     }
     
     @Override
-    protected @NotNull Codec<? extends ChunkGenerator> codec() {
+    protected @NotNull
+    Codec<? extends ChunkGenerator> codec() {
         return CODEC;
     }
     
     @Override
-    public @NotNull ChunkGenerator withSeed(long seed) {
+    public @NotNull
+    ChunkGenerator withSeed(long seed) {
         return new ForgeChunkGeneratorWrapper((TerraBiomeSource) this.biomeSource.withSeed(seed), seed, pack);
     }
     
@@ -124,7 +126,8 @@ public class ForgeChunkGeneratorWrapper extends ChunkGenerator implements Genera
     }
     
     @Override
-    public @NotNull IBlockReader getBaseColumn(int p_230348_1_, int p_230348_2_) {
+    public @NotNull
+    IBlockReader getBaseColumn(int p_230348_1_, int p_230348_2_) {
         int height = 64; // TODO: implementation
         BlockState[] array = new BlockState[256];
         for(int y = 255; y >= 0; y--) {

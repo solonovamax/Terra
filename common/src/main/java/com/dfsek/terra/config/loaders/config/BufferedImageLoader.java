@@ -10,13 +10,14 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
+
 public class BufferedImageLoader implements TypeLoader<BufferedImage> {
     private final Loader files;
-
+    
     public BufferedImageLoader(Loader files) {
         this.files = files;
     }
-
+    
     @Override
     public BufferedImage load(Type t, Object c, ConfigLoader loader) throws LoadException {
         try {

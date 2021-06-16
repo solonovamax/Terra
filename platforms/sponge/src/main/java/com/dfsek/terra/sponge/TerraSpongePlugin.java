@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+
 @Plugin(id = "terra", name = "Terra-Sponge", version = "", description = "Terra")
 public class TerraSpongePlugin implements TerraPlugin {
     private final ConfigRegistry configRegistry = new ConfigRegistry();
@@ -36,50 +37,70 @@ public class TerraSpongePlugin implements TerraPlugin {
     private final PluginConfig config = new PluginConfig();
     private final AddonRegistry addonRegistry = new AddonRegistry(this);
     private final LockedRegistry<TerraAddon> addonLockedRegistry = new LockedRegistry<>(addonRegistry);
-
+    
     private final SpongeWorldHandle spongeWorldHandle = new SpongeWorldHandle();
-
+    
     private final EventManager eventManager = new TerraEventManager(this);
-
+    
     @Inject
     @ConfigDir(sharedRoot = false)
     private Path privateConfigDir;
-
+    
     @Inject
     private Logger logger;
-
-
+    
+    
     @Listener
     public void initialize(GameStartedServerEvent event) {
         addonRegistry.loadAll();
         configRegistry.loadAll(this);
     }
-
+    
     @Override
     public void register(TypeRegistry registry) {
-
+    
     }
-
+    
     @Override
-    public WorldHandle getWorldHandle() {
-        return spongeWorldHandle;
+    public boolean reload() {
+        return false;
     }
-
+    
     @Override
-    public TerraWorld getWorld(World world) {
-        return null;
+    public void saveDefaultConfig() {
+    
     }
-
+    
     @Override
-    public PluginConfig getTerraConfig() {
-        return config;
+    public String platformName() {
+        return "Sponge";
     }
-
+    
+    @Override
+    public LockedRegistry<TerraAddon> getAddons() {
+        return addonLockedRegistry;
+    }
+    
+    @Override
+    public CheckedRegistry<ConfigPack> getConfigRegistry() {
+        return packCheckedRegistry;
+    }
+    
     @Override
     public File getDataFolder() {
         return privateConfigDir.toFile();
     }
-
+    
+    @Override
+    public EventManager getEventManager() {
+        return eventManager;
+    }
+    
+    @Override
+    public ItemHandle getItemHandle() {
+        return null;
+    }
+    
     @Override
     public Language getLanguage() {
         try {
@@ -88,44 +109,24 @@ public class TerraSpongePlugin implements TerraPlugin {
             throw new IllegalArgumentException();
         }
     }
-
-    @Override
-    public CheckedRegistry<ConfigPack> getConfigRegistry() {
-        return packCheckedRegistry;
-    }
-
-    @Override
-    public LockedRegistry<TerraAddon> getAddons() {
-        return addonLockedRegistry;
-    }
-
-    @Override
-    public boolean reload() {
-        return false;
-    }
-
-    @Override
-    public ItemHandle getItemHandle() {
-        return null;
-    }
-
-    @Override
-    public void saveDefaultConfig() {
-
-    }
-
-    @Override
-    public String platformName() {
-        return "Sponge";
-    }
-
-    @Override
-    public EventManager getEventManager() {
-        return eventManager;
-    }
-
+    
     @Override
     public Profiler getProfiler() {
         return null;
+    }
+    
+    @Override
+    public PluginConfig getTerraConfig() {
+        return config;
+    }
+    
+    @Override
+    public TerraWorld getWorld(World world) {
+        return null;
+    }
+    
+    @Override
+    public WorldHandle getWorldHandle() {
+        return spongeWorldHandle;
     }
 }

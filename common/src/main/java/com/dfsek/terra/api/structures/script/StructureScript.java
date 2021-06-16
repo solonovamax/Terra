@@ -113,23 +113,24 @@ public class StructureScript {
                       (number, number2) -> FastMath.max(number.doubleValue(), number2.doubleValue())))
               .registerFunction("min", new BinaryNumberFunctionBuilder(
                       (number, number2) -> FastMath.min(number.doubleValue(), number2.doubleValue())));
-
+        
         if(!main.getTerraConfig().isDebugScript()) {
             parser.ignoreFunction("debugBlock");
         }
-
+        
         block = parser.parse();
         this.id = parser.getID();
         tempID = id;
         this.main = main;
         this.cache = CacheBuilder.newBuilder().maximumSize(main.getTerraConfig().getStructureCache()).build();
     }
-
+    
     /**
      * Paste the structure at a location
      *
      * @param location Location to paste structure
      * @param rotation Rotation of structure
+     *
      * @return Whether generation was successful
      */
     @SuppressWarnings("try")
@@ -141,7 +142,7 @@ public class StructureScript {
             return level;
         }
     }
-
+    
     @SuppressWarnings("try")
     public boolean execute(Location location, Chunk chunk, Random random, Rotation rotation) {
         try(ProfileFrame ignore = main.getProfiler().profile("terrascript_chunk:" + id)) {
@@ -150,7 +151,7 @@ public class StructureScript {
             return buffer.succeeded();
         }
     }
-
+    
     @SuppressWarnings("try")
     public boolean test(Location location, Random random, Rotation rotation) {
         try(ProfileFrame ignore = main.getProfiler().profile("terrascript_test:" + id)) {
@@ -158,7 +159,22 @@ public class StructureScript {
             return buffer.succeeded();
         }
     }
-
+    
+    @SuppressWarnings("try")
+    public boolean executeInBuffer(Buffer buffer, Random random, Rotation rotation, int recursions) {
+        try(ProfileFrame ignore = main.getProfiler().profile("terrascript_recursive:" + id)) {
+            return applyBlock(new TerraImplementationArguments(buffer, rotation, random, recursions));
+        }
+    }
+    
+    @SuppressWarnings("try")
+    public boolean executeDirect(Location location, Random random, Rotation rotation) {
+        try(ProfileFrame ignore = main.getProfiler().profile("terrascript_direct:" + id)) {
+            DirectBuffer buffer = new DirectBuffer(location);
+            return applyBlock(new TerraImplementationArguments(buffer, rotation, random, 0));
+        }
+    }
+    
     private StructureBuffer computeBuffer(Location location, Random random, Rotation rotation) {
         try {
             return cache.get(location, () -> {
@@ -170,26 +186,7 @@ public class StructureScript {
             throw new RuntimeException(e);
         }
     }
-
-    @SuppressWarnings("try")
-    public boolean executeInBuffer(Buffer buffer, Random random, Rotation rotation, int recursions) {
-        try(ProfileFrame ignore = main.getProfiler().profile("terrascript_recursive:" + id)) {
-            return applyBlock(new TerraImplementationArguments(buffer, rotation, random, recursions));
-        }
-    }
-
-    @SuppressWarnings("try")
-    public boolean executeDirect(Location location, Random random, Rotation rotation) {
-        try(ProfileFrame ignore = main.getProfiler().profile("terrascript_direct:" + id)) {
-            DirectBuffer buffer = new DirectBuffer(location);
-            return applyBlock(new TerraImplementationArguments(buffer, rotation, random, 0));
-        }
-    }
-
-    public String getId() {
-        return id;
-    }
-
+    
     private boolean applyBlock(TerraImplementationArguments arguments) {
         try {
             return block.apply(arguments).getLevel() != Block.ReturnLevel.FAIL;
@@ -197,5 +194,9 @@ public class StructureScript {
             logger.error("Failed to generate structure at {}", arguments.getBuffer().getOrigin(), e);
             return false;
         }
+    }
+    
+    public String getId() {
+        return id;
     }
 }

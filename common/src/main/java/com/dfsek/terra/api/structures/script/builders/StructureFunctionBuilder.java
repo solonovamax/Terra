@@ -12,29 +12,32 @@ import com.dfsek.terra.api.structures.tokenizer.Position;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class StructureFunctionBuilder implements FunctionBuilder<StructureFunction> {
     private final Registry<StructureScript> registry;
     private final TerraPlugin main;
-
+    
     public StructureFunctionBuilder(Registry<StructureScript> registry, TerraPlugin main) {
         this.registry = registry;
         this.main = main;
     }
-
+    
     @SuppressWarnings("unchecked")
     @Override
     public StructureFunction build(List<Returnable<?>> argumentList, Position position) throws ParseException {
         if(argumentList.size() < 5) throw new ParseException("Expected rotations", position);
-
-        return new StructureFunction((Returnable<Number>) argumentList.remove(0), (Returnable<Number>) argumentList.remove(0), (Returnable<Number>) argumentList.remove(0), (Returnable<String>) argumentList.remove(0),
-                argumentList.stream().map(item -> ((Returnable<String>) item)).collect(Collectors.toList()), registry, position, main);
+        
+        return new StructureFunction((Returnable<Number>) argumentList.remove(0), (Returnable<Number>) argumentList.remove(0),
+                                     (Returnable<Number>) argumentList.remove(0), (Returnable<String>) argumentList.remove(0),
+                                     argumentList.stream().map(item -> ((Returnable<String>) item)).collect(Collectors.toList()), registry,
+                                     position, main);
     }
-
+    
     @Override
     public int argNumber() {
         return -1;
     }
-
+    
     @Override
     public Returnable.ReturnType getArgument(int position) {
         switch(position) {

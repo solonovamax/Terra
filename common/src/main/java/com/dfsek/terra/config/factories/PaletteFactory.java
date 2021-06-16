@@ -6,6 +6,7 @@ import com.dfsek.terra.api.world.palette.Palette;
 import com.dfsek.terra.api.world.palette.holder.PaletteLayerHolder;
 import com.dfsek.terra.config.templates.PaletteTemplate;
 
+
 public class PaletteFactory implements ConfigFactory<PaletteTemplate, Palette> {
     @Override
     public Palette build(PaletteTemplate config, TerraPlugin main) {

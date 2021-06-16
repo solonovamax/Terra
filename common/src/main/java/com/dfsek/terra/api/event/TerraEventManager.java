@@ -47,6 +47,9 @@ public class TerraEventManager implements EventManager {
                                   } else {
                                       listenerHolder.method.invoke(listenerHolder.listener, event);
                                   }
+                              } catch(InvocationTargetException e) {
+                                  logger.warn("Exception occurred while attempting to invoke event handler of addon.\n" +
+                                              "Report this to the maintainers of {}.", listenerHolder.method.getName(), e);
                               } catch(Exception e) {
                                   logger.warn("Exception occurred during event handling.\n" +
                                               "Report this to the maintainers of {}.", listenerHolder.method.getName(), e);

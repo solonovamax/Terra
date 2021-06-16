@@ -11,17 +11,31 @@ import org.bukkit.TreeType;
 import java.util.Locale;
 import java.util.Random;
 
+
 public class BukkitTree implements Tree {
     private final TreeType delegate;
     private final MaterialSet spawnable;
     private final TerraPlugin main;
-
+    
     public BukkitTree(TreeType delegate, TerraPlugin main) {
         this.delegate = delegate;
         this.main = main;
         this.spawnable = getSpawnable(delegate);
     }
-
+    
+    @Override
+    @SuppressWarnings("try")
+    public boolean plant(Location l, Random r) {
+        try(ProfileFrame ignore = main.getProfiler().profile("bukkit_tree:" + delegate.toString().toLowerCase(Locale.ROOT))) {
+            return ((BukkitWorld) l.getWorld()).getHandle().generateTree(BukkitAdapter.adapt(l), delegate);
+        }
+    }
+    
+    @Override
+    public MaterialSet getSpawnable() {
+        return spawnable;
+    }
+    
     private MaterialSet getSpawnable(TreeType type) {
         WorldHandle handle = main.getWorldHandle();
         switch(type) {
@@ -32,25 +46,12 @@ public class BukkitTree implements Tree {
             case BROWN_MUSHROOM:
             case RED_MUSHROOM:
                 return MaterialSet.get(handle.createBlockData("minecraft:mycelium"), handle.createBlockData("minecraft:grass_block"),
-                        handle.createBlockData("minecraft:podzol"));
+                                       handle.createBlockData("minecraft:podzol"));
             case CHORUS_PLANT:
                 return MaterialSet.get(handle.createBlockData("minecraft:end_stone"));
             default:
                 return MaterialSet.get(handle.createBlockData("minecraft:grass_block"), handle.createBlockData("minecraft:dirt"),
-                        handle.createBlockData("minecraft:podzol"));
+                                       handle.createBlockData("minecraft:podzol"));
         }
-    }
-
-    @Override
-    @SuppressWarnings("try")
-    public boolean plant(Location l, Random r) {
-        try(ProfileFrame ignore = main.getProfiler().profile("bukkit_tree:" + delegate.toString().toLowerCase(Locale.ROOT))) {
-            return ((BukkitWorld) l.getWorld()).getHandle().generateTree(BukkitAdapter.adapt(l), delegate);
-        }
-    }
-
-    @Override
-    public MaterialSet getSpawnable() {
-        return spawnable;
     }
 }

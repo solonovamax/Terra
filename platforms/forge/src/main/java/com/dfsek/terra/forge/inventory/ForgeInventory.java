@@ -6,31 +6,32 @@ import com.dfsek.terra.forge.world.ForgeAdapter;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Items;
 
+
 public class ForgeInventory implements Inventory {
     private final net.minecraft.inventory.IInventory delegate;
-
+    
     public ForgeInventory(IInventory delegate) {
         this.delegate = delegate;
     }
-
+    
     @Override
-    public net.minecraft.inventory.IInventory getHandle() {
-        return delegate;
+    public void setItem(int slot, ItemStack newStack) {
+        delegate.setItem(slot, ForgeAdapter.adapt(newStack));
     }
-
-    @Override
-    public int getSize() {
-        return delegate.getContainerSize();
-    }
-
+    
     @Override
     public ItemStack getItem(int slot) {
         net.minecraft.item.ItemStack itemStack = delegate.getItem(slot);
         return itemStack.getItem() == Items.AIR ? null : ForgeAdapter.adapt(itemStack);
     }
-
+    
     @Override
-    public void setItem(int slot, ItemStack newStack) {
-        delegate.setItem(slot, ForgeAdapter.adapt(newStack));
+    public int getSize() {
+        return delegate.getContainerSize();
+    }
+    
+    @Override
+    public net.minecraft.inventory.IInventory getHandle() {
+        return delegate;
     }
 }

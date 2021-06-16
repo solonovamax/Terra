@@ -5,15 +5,16 @@ import com.dfsek.terra.api.platform.block.BlockData;
 
 import java.util.List;
 
+
 public class NoisePalette extends Palette {
     private final NoiseSampler sampler;
     private final boolean is2D;
-
+    
     public NoisePalette(NoiseSampler sampler, boolean is2D) {
         this.sampler = sampler;
         this.is2D = is2D;
     }
-
+    
     @Override
     public BlockData get(int layer, double x, double y, double z) {
         PaletteLayer paletteLayer;

@@ -16,17 +16,17 @@ import com.dfsek.terra.config.lang.LangUtil;
                 @Subcommand(
                         value = "sphere",
                         clazz = SphereCommand.class,
-                        aliases = {"s"}
+                        aliases = { "s" }
                 ),
                 @Subcommand(
                         value = "deformedsphere",
                         clazz = DeformedSphereCommand.class,
-                        aliases = {"df"}
+                        aliases = { "df" }
                 ),
                 @Subcommand(
                         value = "tube",
                         clazz = TubeCommand.class,
-                        aliases = {"t"}
+                        aliases = { "t" }
                 )
         },
         usage = "/terra geometry"

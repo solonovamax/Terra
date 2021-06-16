@@ -15,6 +15,7 @@ import com.dfsek.terra.world.population.items.flora.FloraLayer;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+
 @SuppressWarnings("unchecked")
 public class FloraLayerLoader implements TypeLoader<FloraLayer> {
     @Override
@@ -23,8 +24,9 @@ public class FloraLayerLoader implements TypeLoader<FloraLayer> {
         double density = ((Number) map.get("density")).doubleValue();
         Range range = configLoader.loadClass(Range.class, map.get("y"));
         if(range == null) throw new LoadException("Flora range unspecified");
-        ProbabilityCollection<Flora> items = (ProbabilityCollection<Flora>) configLoader.loadType(Types.FLORA_PROBABILITY_COLLECTION_TYPE, map.get("items"));
-
+        ProbabilityCollection<Flora> items = (ProbabilityCollection<Flora>) configLoader.loadType(Types.FLORA_PROBABILITY_COLLECTION_TYPE,
+                                                                                                  map.get("items"));
+    
         NoiseSeeded sampler;
         if(map.containsKey("distribution")) {
             try {
@@ -34,7 +36,7 @@ public class FloraLayerLoader implements TypeLoader<FloraLayer> {
             }
             return new FloraLayer(density, range, items, sampler.apply(2403L));
         }
-
+    
         return new FloraLayer(density, range, items, new WhiteNoiseSampler(2403));
     }
 }

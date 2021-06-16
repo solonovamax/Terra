@@ -12,16 +12,22 @@ import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+
 @Mixin(SignBlockEntity.class)
 @Implements(@Interface(iface = Sign.class, prefix = "terra$", remap = Interface.Remap.NONE))
 public abstract class SignBlockEntityMixin {
     @Shadow
-    public abstract void setTextOnRow(int row, Text text);
-
-    @Shadow
     @Final
     private Text[] text;
-
+    
+    public void terra$setLine(int index, @NotNull String line) throws IndexOutOfBoundsException {
+        setTextOnRow(index, new LiteralText(line));
+    }
+    
+    public @NotNull String terra$getLine(int index) throws IndexOutOfBoundsException {
+        return text[index].asString();
+    }
+    
     public @NotNull String[] terra$getLines() {
         String[] lines = new String[text.length];
         for(int i = 0; i < text.length; i++) {
@@ -29,19 +35,14 @@ public abstract class SignBlockEntityMixin {
         }
         return lines;
     }
-
-    public @NotNull String terra$getLine(int index) throws IndexOutOfBoundsException {
-        return text[index].asString();
-    }
-
-    public void terra$setLine(int index, @NotNull String line) throws IndexOutOfBoundsException {
-        setTextOnRow(index, new LiteralText(line));
-    }
-
+    
     public void terra$applyState(String state) {
         SerialState.parse(state).forEach((k, v) -> {
             if(!k.startsWith("text")) throw new IllegalArgumentException("Invalid property: " + k);
             terra$setLine(Integer.parseInt(k.substring(4)), v);
         });
     }
+    
+    @Shadow
+    public abstract void setTextOnRow(int row, Text text);
 }

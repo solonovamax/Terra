@@ -10,43 +10,44 @@ import com.dfsek.terra.api.world.palette.holder.PaletteLayerHolder;
 
 import java.util.List;
 
-@SuppressWarnings({"FieldMayBeFinal", "unused"})
+
+@SuppressWarnings({ "FieldMayBeFinal", "unused" })
 public class PaletteTemplate extends AbstractableTemplate {
     @Value("noise")
     @Abstractable
     @Default
     private NoiseSeeded noise;
-
+    
     @Value("id")
     private String id;
-
+    
     @Value("layers")
     @Abstractable
     private List<PaletteLayerHolder> palette;
-
+    
     public PaletteTemplate() {
         this.noise = new NoiseSeeded() {
             @Override
             public NoiseSampler apply(Long seed) {
                 return new WhiteNoiseSampler((int) (long) seed);
             }
-
+    
             @Override
             public int getDimensions() {
                 return 3;
             }
         };
     }
-
+    
     public String getID() {
         return id;
     }
-
-    public List<PaletteLayerHolder> getPalette() {
-        return palette;
-    }
-
+    
     public NoiseSeeded getNoise() {
         return noise;
+    }
+    
+    public List<PaletteLayerHolder> getPalette() {
+        return palette;
     }
 }

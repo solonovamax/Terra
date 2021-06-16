@@ -20,6 +20,11 @@ public class ForgeItemMeta implements ItemMeta {
     }
     
     @Override
+    public void addEnchantment(Enchantment enchantment, int level) {
+        delegate.enchant(ForgeAdapter.adapt(enchantment), level);
+    }
+
+    @Override
     @SuppressWarnings("deprecation")
     public Map<Enchantment, Integer> getEnchantments() {
         if(!delegate.isEnchanted()) return Collections.emptyMap();
@@ -30,11 +35,6 @@ public class ForgeItemMeta implements ItemMeta {
             map.put(ForgeAdapter.adapt(Registry.ENCHANTMENT.byId(eTag.getInt("id"))), eTag.getInt("lvl"));
         });
         return map;
-    }
-    
-    @Override
-    public void addEnchantment(Enchantment enchantment, int level) {
-        delegate.enchant(ForgeAdapter.adapt(enchantment), level);
     }
     
     @Override

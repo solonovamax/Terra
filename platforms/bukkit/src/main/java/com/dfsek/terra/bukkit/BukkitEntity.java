@@ -5,35 +5,36 @@ import com.dfsek.terra.api.platform.entity.Entity;
 import com.dfsek.terra.api.platform.world.World;
 import com.dfsek.terra.bukkit.world.BukkitAdapter;
 
+
 public class BukkitEntity implements Entity {
     private final org.bukkit.entity.Entity entity;
-
+    
     public BukkitEntity(org.bukkit.entity.Entity entity) {
         this.entity = entity;
     }
-
+    
+    @Override
+    public void sendMessage(String message) {
+        entity.sendMessage(message);
+    }
+    
     @Override
     public org.bukkit.entity.Entity getHandle() {
         return entity;
     }
-
+    
     @Override
     public Location getLocation() {
         return BukkitAdapter.adapt(entity.getLocation());
     }
-
+    
     @Override
     public void setLocation(Location location) {
         entity.teleport(BukkitAdapter.adapt(location));
     }
-
+    
     @Override
     public World getWorld() {
         return BukkitAdapter.adapt(entity.getWorld());
-    }
-
-    @Override
-    public void sendMessage(String message) {
-        entity.sendMessage(message);
     }
 }

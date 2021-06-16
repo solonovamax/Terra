@@ -11,16 +11,17 @@ import com.dfsek.terra.api.structures.structure.buffer.items.BufferedLootApplica
 import com.dfsek.terra.config.pack.ConfigPack;
 import org.jetbrains.annotations.NotNull;
 
+
 /**
  * Called when loot is populated via {@link BufferedLootApplication}.
  */
 public class LootPopulateEvent extends AbstractCancellable implements PackEvent, Cancellable {
     private final Block block;
     private final Container container;
-    private LootTable table;
     private final ConfigPack pack;
     private final StructureScript script;
-
+    private LootTable table;
+    
     public LootPopulateEvent(Block block, Container container, LootTable table, ConfigPack pack, StructureScript script) {
         this.block = block;
         this.container = container;
@@ -28,12 +29,7 @@ public class LootPopulateEvent extends AbstractCancellable implements PackEvent,
         this.pack = pack;
         this.script = script;
     }
-
-    @Override
-    public ConfigPack getPack() {
-        return pack;
-    }
-
+    
     /**
      * Get the block containing the tile entity loot is applied to.
      *
@@ -42,7 +38,7 @@ public class LootPopulateEvent extends AbstractCancellable implements PackEvent,
     public Block getBlock() {
         return block;
     }
-
+    
     /**
      * Get the {@link Container} representing the inventory.
      *
@@ -51,24 +47,12 @@ public class LootPopulateEvent extends AbstractCancellable implements PackEvent,
     public Container getContainer() {
         return container;
     }
-
-    /**
-     * Get the loot table to be populated.
-     * @return Loot table.
-     */
-    public LootTable getTable() {
-        return table;
+    
+    @Override
+    public ConfigPack getPack() {
+        return pack;
     }
-
-    /**
-     * Set the loot table to be populated.
-     *
-     * @param table New loot table.
-     */
-    public void setTable(@NotNull LootTable table) {
-        this.table = table;
-    }
-
+    
     /**
      * Get the script used to generate the structure.
      *
@@ -76,5 +60,23 @@ public class LootPopulateEvent extends AbstractCancellable implements PackEvent,
      */
     public StructureScript getStructureScript() {
         return script;
+    }
+    
+    /**
+     * Get the loot table to be populated.
+     *
+     * @return Loot table.
+     */
+    public LootTable getTable() {
+        return table;
+    }
+    
+    /**
+     * Set the loot table to be populated.
+     *
+     * @param table New loot table.
+     */
+    public void setTable(@NotNull LootTable table) {
+        this.table = table;
     }
 }

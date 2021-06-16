@@ -13,16 +13,17 @@ import com.dfsek.terra.api.world.biome.UserDefinedBiome;
 import com.dfsek.terra.api.world.biome.provider.BiomeProvider;
 import com.dfsek.terra.config.lang.LangUtil;
 
+
 @Command(
         subcommands = {
                 @Subcommand(
                         value = "info",
-                        aliases = {"i"},
+                        aliases = { "i" },
                         clazz = BiomeInfoCommand.class
                 ),
                 @Subcommand(
                         value = "locate",
-                        aliases = {"l"},
+                        aliases = { "l" },
                         clazz = BiomeLocateCommand.class
                 )
         },
@@ -33,11 +34,11 @@ import com.dfsek.terra.config.lang.LangUtil;
 public class BiomeCommand implements CommandTemplate {
     @Inject
     private TerraPlugin main;
-
+    
     @Override
     public void execute(CommandSender sender) {
         Player player = (Player) sender;
-
+        
         BiomeProvider provider = main.getWorld(player.getWorld()).getBiomeProvider();
         UserDefinedBiome biome = (UserDefinedBiome) provider.getBiome(player.getLocation());
         LangUtil.send("command.biome.in", sender, biome.getID());

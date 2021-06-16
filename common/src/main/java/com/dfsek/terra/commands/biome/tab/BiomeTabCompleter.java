@@ -10,13 +10,15 @@ import com.dfsek.terra.api.world.biome.TerraBiome;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 public class BiomeTabCompleter implements TabCompleter {
     @Inject
     private TerraPlugin main;
-
+    
     @Override
     public List<String> complete(CommandSender sender) {
         Player player = (Player) sender;
-        return main.getWorld(player.getWorld()).getConfig().getRegistry(TerraBiome.class).entries().stream().map(TerraBiome::getID).collect(Collectors.toList());
+        return main.getWorld(player.getWorld()).getConfig().getRegistry(TerraBiome.class).entries().stream().map(TerraBiome::getID).collect(
+                Collectors.toList());
     }
 }

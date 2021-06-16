@@ -9,6 +9,7 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
+
 /**
  * Dynamic dependency injector.
  * <p>
@@ -19,7 +20,7 @@ import java.util.Set;
 public class Injector<T> {
     private final T value;
     private final Set<Class<? extends T>> targets = new HashSet<>();
-
+    
     /**
      * Instantiate an Injector with a value to inject
      *
@@ -28,7 +29,7 @@ public class Injector<T> {
     public Injector(T value) {
         this.value = value;
     }
-
+    
     /**
      * Add an explicit class as a target. Useful for applications where subclasses may cause issues with DI.
      *
@@ -37,7 +38,7 @@ public class Injector<T> {
     public void addExplicitTarget(Class<? extends T> target) {
         targets.add(target);
     }
-
+    
     /**
      * Inject the stored object into an object.
      * <p>
@@ -47,6 +48,7 @@ public class Injector<T> {
      * ({@link #addExplicitTarget(Class)}.
      *
      * @param object Object to inject into
+     *
      * @throws InjectionException If:
      *                            <ul>
      *                                <li>Matching field annotated with {@link Inject} is final</li>

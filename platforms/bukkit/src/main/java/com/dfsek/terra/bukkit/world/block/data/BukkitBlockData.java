@@ -49,22 +49,6 @@ public class BukkitBlockData implements BlockData {
     }
     
     @Override
-    public BukkitBlockData clone() {
-        try {
-            BukkitBlockData n = (BukkitBlockData) super.clone();
-            n.delegate = delegate.clone();
-            return n;
-        } catch(CloneNotSupportedException e) {
-            throw new Error(e);
-        }
-    }
-    
-    @Override
-    public BlockType getBlockType() {
-        return BukkitAdapter.adapt(delegate.getMaterial());
-    }
-    
-    @Override
     public boolean matches(BlockData data) {
         return delegate.getMaterial() == ((BukkitBlockData) data).getHandle().getMaterial();
     }
@@ -75,6 +59,11 @@ public class BukkitBlockData implements BlockData {
     }
     
     @Override
+    public BlockType getBlockType() {
+        return BukkitAdapter.adapt(delegate.getMaterial());
+    }
+    
+    @Override
     public boolean isAir() {
         return delegate.getMaterial().isAir();
     }
@@ -82,6 +71,17 @@ public class BukkitBlockData implements BlockData {
     @Override
     public boolean isStructureVoid() {
         return delegate.getMaterial() == Material.STRUCTURE_VOID;
+    }
+    
+    @Override
+    public BukkitBlockData clone() {
+        try {
+            BukkitBlockData n = (BukkitBlockData) super.clone();
+            n.delegate = delegate.clone();
+            return n;
+        } catch(CloneNotSupportedException e) {
+            throw new Error(e);
+        }
     }
     
     @Override

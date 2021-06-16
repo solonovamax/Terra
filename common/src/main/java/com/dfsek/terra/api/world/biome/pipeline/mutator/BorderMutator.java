@@ -4,19 +4,20 @@ import com.dfsek.terra.api.math.noise.NoiseSampler;
 import com.dfsek.terra.api.util.collections.ProbabilityCollection;
 import com.dfsek.terra.api.world.biome.TerraBiome;
 
+
 public class BorderMutator implements BiomeMutator {
     private final String border;
     private final NoiseSampler noiseSampler;
     private final ProbabilityCollection<TerraBiome> replace;
     private final String replaceTag;
-
+    
     public BorderMutator(String border, String replaceTag, NoiseSampler noiseSampler, ProbabilityCollection<TerraBiome> replace) {
         this.border = border;
         this.noiseSampler = noiseSampler;
         this.replace = replace;
         this.replaceTag = replaceTag;
     }
-
+    
     @Override
     public TerraBiome mutate(ViewPoint viewPoint, double x, double z) {
         TerraBiome origin = viewPoint.getBiome(0, 0);

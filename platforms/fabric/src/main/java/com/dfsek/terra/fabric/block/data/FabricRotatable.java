@@ -6,11 +6,12 @@ import com.dfsek.terra.fabric.block.FabricBlockData;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.property.Properties;
 
+
 public class FabricRotatable extends FabricBlockData implements Rotatable {
     public FabricRotatable(BlockState delegate) {
         super(delegate);
     }
-
+    
     @Override
     public BlockFace getRotation() {
         int r = delegate.get(Properties.ROTATION);
@@ -51,7 +52,7 @@ public class FabricRotatable extends FabricBlockData implements Rotatable {
                 throw new IllegalArgumentException("Unknown rotation " + r);
         }
     }
-
+    
     @Override
     public void setRotation(BlockFace face) {
         switch(face) {

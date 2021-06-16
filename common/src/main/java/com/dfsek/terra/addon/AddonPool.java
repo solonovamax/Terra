@@ -13,10 +13,10 @@ public class AddonPool {
     
     public void add(PreLoadAddon addon) throws AddonLoadException {
         if(pool.containsKey(addon.getId())) {
-            String builder = String.format("Duplicate addon ID; Addon with ID %s is loaded by class %s, and requested by class %s.",
+            String message = String.format("Duplicate addon ID; Addon with ID %s is loaded by class %s, and requested by class %s.",
                                            addon.getId(), pool.get(addon.getId()).getAddonClass().getCanonicalName(),
                                            addon.getAddonClass().getCanonicalName());
-            throw new AddonLoadException(builder);
+            throw new AddonLoadException(message);
         }
         pool.put(addon.getId(), addon);
     }

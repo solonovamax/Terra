@@ -11,16 +11,17 @@ import com.dfsek.terra.config.loaders.config.biome.templates.provider.SingleBiom
 import java.lang.reflect.Type;
 import java.util.Map;
 
+
 @SuppressWarnings("unchecked")
 public class BiomeProviderBuilderLoader implements TypeLoader<BiomeProvider.BiomeProviderBuilder> {
-
+    
     public BiomeProviderBuilderLoader() {
     }
-
+    
     @Override
     public BiomeProvider.BiomeProviderBuilder load(Type t, Object c, ConfigLoader loader) throws LoadException { // TODO: clean this up
         Map<String, Object> map = (Map<String, Object>) c;
-
+        
         switch(loader.loadClass(BiomeProvider.Type.class, map.get("type"))) {
             case IMAGE:
                 return loader.loadClass(ImageProviderTemplate.class, map);
@@ -29,7 +30,7 @@ public class BiomeProviderBuilderLoader implements TypeLoader<BiomeProvider.Biom
             case SINGLE:
                 return loader.loadClass(SingleBiomeProviderTemplate.class, map);
         }
-
+        
         throw new LoadException("No such biome provider type: " + map.get("type"));
     }
 }

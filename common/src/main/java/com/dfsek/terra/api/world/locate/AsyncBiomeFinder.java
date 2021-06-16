@@ -9,30 +9,33 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
+
 /**
  * Runnable that locates a biome asynchronously
  */
 public class AsyncBiomeFinder extends AsyncFeatureFinder<TerraBiome> {
-
-    public AsyncBiomeFinder(BiomeProvider provider, TerraBiome target, @NotNull Location origin, int startRadius, int maxRadius, Consumer<Vector3> callback, TerraPlugin main) {
+    
+    public AsyncBiomeFinder(BiomeProvider provider, TerraBiome target, @NotNull Location origin, int startRadius, int maxRadius,
+                            Consumer<Vector3> callback, TerraPlugin main) {
         super(provider, target, origin, startRadius, maxRadius, callback, main);
     }
-
+    
+    @Override
+    public Vector3 finalizeVector(Vector3 orig) {
+        return orig.multiply(main.getTerraConfig().getBiomeSearchResolution());
+    }
+    
     /**
      * Helper method to get biome at location
      *
      * @param x X coordinate
      * @param z Z coordinate
+     *
      * @return TerraBiome at coordinates
      */
     @Override
     public boolean isValid(int x, int z, TerraBiome target) {
         int res = main.getTerraConfig().getBiomeSearchResolution();
         return getProvider().getBiome(x * res, z * res).equals(target);
-    }
-
-    @Override
-    public Vector3 finalizeVector(Vector3 orig) {
-        return orig.multiply(main.getTerraConfig().getBiomeSearchResolution());
     }
 }

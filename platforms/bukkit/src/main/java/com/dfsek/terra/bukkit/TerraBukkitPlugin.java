@@ -64,6 +64,7 @@ import java.util.Objects;
 
 public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    
     private final Map<String, DefaultChunkGenerator3D> generatorMap = new HashMap<>();
     private final Map<World, TerraWorld> worldMap = new HashMap<>();
     private final Map<String, ConfigPack> worlds = new HashMap<>();
@@ -89,15 +90,15 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
         boolean shouldInitialize = doVersionCheck();
         if(!shouldInitialize)
             return;
-    
+        
         saveDefaultConfig();
-    
+        
         Metrics metrics = new Metrics(this, 9017); // Set up bStats. // Magic number go brrr
         metrics.addCustomChart(new Metrics.SingleLineChart("worlds", worldMap::size)); // World number chart.
-    
+        
         config.load(this); // Load master config.yml
         LangUtil.load(config.getLanguage(), this); // Load language.
-    
+        
         if(config.isDebugProfiler())
             profiler.start();
         
@@ -125,17 +126,17 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
         }
         
         BukkitCommandAdapter command = new BukkitCommandAdapter(manager);
-    
+        
         c.setExecutor(command);
         c.setTabCompleter(command);
-    
-    
+        
+        
         long save = config.getDataSaveInterval();
         Bukkit.getScheduler().runTaskTimerAsynchronously(this, BukkitChunkGeneratorWrapper::saveAll, save,
                                                          save); // Schedule population data saving
         Bukkit.getPluginManager().registerEvents(new CommonListener(this), this); // Register master event listener
         PaperUtil.checkPaper(this);
-    
+        
         try {
             Class.forName("io.papermc.paper.event.world.StructureLocateEvent"); // Check if user is on Paper version with event.
             Bukkit.getPluginManager().registerEvents(new PaperListener(this), this); // Register Paper events.
@@ -175,7 +176,7 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
                             "|                                                                              |\n" +
                             "|------------------------------------------------------------------------------|", e);
             }
-        
+            
             Bukkit.getPluginManager().registerEvents(new SpigotListener(this), this); // Register Spigot event listener
         }
     }
@@ -289,37 +290,6 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
         return handle;
     }
     
-    public TerraWorld getWorld(World world) {
-        BukkitWorld w = (BukkitWorld) world;
-        if(!w.isTerraWorld())
-            throw new IllegalArgumentException("Not a Terra world! " + w.getGenerator());
-        if(!worlds.containsKey(w.getName())) {
-            logger.warn("Unexpected world load detected: \"{}\"", w.getName());
-            return new TerraWorld(w, ((TerraChunkGenerator) w.getGenerator().getHandle()).getConfigPack(), this);
-        }
-        return worldMap.computeIfAbsent(w, w2 -> new TerraWorld(w, worlds.get(w.getName()), this));
-    }
-    
-    @NotNull
-    @Override
-    public PluginConfig getTerraConfig() {
-        return config;
-    }
-    
-    @Override
-    public Language getLanguage() {
-        return LangUtil.getLanguage();
-    }
-    
-    public CheckedRegistry<ConfigPack> getConfigRegistry() {
-        return checkedRegistry;
-    }
-    
-    @Override
-    public LockedRegistry<TerraAddon> getAddons() {
-        return addonLockedRegistry;
-    }
-    
     public boolean reload() {
         config.load(this);
         LangUtil.load(config.getLanguage(), this); // Load language.
@@ -333,11 +303,6 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
         worldMap.clear();
         worldMap.putAll(newMap);
         return succeed;
-    }
-    
-    @Override
-    public ItemHandle getItemHandle() {
-        return itemHandle;
     }
     
     @Override
@@ -356,8 +321,44 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
     }
     
     @Override
+    public LockedRegistry<TerraAddon> getAddons() {
+        return addonLockedRegistry;
+    }
+    
+    public CheckedRegistry<ConfigPack> getConfigRegistry() {
+        return checkedRegistry;
+    }
+    
+    @Override
+    public ItemHandle getItemHandle() {
+        return itemHandle;
+    }
+    
+    @Override
+    public Language getLanguage() {
+        return LangUtil.getLanguage();
+    }
+    
+    @Override
     public Profiler getProfiler() {
         return profiler;
+    }
+    
+    @NotNull
+    @Override
+    public PluginConfig getTerraConfig() {
+        return config;
+    }
+    
+    public TerraWorld getWorld(World world) {
+        BukkitWorld w = (BukkitWorld) world;
+        if(!w.isTerraWorld())
+            throw new IllegalArgumentException("Not a Terra world! " + w.getGenerator());
+        if(!worlds.containsKey(w.getName())) {
+            logger.warn("Unexpected world load detected: \"{}\"", w.getName());
+            return new TerraWorld(w, ((TerraChunkGenerator) w.getGenerator().getHandle()).getConfigPack(), this);
+        }
+        return worldMap.computeIfAbsent(w, w2 -> new TerraWorld(w, worlds.get(w.getName()), this));
     }
     
     

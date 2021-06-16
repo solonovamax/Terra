@@ -2,6 +2,7 @@ package com.dfsek.terra.api.platform.world.generator;
 
 import com.dfsek.terra.api.platform.world.ChunkAccess;
 
+
 public interface ChunkData extends ChunkAccess {
     /**
      * Get the maximum height for the chunk.

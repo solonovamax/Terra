@@ -9,26 +9,28 @@ import com.dfsek.terra.api.structures.tokenizer.Position;
 
 import java.util.Map;
 
+
 public class RandomFunction implements Function<Integer> {
     private final Returnable<Number> numberReturnable;
     private final Position position;
-
+    
     public RandomFunction(Returnable<Number> numberReturnable, Position position) {
         this.numberReturnable = numberReturnable;
         this.position = position;
     }
-
-
+    
+    
     @Override
     public ReturnType returnType() {
         return ReturnType.NUMBER;
     }
-
+    
     @Override
     public Integer apply(ImplementationArguments implementationArguments, Map<String, Variable<?>> variableMap) {
-        return ((TerraImplementationArguments) implementationArguments).getRandom().nextInt(numberReturnable.apply(implementationArguments, variableMap).intValue());
+        return ((TerraImplementationArguments) implementationArguments).getRandom().nextInt(
+                numberReturnable.apply(implementationArguments, variableMap).intValue());
     }
-
+    
     @Override
     public Position getPosition() {
         return position;

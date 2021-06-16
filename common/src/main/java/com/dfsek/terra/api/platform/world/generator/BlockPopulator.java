@@ -6,6 +6,7 @@ import com.dfsek.terra.api.platform.world.World;
 
 import java.util.Random;
 
+
 public interface BlockPopulator extends Handle {
     void populate(World world, Random random, Chunk chunk);
 }

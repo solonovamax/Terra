@@ -11,12 +11,13 @@ import com.dfsek.terra.api.util.collections.ProbabilityCollection;
 import com.dfsek.terra.api.util.world.PopulationUtil;
 import com.dfsek.terra.world.population.items.PlaceableLayer;
 
-public class TreeLayer extends PlaceableLayer<Tree> {
 
+public class TreeLayer extends PlaceableLayer<Tree> {
+    
     public TreeLayer(double density, Range level, ProbabilityCollection<Tree> layer, NoiseSampler noise) {
         super(density, level, layer, noise);
     }
-
+    
     @Override
     public void place(Chunk chunk, Vector2 coords) {
         Tree item = layer.get(noise, coords.getX(), coords.getZ());

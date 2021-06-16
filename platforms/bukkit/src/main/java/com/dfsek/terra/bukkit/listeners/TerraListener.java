@@ -11,13 +11,14 @@ import com.dfsek.terra.bukkit.world.BukkitTree;
 import com.dfsek.terra.registry.exception.DuplicateEntryException;
 import org.bukkit.TreeType;
 
+
 public class TerraListener implements EventListener {
     private final TerraPlugin main;
-
+    
     public TerraListener(TerraPlugin main) {
         this.main = main;
     }
-
+    
     @Global
     @Priority(Priority.LOWEST)
     public void injectTrees(ConfigPackPreLoadEvent event) {

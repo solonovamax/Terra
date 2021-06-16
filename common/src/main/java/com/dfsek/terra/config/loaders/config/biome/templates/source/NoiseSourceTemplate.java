@@ -7,13 +7,14 @@ import com.dfsek.terra.api.world.biome.pipeline.source.BiomeSource;
 import com.dfsek.terra.api.world.biome.pipeline.source.RandomSource;
 import com.dfsek.terra.config.builder.BiomeBuilder;
 
+
 public class NoiseSourceTemplate extends SourceTemplate {
     @Value("noise")
     private NoiseSeeded noise;
-
+    
     @Value("biomes")
     private ProbabilityCollection<BiomeBuilder> biomes;
-
+    
     @Override
     public BiomeSource apply(Long seed) {
         return new RandomSource(biomes.map((biome) -> biome.apply(seed), false), noise.apply(seed));

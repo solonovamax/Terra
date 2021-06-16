@@ -8,6 +8,7 @@ import com.dfsek.terra.world.generation.WorldGenerator;
 
 import java.util.Set;
 
+
 /**
  * Class representing a config-defined biome
  */
@@ -18,8 +19,8 @@ public class UserDefinedBiome implements TerraBiome {
     private final BiomeTemplate config;
     private final int color;
     private final Set<String> tags;
-
-
+    
+    
     public UserDefinedBiome(ProbabilityCollection<Biome> vanilla, WorldGenerator gen, BiomeTemplate config) {
         this.vanilla = vanilla;
         this.gen = gen;
@@ -29,7 +30,32 @@ public class UserDefinedBiome implements TerraBiome {
         this.tags = config.getTags();
         tags.add("BIOME:" + id);
     }
-
+    
+    @Override
+    public String toString() {
+        return "{BIOME:" + getID() + "}";
+    }
+    
+    @Override
+    public int getColor() {
+        return color;
+    }
+    
+    @Override
+    public Generator getGenerator(World w) {
+        return gen;
+    }
+    
+    @Override
+    public String getID() {
+        return id;
+    }
+    
+    @Override
+    public Set<String> getTags() {
+        return tags;
+    }
+    
     /**
      * Gets the Vanilla biomes to represent the custom biome.
      *
@@ -39,33 +65,8 @@ public class UserDefinedBiome implements TerraBiome {
     public ProbabilityCollection<Biome> getVanillaBiomes() {
         return vanilla;
     }
-
-    @Override
-    public String getID() {
-        return id;
-    }
-
+    
     public BiomeTemplate getConfig() {
         return config;
-    }
-
-    @Override
-    public Generator getGenerator(World w) {
-        return gen;
-    }
-
-    @Override
-    public int getColor() {
-        return color;
-    }
-
-    @Override
-    public Set<String> getTags() {
-        return tags;
-    }
-
-    @Override
-    public String toString() {
-        return "{BIOME:" + getID() + "}";
     }
 }

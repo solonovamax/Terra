@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.invoke.MethodHandles;
 
 
+
 public class BufferedBlock implements BufferedItem {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final TerraPlugin main;
@@ -24,7 +25,7 @@ public class BufferedBlock implements BufferedItem {
         this.main = main;
         this.waterlog = waterlog;
     }
-
+    
     @Override
     public void paste(Location origin) {
         Block block = origin.getBlock();

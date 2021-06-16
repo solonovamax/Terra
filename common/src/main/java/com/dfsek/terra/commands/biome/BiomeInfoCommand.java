@@ -14,6 +14,7 @@ import com.dfsek.terra.world.population.items.TerraStructure;
 
 import java.util.List;
 
+
 @Command(
         arguments = {
                 @Argument(
@@ -26,20 +27,20 @@ import java.util.List;
 public class BiomeInfoCommand implements CommandTemplate {
     @ArgumentTarget("biome")
     private TerraBiome biome;
-
+    
     @Override
     public void execute(CommandSender sender) {
-
+        
         sender.sendMessage("Biome info for \"" + biome.getID() + "\".");
         sender.sendMessage("Vanilla biome: " + biome.getVanillaBiomes());
-
+        
         if(biome instanceof UserDefinedBiome) {
             BiomeTemplate bio = ((UserDefinedBiome) biome).getConfig();
-
+            
             if(bio.getExtend() != null) sender.sendMessage("Extends: " + bio.getExtend());
-
+            
             List<TerraStructure> structureConfigs = bio.getStructures();
-
+            
             if(structureConfigs.size() == 0) sender.sendMessage("No Structures");
             else {
                 sender.sendMessage("-------Structures-------");

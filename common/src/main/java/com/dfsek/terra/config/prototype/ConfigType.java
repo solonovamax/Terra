@@ -8,12 +8,13 @@ import com.dfsek.terra.registry.OpenRegistry;
 
 import java.util.function.Supplier;
 
+
 public interface ConfigType<T extends ConfigTemplate, R> {
-    T getTemplate(ConfigPack pack, TerraPlugin main);
-
     void callback(ConfigPack pack, TerraPlugin main, T loadedConfig) throws LoadException;
-
-    Class<R> getTypeClass();
-
+    
     Supplier<OpenRegistry<R>> registrySupplier();
+    
+    T getTemplate(ConfigPack pack, TerraPlugin main);
+    
+    Class<R> getTypeClass();
 }

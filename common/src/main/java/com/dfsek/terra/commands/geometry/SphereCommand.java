@@ -14,6 +14,7 @@ import com.dfsek.terra.api.math.voxel.Sphere;
 import com.dfsek.terra.api.platform.CommandSender;
 import com.dfsek.terra.api.platform.entity.Player;
 
+
 @DebugCommand
 @PlayerCommand
 @Command(
@@ -28,14 +29,14 @@ import com.dfsek.terra.api.platform.entity.Player;
 public class SphereCommand implements CommandTemplate {
     @ArgumentTarget("radius")
     private Integer radius;
-
+    
     @Inject
     private TerraPlugin main;
-
+    
     @Override
     public void execute(CommandSender sender) {
         Player player = (Player) sender;
-
+        
         Sphere sphere = new Sphere(player.getLocation().toVector(), radius);
         for(Vector3 v : sphere.getGeometry()) {
             v.toLocation(player.getWorld()).getBlock().setBlockData(main.getWorldHandle().createBlockData("minecraft:stone"), false);

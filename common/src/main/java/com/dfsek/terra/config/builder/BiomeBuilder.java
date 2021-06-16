@@ -6,8 +6,9 @@ import com.dfsek.terra.api.util.seeded.SeededBuilder;
 import com.dfsek.terra.api.world.biome.TerraBiome;
 import com.dfsek.terra.config.templates.BiomeTemplate;
 
-public interface BiomeBuilder extends SeededBuilder<TerraBiome> {
-    ProbabilityCollection<Biome> getVanillaBiomes();
 
+public interface BiomeBuilder extends SeededBuilder<TerraBiome> {
     BiomeTemplate getTemplate();
+    
+    ProbabilityCollection<Biome> getVanillaBiomes();
 }

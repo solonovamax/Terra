@@ -44,12 +44,24 @@ public class FloraRegistry extends OpenRegistry<Flora> {
         addItem("DANDELION", () -> new ConstantFlora(grassy, Collections.singletonList(data("minecraft:dandelion"))));
         addItem("WITHER_ROSE", () -> new ConstantFlora(grassy, Collections.singletonList(data("minecraft:wither_rose"))));
         addItem("DEAD_BUSH", () -> new ConstantFlora(MaterialSet.get(create("minecraft:terracotta"), create("minecraft:black_terracotta"),
-                create("minecraft:blue_terracotta"), create("minecraft:brown_terracotta"), create("minecraft:cyan_terracotta"),
-                create("minecraft:gray_terracotta"), create("minecraft:green_terracotta"), create("minecraft:light_blue_terracotta"),
-                create("minecraft:light_gray_terracotta"), create("minecraft:lime_terracotta"), create("minecraft:magenta_terracotta"),
-                create("minecraft:orange_terracotta"), create("minecraft:pink_terracotta"), create("minecraft:purple_terracotta"),
-                create("minecraft:red_terracotta"), create("minecraft:white_terracotta"), create("minecraft:yellow_terracotta"),
-                create("minecraft:red_sand"), create("minecraft:sand"), create("minecraft:coarse_dirt")), Collections.singletonList(data("minecraft:dead_bush"))));
+                                                                     create("minecraft:blue_terracotta"),
+                                                                     create("minecraft:brown_terracotta"),
+                                                                     create("minecraft:cyan_terracotta"),
+                                                                     create("minecraft:gray_terracotta"),
+                                                                     create("minecraft:green_terracotta"),
+                                                                     create("minecraft:light_blue_terracotta"),
+                                                                     create("minecraft:light_gray_terracotta"),
+                                                                     create("minecraft:lime_terracotta"),
+                                                                     create("minecraft:magenta_terracotta"),
+                                                                     create("minecraft:orange_terracotta"),
+                                                                     create("minecraft:pink_terracotta"),
+                                                                     create("minecraft:purple_terracotta"),
+                                                                     create("minecraft:red_terracotta"),
+                                                                     create("minecraft:white_terracotta"),
+                                                                     create("minecraft:yellow_terracotta"),
+                                                                     create("minecraft:red_sand"), create("minecraft:sand"),
+                                                                     create("minecraft:coarse_dirt")),
+                                                     Collections.singletonList(data("minecraft:dead_bush"))));
         addItem("RED_TULIP", () -> new ConstantFlora(grassy, Collections.singletonList(data("minecraft:red_tulip"))));
         addItem("ORANGE_TULIP", () -> new ConstantFlora(grassy, Collections.singletonList(data("minecraft:orange_tulip"))));
         addItem("WHITE_TULIP", () -> new ConstantFlora(grassy, Collections.singletonList(data("minecraft:white_tulip"))));
@@ -57,16 +69,18 @@ public class FloraRegistry extends OpenRegistry<Flora> {
         addItem("OXEYE_DAISY", () -> new ConstantFlora(grassy, Collections.singletonList(data("minecraft:oxeye_daisy"))));
         addItem("ALLIUM", () -> new ConstantFlora(grassy, Collections.singletonList(data("minecraft:allium"))));
         addItem("CORNFLOWER", () -> new ConstantFlora(grassy, Collections.singletonList(data("minecraft:cornflower"))));
-        addItem("LILY_PAD", () -> new ConstantFlora(MaterialSet.get(create("minecraft:water")), Collections.singletonList(data("minecraft:lily_pad"))));
-        MaterialSet mushroom = MaterialSet.get(create("minecraft:grass_block"), create("minecraft:stone"), create("minecraft:podzol"), create("minecraft:netherrack"), create("minecraft:mycelium"));
+        addItem("LILY_PAD",
+                () -> new ConstantFlora(MaterialSet.get(create("minecraft:water")), Collections.singletonList(data("minecraft:lily_pad"))));
+        MaterialSet mushroom = MaterialSet.get(create("minecraft:grass_block"), create("minecraft:stone"), create("minecraft:podzol"),
+                                               create("minecraft:netherrack"), create("minecraft:mycelium"));
         addItem("RED_MUSHROOM", () -> new ConstantFlora(mushroom, Collections.singletonList(data("minecraft:red_mushroom"))));
         addItem("BROWN_MUSHROOM", () -> new ConstantFlora(mushroom, Collections.singletonList(data("minecraft:brown_mushroom"))));
     }
-
+    
     private BlockData create(String s) {
         return main.getWorldHandle().createBlockData(s);
     }
-
+    
     private void addItem(String id, Callable<ConstantFlora> flora) {
         try {
             Entry<Flora> entry = new Entry<>(flora.call());
@@ -76,7 +90,7 @@ public class FloraRegistry extends OpenRegistry<Flora> {
             logger.error("Failed to load Flora item: '{}'", id, e);
         }
     }
-
+    
     private BlockData data(String s) {
         return main.getWorldHandle().createBlockData(s);
     }

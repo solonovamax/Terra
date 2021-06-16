@@ -10,6 +10,7 @@ import com.dfsek.terra.api.injection.annotations.Inject;
 import com.dfsek.terra.api.platform.CommandSender;
 import com.dfsek.terra.api.platform.entity.Player;
 
+
 @WorldCommand
 @DebugCommand
 @PlayerCommand
@@ -19,7 +20,7 @@ import com.dfsek.terra.api.platform.entity.Player;
 public class GetBlockCommand implements CommandTemplate {
     @Inject
     private TerraPlugin main;
-
+    
     @Override
     public void execute(CommandSender sender) {
         Player player = (Player) sender;

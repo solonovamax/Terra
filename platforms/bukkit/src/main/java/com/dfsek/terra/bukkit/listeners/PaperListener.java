@@ -13,14 +13,15 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
+
 public class PaperListener implements Listener {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final TerraPlugin main;
-
+    
     public PaperListener(TerraPlugin main) {
         this.main = main;
     }
-
+    
     @EventHandler
     public void onStructureLocate(StructureLocateEvent e) {
         if(!BukkitAdapter.adapt(e.getWorld()).isTerraWorld()) return;
@@ -30,7 +31,8 @@ public class PaperListener implements Listener {
         TerraWorld tw = main.getWorld(BukkitAdapter.adapt(e.getWorld()));
         TerraStructure config = tw.getConfig().getRegistry(TerraStructure.class).get(tw.getConfig().getTemplate().getLocatable().get(name));
         if(config != null) {
-            AsyncStructureFinder finder = new AsyncStructureFinder(tw.getBiomeProvider(), config, BukkitAdapter.adapt(e.getOrigin()), 0, 500, location -> {
+            AsyncStructureFinder finder = new AsyncStructureFinder(tw.getBiomeProvider(), config, BukkitAdapter.adapt(e.getOrigin()), 0,
+                                                                   500, location -> {
                 if(location != null)
                     e.setResult(BukkitAdapter.adapt(location.toLocation(BukkitAdapter.adapt(e.getWorld()))));
                 logger.info("Location: {}", location);
@@ -39,8 +41,8 @@ public class PaperListener implements Listener {
         } else {
             logger.warn("No overrides are defined for '{}'", name);
         }
-
+        
     }
-
-
+    
+    
 }

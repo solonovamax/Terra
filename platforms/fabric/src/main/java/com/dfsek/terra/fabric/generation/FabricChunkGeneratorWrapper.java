@@ -92,6 +92,11 @@ public class FabricChunkGeneratorWrapper extends ChunkGenerator implements Gener
         return new FabricChunkGeneratorWrapper((TerraBiomeSource) this.biomeSource.withSeed(seed), seed, pack);
     }
     
+    @Override
+    public void carve(long seed, BiomeAccess access, Chunk chunk, GenerationStep.Carver carver) {
+        // No caves
+    }
+    
     @Nullable
     @Override
     public BlockPos locateStructure(ServerWorld world, StructureFeature<?> feature, BlockPos center, int radius,
@@ -128,29 +133,29 @@ public class FabricChunkGeneratorWrapper extends ChunkGenerator implements Gener
     }
     
     @Override
-    public void populateNoise(WorldAccess world, StructureAccessor accessor, Chunk chunk) {
-        delegate.generateChunkData((World) world, new FastRandom(), chunk.getPos().x, chunk.getPos().z, (ChunkData) chunk);
-    }
-    
-    @Override
     public void setStructureStarts(DynamicRegistryManager dynamicRegistryManager, StructureAccessor structureAccessor, Chunk chunk,
                                    StructureManager structureManager, long worldSeed) {
         
     }
-
+    
+    @Override
+    public void populateNoise(WorldAccess world, StructureAccessor accessor, Chunk chunk) {
+        delegate.generateChunkData((World) world, new FastRandom(), chunk.getPos().x, chunk.getPos().z, (ChunkData) chunk);
+    }
+    
     @Override
     public int getHeight(int x, int z, Heightmap.Type heightmapType) {
         TerraWorld world = TerraFabricPlugin.getInstance().getWorld(seed);
         Sampler sampler = world.getConfig().getSamplerCache().getChunk(FastMath.floorDiv(x, 16), FastMath.floorDiv(z, 16));
         int cx = FastMath.floorMod(x, 16);
         int cz = FastMath.floorMod(z, 16);
-    
+        
         int height = world.getWorld().getMaxHeight();
-    
+        
         while(height >= 0 && sampler.sample(cx, height - 1, cz) < 0) {
             height--;
         }
-    
+        
         return height;
     }
     
@@ -178,12 +183,12 @@ public class FabricChunkGeneratorWrapper extends ChunkGenerator implements Gener
         return false;
     }
     
-    public ConfigPack getPack() {
-        return pack;
-    }
-    
     @Override
     public TerraChunkGenerator getHandle() {
         return delegate;
+    }
+    
+    public ConfigPack getPack() {
+        return pack;
     }
 }

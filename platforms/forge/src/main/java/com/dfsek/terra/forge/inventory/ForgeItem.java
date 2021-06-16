@@ -26,4 +26,9 @@ public class ForgeItem implements Item {
     public double getMaxDurability() {
         return delegate.getMaxDamage();
     }
+    
+    @Override
+    public net.minecraft.item.Item getHandle() {
+        return delegate;
+    }
 }

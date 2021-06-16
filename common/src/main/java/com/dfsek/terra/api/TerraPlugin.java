@@ -19,38 +19,17 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.jar.JarFile;
 
+
 /**
  * Represents a Terra mod/plugin instance.
  */
 public interface TerraPlugin extends LoaderRegistrar {
-    WorldHandle getWorldHandle();
-
-    TerraWorld getWorld(World world);
-
-    PluginConfig getTerraConfig();
-
-    File getDataFolder();
-
-    Language getLanguage();
-
-    CheckedRegistry<ConfigPack> getConfigRegistry();
-
-    LockedRegistry<TerraAddon> getAddons();
-
     boolean reload();
-
-    ItemHandle getItemHandle();
-
+    
     void saveDefaultConfig();
-
+    
     String platformName();
-
-    EventManager getEventManager();
-
-    default String getVersion() {
-        return "@VERSION@";
-    }
-
+    
     /**
      * Runs a task that may or may not be thread safe, depending on platform.
      * <p>
@@ -61,10 +40,32 @@ public interface TerraPlugin extends LoaderRegistrar {
     default void runPossiblyUnsafeTask(Runnable task) {
         task.run();
     }
-
-    Profiler getProfiler();
-
+    
+    LockedRegistry<TerraAddon> getAddons();
+    
+    CheckedRegistry<ConfigPack> getConfigRegistry();
+    
+    File getDataFolder();
+    
+    EventManager getEventManager();
+    
+    ItemHandle getItemHandle();
+    
+    Language getLanguage();
+    
     default JarFile getModJar() throws URISyntaxException, IOException {
         return JarUtil.getJarFile();
     }
+    
+    Profiler getProfiler();
+    
+    PluginConfig getTerraConfig();
+    
+    default String getVersion() {
+        return "@VERSION@";
+    }
+    
+    TerraWorld getWorld(World world);
+    
+    WorldHandle getWorldHandle();
 }

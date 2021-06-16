@@ -5,23 +5,24 @@ import com.dfsek.terra.api.util.GlueList;
 
 import java.util.List;
 
+
 public abstract class VoxelGeometry {
     private final List<Vector3> geometry = new GlueList<>();
-
+    
     public static VoxelGeometry getBlank() {
         return new VoxelGeometry() {
         };
     }
-
-    public List<Vector3> getGeometry() {
-        return geometry;
+    
+    public void merge(VoxelGeometry other) {
+        geometry.addAll(other.geometry);
     }
-
+    
     protected void addVector(Vector3 v) {
         geometry.add(v);
     }
-
-    public void merge(VoxelGeometry other) {
-        geometry.addAll(other.geometry);
+    
+    public List<Vector3> getGeometry() {
+        return geometry;
     }
 }

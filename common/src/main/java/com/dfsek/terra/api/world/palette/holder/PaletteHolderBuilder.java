@@ -6,15 +6,16 @@ import net.jafama.FastMath;
 import java.util.Map;
 import java.util.TreeMap;
 
+
 public class PaletteHolderBuilder {
     private final TreeMap<Integer, Palette> paletteMap = new TreeMap<>();
-
+    
     public PaletteHolderBuilder add(int y, Palette palette) {
         paletteMap.put(y, palette);
         return this;
     }
-
-    @SuppressWarnings({"unchecked", "rawtypes", "RedundantSuppression"})
+    
+    @SuppressWarnings({ "unchecked", "rawtypes", "RedundantSuppression" })
     public PaletteHolder build() {
         Palette[] palettes = new Palette[paletteMap.lastKey() + 1];
         for(int y = 0; y <= FastMath.max(paletteMap.lastKey(), 255); y++) {

@@ -17,13 +17,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+
 public class BukkitCommandAdapter implements CommandExecutor, TabCompleter {
     private final CommandManager manager;
-
+    
     public BukkitCommandAdapter(CommandManager manager) {
         this.manager = manager;
     }
-
+    
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         List<String> argList = new ArrayList<>(Arrays.asList(args));
@@ -38,14 +39,16 @@ public class BukkitCommandAdapter implements CommandExecutor, TabCompleter {
         }
         return true;
     }
-
+    
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias,
+                                                @NotNull String[] args) {
         List<String> argList = new ArrayList<>(Arrays.asList(args));
-
+        
         try {
             return manager.tabComplete(argList.remove(0), BukkitAdapter.adapt(sender), argList).stream()
-                    .filter(s -> s.toLowerCase(Locale.ROOT).startsWith(args[args.length - 1].toLowerCase(Locale.ROOT))).sorted(String::compareTo).collect(Collectors.toList());
+                          .filter(s -> s.toLowerCase(Locale.ROOT).startsWith(args[args.length - 1].toLowerCase(Locale.ROOT))).sorted(
+                            String::compareTo).collect(Collectors.toList());
         } catch(CommandException e) {
             e.printStackTrace();
             return Collections.emptyList();

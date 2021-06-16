@@ -16,39 +16,14 @@ import net.minecraft.world.ISeedReader;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.IWorld;
 
+
 public class ForgeWorldAccess implements World, ForgeWorldHandle {
     private final IWorld delegate;
-
+    
     public ForgeWorldAccess(IWorld delegate) {
         this.delegate = delegate;
     }
-
-    @Override
-    public long getSeed() {
-        return ((ISeedReader) delegate).getSeed();
-    }
-
-    @Override
-    public int getMaxHeight() {
-        return delegate.getHeight();
-    }
-
-    @Override
-    public ChunkGenerator getGenerator() {
-        return new ForgeChunkGenerator(((IServerWorld) delegate).getLevel().getChunkSource().getGenerator());
-    }
-
-    @Override
-    public Chunk getChunkAt(int x, int z) {
-        return null;
-    }
-
-    @Override
-    public Block getBlockAt(int x, int y, int z) {
-        BlockPos pos = new BlockPos(x, y, z);
-        return new ForgeBlock(pos, delegate);
-    }
-
+    
     @Override
     public Entity spawnEntity(Location location, EntityType entityType) {
         net.minecraft.entity.Entity entity = ForgeAdapter.adapt(entityType).create(((IServerWorld) delegate).getLevel());
@@ -56,30 +31,56 @@ public class ForgeWorldAccess implements World, ForgeWorldHandle {
         delegate.addFreshEntity(entity);
         return new ForgeEntity(entity);
     }
-
+    
+    @Override
+    public Block getBlockAt(int x, int y, int z) {
+        BlockPos pos = new BlockPos(x, y, z);
+        return new ForgeBlock(pos, delegate);
+    }
+    
+    @Override
+    public Chunk getChunkAt(int x, int z) {
+        return null;
+    }
+    
+    @Override
+    public ChunkGenerator getGenerator() {
+        return new ForgeChunkGenerator(((IServerWorld) delegate).getLevel().getChunkSource().getGenerator());
+    }
+    
+    @Override
+    public int getMaxHeight() {
+        return delegate.getHeight();
+    }
+    
     @Override
     public int getMinHeight() {
         return 0;
     }
-
+    
     @Override
-    public IWorld getHandle() {
-        return delegate;
+    public long getSeed() {
+        return ((ISeedReader) delegate).getSeed();
     }
-
-    @Override
-    public IWorld getWorld() {
-        return delegate;
-    }
-
+    
     @Override
     public int hashCode() {
         return ((IServerWorld) delegate).getLevel().hashCode();
     }
-
+    
     @Override
     public boolean equals(Object obj) {
         if(!(obj instanceof ForgeWorldAccess)) return false;
         return ((IServerWorld) ((ForgeWorldAccess) obj).delegate).getLevel().equals(((IServerWorld) delegate).getLevel());
+    }
+    
+    @Override
+    public IWorld getHandle() {
+        return delegate;
+    }
+    
+    @Override
+    public IWorld getWorld() {
+        return delegate;
     }
 }

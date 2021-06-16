@@ -26,7 +26,7 @@ public class LinkedHashMapLoader implements TypeLoader<LinkedHashMap<Object, Obj
         } else {
             throw new LoadException("Unable to load config");
         }
-    
+        
         return map;
     }
 }

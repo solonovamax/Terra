@@ -16,22 +16,23 @@ import com.dfsek.terra.config.loaders.config.biome.templates.stage.mutator.Smoot
 import java.lang.reflect.Type;
 import java.util.Map;
 
+
 @SuppressWarnings("unchecked")
 public class StageBuilderLoader implements TypeLoader<StageSeeded> {
     @Override
     public StageSeeded load(Type t, Object c, ConfigLoader loader) throws LoadException {
         Map<String, Object> raw = (Map<String, Object>) c;
-
+    
         if(raw.size() != 1) throw new LoadException("Illegal stage map size: " + raw.size());
-
+    
         Map.Entry<String, Object> entry = null;
-
+    
         for(Map.Entry<String, Object> e : raw.entrySet()) {
             entry = e;
         }
-
+    
         Map<String, Object> mutator = (Map<String, Object>) entry.getValue();
-
+    
         if(entry.getKey().equals("expand")) {
             ExpanderStage.Type stageType = loader.loadClass(ExpanderStage.Type.class, mutator.get("type"));
             if(stageType.equals(ExpanderStage.Type.FRACTAL)) {

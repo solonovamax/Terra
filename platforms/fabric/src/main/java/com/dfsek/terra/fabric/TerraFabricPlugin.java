@@ -97,8 +97,9 @@ import static net.minecraft.server.command.CommandManager.literal;
 
 public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    
     public static final PopulatorFeature POPULATOR_FEATURE = new PopulatorFeature(DefaultFeatureConfig.CODEC);
-    public static final ConfiguredFeature<?, ?> POPULATOR_CONFIGURED_FEATURE = POPULATOR_FEATURE.configure(FeatureConfig.DEFAULT)
+    public static final ConfiguredFeature<?, ?> POPULATOR_CONFIGURED_FEATURE = POPULATOR_FEATURE.configure(FeatureConfig.DEFAULT) // bruh
                                                                                                 .decorate(Decorator.NOPE.configure(
                                                                                                         NopeDecoratorConfig.INSTANCE));
     private static TerraFabricPlugin instance;
@@ -121,12 +122,20 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
             .build();
     private File dataFolder;
     
+    public static TerraFabricPlugin getInstance() {
+        return instance;
+    }
+    
     public static String createBiomeID(ConfigPack pack, String biomeID) {
         return pack.getTemplate().getID().toLowerCase() + "/" + biomeID.toLowerCase(Locale.ROOT);
     }
     
-    public static TerraFabricPlugin getInstance() {
-        return instance;
+    @Override
+    public void register(TypeRegistry registry) {
+        genericLoaders.register(registry);
+        registry
+                .registerLoader(BlockData.class, (t, o, l) -> worldHandle.createBlockData((String) o))
+                .registerLoader(com.dfsek.terra.api.platform.world.Biome.class, (t, o, l) -> biomeFixer.translate((String) o));
     }
     
     @Override
@@ -242,6 +251,7 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
         logger.info("Finished initialization.");
     }
     
+    
     private Biome createBiome(BiomeBuilder biome) {
         BiomeTemplate template = biome.getTemplate();
         Map<String, Integer> colors = template.getColors();
@@ -285,6 +295,7 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
                                   .generationSettings(generationSettings.build())
                                   .build();
     }
+    
     
     private RequiredArgumentBuilder<ServerCommandSource, String> assemble(RequiredArgumentBuilder<ServerCommandSource, String> in,
                                                                           CommandManager manager) {
@@ -337,67 +348,8 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
     }
     
     @Override
-    public TerraWorld getWorld(World world) {
-        return worldMap.computeIfAbsent(world.getSeed(), w -> {
-            logger.info("Loading world " + w);
-            return new TerraWorld(world, ((FabricChunkGeneratorWrapper) world.getGenerator()).getPack(), this);
-        });
-    }
-    
-    @Override
-    public PluginConfig getTerraConfig() {
-        return config;
-    }
-    
-    @Override
-    public File getDataFolder() {
-        return dataFolder;
-    }
-    
-    @Override
-    public Language getLanguage() {
-        return LangUtil.getLanguage();
-    }
-    
-    @Override
-    public CheckedRegistry<ConfigPack> getConfigRegistry() {
-        return checkedRegistry;
-    }
-    
-    @Override
-    public LockedRegistry<TerraAddon> getAddons() {
-        return addonLockedRegistry;
-    }
-    
-    @Override
-    public boolean reload() {
-        config.load(this);
-        LangUtil.load(config.getLanguage(), this); // Load language.
-        boolean succeed = registry.loadAll(this);
-        Map<Long, TerraWorld> newMap = new HashMap<>();
-        worldMap.forEach((seed, tw) -> {
-            tw.getConfig().getSamplerCache().clear();
-            String packID = tw.getConfig().getTemplate().getID();
-            newMap.put(seed, new TerraWorld(tw.getWorld(), registry.get(packID), this));
-        });
-        worldMap.clear();
-        worldMap.putAll(newMap);
-        return succeed;
-    }
-    
-    @Override
-    public ItemHandle getItemHandle() {
-        return itemHandle;
-    }
-    
-    @Override
-    public void saveDefaultConfig() {
-        try(InputStream stream = getClass().getResourceAsStream("/config.yml")) {
-            File configFile = new File(getDataFolder(), "config.yml");
-            if(!configFile.exists()) FileUtils.copyInputStreamToFile(stream, configFile);
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
+    public Logger logger() {
+        return logger;
     }
     
     @Override
@@ -411,8 +363,46 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
     }
     
     @Override
+    public LockedRegistry<TerraAddon> getAddons() {
+        return addonLockedRegistry;
+    }
+    
+    @Override
+    public CheckedRegistry<ConfigPack> getConfigRegistry() {
+        return checkedRegistry;
+    }
+    
+    @Override
+    public File getDataFolder() {
+        return dataFolder;
+    }
+    
+    @Override
+    public ItemHandle getItemHandle() {
+        return itemHandle;
+    }
+    
+    @Override
+    public Language getLanguage() {
+        return LangUtil.getLanguage();
+    }
+    
+    @Override
     public Profiler getProfiler() {
         return profiler;
+    }
+    
+    @Override
+    public PluginConfig getTerraConfig() {
+        return config;
+    }
+    
+    @Override
+    public TerraWorld getWorld(World world) {
+        return worldMap.computeIfAbsent(world.getSeed(), w -> {
+            logger.info("Loading world " + w);
+            return new TerraWorld(world, ((FabricChunkGeneratorWrapper) world.getGenerator()).getPack(), this);
+        });
     }
     
     

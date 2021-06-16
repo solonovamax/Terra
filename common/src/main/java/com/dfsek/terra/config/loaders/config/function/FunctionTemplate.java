@@ -5,24 +5,25 @@ import com.dfsek.tectonic.loading.object.ObjectTemplate;
 
 import java.util.List;
 
+
 @SuppressWarnings("unused")
 public class FunctionTemplate implements ObjectTemplate<FunctionTemplate> {
     @Value("arguments")
     private List<String> args;
-
+    
     @Value("function")
     private String function;
-
-    public List<String> getArgs() {
-        return args;
-    }
-
-    public String getFunction() {
-        return function;
-    }
-
+    
     @Override
     public FunctionTemplate get() {
         return this;
+    }
+    
+    public List<String> getArgs() {
+        return args;
+    }
+    
+    public String getFunction() {
+        return function;
     }
 }

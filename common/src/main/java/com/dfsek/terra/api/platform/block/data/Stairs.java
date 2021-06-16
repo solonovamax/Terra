@@ -2,9 +2,9 @@ package com.dfsek.terra.api.platform.block.data;
 
 public interface Stairs extends Waterlogged, Directional, Bisected {
     Shape getShape();
-
+    
     void setShape(Shape shape);
-
+    
     enum Shape {
         /**
          * Regular stair block.

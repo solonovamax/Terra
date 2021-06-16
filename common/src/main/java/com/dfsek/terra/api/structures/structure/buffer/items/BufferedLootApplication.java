@@ -14,18 +14,19 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
+
 public class BufferedLootApplication implements BufferedItem {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final LootTable table;
     private final TerraPlugin main;
     private final StructureScript structure;
-
+    
     public BufferedLootApplication(LootTable table, TerraPlugin main, StructureScript structure) {
         this.table = table;
         this.main = main;
         this.structure = structure;
     }
-
+    
     @Override
     public void paste(Location origin) {
         try {
@@ -36,11 +37,12 @@ public class BufferedLootApplication implements BufferedItem {
                 return;
             }
             Container container = (Container) data;
-
-            LootPopulateEvent event = new LootPopulateEvent(block, container, table, block.getLocation().getWorld().getTerraGenerator().getConfigPack(), structure);
+    
+            LootPopulateEvent event = new LootPopulateEvent(block, container, table,
+                                                            block.getLocation().getWorld().getTerraGenerator().getConfigPack(), structure);
             main.getEventManager().callEvent(event);
             if(event.isCancelled()) return;
-
+    
             event.getTable().fillInventory(container.getInventory(), new FastRandom(origin.hashCode()));
             data.update(false);
         } catch(Exception e) {

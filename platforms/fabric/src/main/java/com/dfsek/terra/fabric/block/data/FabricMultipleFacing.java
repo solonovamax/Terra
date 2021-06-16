@@ -9,23 +9,12 @@ import net.minecraft.state.property.Properties;
 import java.util.HashSet;
 import java.util.Set;
 
+
 public class FabricMultipleFacing extends FabricBlockData implements MultipleFacing {
     public FabricMultipleFacing(BlockState delegate) {
         super(delegate);
     }
-
-    @Override
-    public Set<BlockFace> getFaces() {
-        Set<BlockFace> set = new HashSet<>();
-        if(delegate.get(Properties.NORTH)) set.add(BlockFace.NORTH);
-        if(delegate.get(Properties.SOUTH)) set.add(BlockFace.SOUTH);
-        if(delegate.get(Properties.EAST)) set.add(BlockFace.EAST);
-        if(delegate.get(Properties.WEST)) set.add(BlockFace.WEST);
-        if(delegate.contains(Properties.UP) && delegate.get(Properties.UP)) set.add(BlockFace.UP);
-        if(delegate.contains(Properties.DOWN) && delegate.get(Properties.DOWN)) set.add(BlockFace.DOWN);
-        return set;
-    }
-
+    
     @Override
     public void setFace(BlockFace face, boolean facing) {
         switch(face) {
@@ -49,7 +38,7 @@ public class FabricMultipleFacing extends FabricBlockData implements MultipleFac
                 break;
         }
     }
-
+    
     @Override
     public Set<BlockFace> getAllowedFaces() {
         Set<BlockFace> set = new HashSet<>();
@@ -61,7 +50,19 @@ public class FabricMultipleFacing extends FabricBlockData implements MultipleFac
         if(delegate.contains(Properties.DOWN)) set.add(BlockFace.DOWN);
         return set;
     }
-
+    
+    @Override
+    public Set<BlockFace> getFaces() {
+        Set<BlockFace> set = new HashSet<>();
+        if(delegate.get(Properties.NORTH)) set.add(BlockFace.NORTH);
+        if(delegate.get(Properties.SOUTH)) set.add(BlockFace.SOUTH);
+        if(delegate.get(Properties.EAST)) set.add(BlockFace.EAST);
+        if(delegate.get(Properties.WEST)) set.add(BlockFace.WEST);
+        if(delegate.contains(Properties.UP) && delegate.get(Properties.UP)) set.add(BlockFace.UP);
+        if(delegate.contains(Properties.DOWN) && delegate.get(Properties.DOWN)) set.add(BlockFace.DOWN);
+        return set;
+    }
+    
     @Override
     public boolean hasFace(BlockFace f) {
         return getFaces().contains(f);

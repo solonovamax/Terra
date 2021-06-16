@@ -6,23 +6,24 @@ import com.dfsek.terra.api.math.noise.samplers.noise.fractal.FractalNoiseFunctio
 import com.dfsek.terra.api.util.seeded.NoiseSeeded;
 import com.dfsek.terra.config.loaders.config.sampler.templates.SamplerTemplate;
 
+
 public abstract class FractalTemplate<T extends FractalNoiseFunction> extends SamplerTemplate<T> {
     @Value("octaves")
     @Default
     protected int octaves = 3;
-
+    
     @Value("gain")
     @Default
     protected double fractalGain = 0.5D;
-
+    
     @Value("lacunarity")
     @Default
     protected double fractalLacunarity = 2.0D;
-
+    
     @Value("weighted-strength")
     @Default
     protected double weightedStrength = 0.0D;
-
+    
     @Value("function")
     protected NoiseSeeded function;
 }

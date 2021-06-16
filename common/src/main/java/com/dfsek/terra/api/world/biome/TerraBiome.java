@@ -7,28 +7,29 @@ import com.dfsek.terra.api.util.collections.ProbabilityCollection;
 
 import java.util.Set;
 
+
 /**
  * Represents a custom biome
  */
 public interface TerraBiome {
-
-    /**
-     * Gets the Vanilla biome to represent the custom biome.
-     *
-     * @return TerraBiome - The Vanilla biome.
-     */
-    ProbabilityCollection<Biome> getVanillaBiomes();
-
+    
+    int getColor();
+    
     /**
      * Gets the BiomeTerrain instance used to generate the biome.
      *
      * @return BiomeTerrain - The terrain generation instance.
      */
     Generator getGenerator(World w);
-
-    int getColor();
-
-    Set<String> getTags();
-
+    
     String getID();
+    
+    Set<String> getTags();
+    
+    /**
+     * Gets the Vanilla biome to represent the custom biome.
+     *
+     * @return TerraBiome - The Vanilla biome.
+     */
+    ProbabilityCollection<Biome> getVanillaBiomes();
 }

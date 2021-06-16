@@ -19,22 +19,22 @@ import java.util.Random;
 
 public class TreePopulator implements TerraBlockPopulator {
     private final TerraPlugin main;
-
+    
     public TreePopulator(TerraPlugin main) {
         this.main = main;
     }
-
+    
     private static int offset(Random r, int i) {
         return FastMath.min(FastMath.max(i + r.nextInt(3) - 1, 0), 15);
     }
-
+    
     @Override
     @SuppressWarnings("try")
     public void populate(@NotNull World world, @NotNull Chunk chunk) {
         TerraWorld tw = main.getWorld(world);
         try(ProfileFrame ignore = main.getProfiler().profile("tree")) {
             if(tw.getConfig().getTemplate().disableTrees()) return;
-
+    
             if(!tw.isSafe()) return;
             BiomeProvider provider = tw.getBiomeProvider();
             Random random = PopulationUtil.getRandom(chunk);

@@ -114,6 +114,7 @@ import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 @Mod.EventBusSubscriber(modid = "terra", bus = Mod.EventBusSubscriber.Bus.MOD)
 public class TerraForgePlugin implements TerraPlugin {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    
     public static final PopulatorFeature POPULATOR_FEATURE = (PopulatorFeature) new PopulatorFeature(NoFeatureConfig.CODEC)
             .setRegistryName("terra", "terra");
     public static final ConfiguredFeature<?, ?> POPULATOR_CONFIGURED_FEATURE = POPULATOR_FEATURE.configured(IFeatureConfig.NONE).decorated(
@@ -170,6 +171,11 @@ public class TerraForgePlugin implements TerraPlugin {
         event.getRegistry().register(TerraLevelType.FORGE_WORLD_TYPE);
     }
     
+    @SubscribeEvent
+    public static void registerPop(RegistryEvent.Register<Feature<?>> event) {
+        event.getRegistry().register(POPULATOR_FEATURE);
+    }
+    
     private static List<String> parseCommand(String command) {
         if(command.startsWith("/terra ")) command = command.substring("/terra ".length());
         else if(command.startsWith("/te ")) command = command.substring("/te ".length());
@@ -200,11 +206,6 @@ public class TerraForgePlugin implements TerraPlugin {
         });
     }
     
-    @SubscribeEvent
-    public static void registerPop(RegistryEvent.Register<Feature<?>> event) {
-        event.getRegistry().register(POPULATOR_FEATURE);
-    }
-    
     public Biome createBiome(BiomeBuilder biome) {
         BiomeTemplate template = biome.getTemplate();
         Map<String, Integer> colors = template.getColors();
@@ -225,16 +226,19 @@ public class TerraForgePlugin implements TerraPlugin {
                 .skyColor(colors.getOrDefault("sky", vanillaEffects.getSkyColor()))
                 .grassColorModifier(vanillaEffects.getGrassColorModifier());
         
-        if(colors.containsKey("grass"))
+        if(colors.containsKey("grass")) {
             effects.grassColorOverride(colors.get("grass"));
-        else
+        } else {
             vanillaEffects.getGrassColorOverride().ifPresent(effects::grassColorOverride);
+        }
+        
         vanillaEffects.getFoliageColorOverride().ifPresent(effects::foliageColorOverride);
         
-        if(colors.containsKey("foliage"))
+        if(colors.containsKey("foliage")) {
             effects.foliageColorOverride(colors.get("foliage"));
-        else
+        } else {
             vanillaEffects.getFoliageColorOverride().ifPresent(effects::foliageColorOverride);
+        }
         
         return new Biome.Builder().precipitation(vanilla.getPrecipitation())
                                   .biomeCategory(vanilla.getBiomeCategory())
@@ -273,42 +277,22 @@ public class TerraForgePlugin implements TerraPlugin {
     }
     
     @Override
-    public WorldHandle getWorldHandle() {
-        return worldHandle;
-    }
-    
-    @Override
     public void register(TypeRegistry registry) {
         genericLoaders.register(registry);
-        registry
-                .registerLoader(BlockData.class, (t, o, l) -> worldHandle.createBlockData((String) o))
+        registry.registerLoader(BlockData.class, (t, o, l) -> worldHandle.createBlockData((String) o))
                 .registerLoader(com.dfsek.terra.api.platform.world.Biome.class,
                                 (t, o, l) -> new ForgeBiome(biomeFixer.translate((String) o)));
     }
     
-    @Override
-    public PluginConfig getTerraConfig() {
-        return config;
+    public TerraWorld getWorld(long seed) {
+        TerraWorld world = worldMap.get(seed);
+        if(world == null) throw new IllegalArgumentException("No world exists with seed " + seed);
+        return world;
     }
     
     @Override
-    public File getDataFolder() {
-        return dataFolder;
-    }
-    
-    @Override
-    public Language getLanguage() {
-        return LangUtil.getLanguage();
-    }
-    
-    @Override
-    public CheckedRegistry<ConfigPack> getConfigRegistry() {
-        return checkedRegistry;
-    }
-    
-    @Override
-    public LockedRegistry<TerraAddon> getAddons() {
-        return addonLockedRegistry;
+    public WorldHandle getWorldHandle() {
+        return worldHandle;
     }
     
     @Override
@@ -328,11 +312,6 @@ public class TerraForgePlugin implements TerraPlugin {
     }
     
     @Override
-    public ItemHandle getItemHandle() {
-        return itemHandle;
-    }
-    
-    @Override
     public void saveDefaultConfig() {
         try(InputStream stream = getClass().getResourceAsStream("/config.yml")) {
             File configFile = new File(getDataFolder(), "config.yml");
@@ -348,22 +327,33 @@ public class TerraForgePlugin implements TerraPlugin {
     }
     
     @Override
-    public TerraWorld getWorld(World world) {
-        return worldMap.computeIfAbsent(world.getSeed(), w -> {
-            logger.info("Loading world " + w);
-            return new TerraWorld(world, ((ForgeChunkGeneratorWrapper) ((ForgeChunkGenerator) world.getGenerator()).getHandle()).getPack(),
-                                  this);
-        });
-    }
-    
-    @Override
     public EventManager getEventManager() {
         return eventManager;
     }
     
     @Override
-    public Profiler getProfiler() {
-        return profiler;
+    public LockedRegistry<TerraAddon> getAddons() {
+        return addonLockedRegistry;
+    }
+    
+    @Override
+    public CheckedRegistry<ConfigPack> getConfigRegistry() {
+        return checkedRegistry;
+    }
+    
+    @Override
+    public File getDataFolder() {
+        return dataFolder;
+    }
+    
+    @Override
+    public ItemHandle getItemHandle() {
+        return itemHandle;
+    }
+    
+    @Override
+    public Language getLanguage() {
+        return LangUtil.getLanguage();
     }
     
     @Override
@@ -382,10 +372,23 @@ public class TerraForgePlugin implements TerraPlugin {
         return JarUtil.getJarFile();
     }
     
-    public TerraWorld getWorld(long seed) {
-        TerraWorld world = worldMap.get(seed);
-        if(world == null) throw new IllegalArgumentException("No world exists with seed " + seed);
-        return world;
+    @Override
+    public Profiler getProfiler() {
+        return profiler;
+    }
+    
+    @Override
+    public PluginConfig getTerraConfig() {
+        return config;
+    }
+    
+    @Override
+    public TerraWorld getWorld(World world) {
+        return worldMap.computeIfAbsent(world.getSeed(), w -> {
+            logger.info("Loading world " + w);
+            return new TerraWorld(world, ((ForgeChunkGeneratorWrapper) ((ForgeChunkGenerator) world.getGenerator()).getHandle()).getPack(),
+                                  this);
+        });
     }
     
     
@@ -464,7 +467,7 @@ public class TerraForgePlugin implements TerraPlugin {
         @SubscribeEvent
         public static void register(FMLClientSetupEvent event) {
             logger.info("Client setup...");
-    
+            
             ForgeWorldType world = TerraLevelType.FORGE_WORLD_TYPE;
             ForgeWorldTypeScreens.registerFactory(world, (returnTo, dimensionGeneratorSettings) -> new Screen(world.getDisplayName()) {
                 private final MutableInteger num = new MutableInteger(0);
@@ -474,7 +477,7 @@ public class TerraForgePlugin implements TerraPlugin {
                     if(num.get() >= packs.size()) num.set(0);
                     button.setMessage(new StringTextComponent("Pack: " + packs.get(num.get()).getTemplate().getID()));
                 });
-        
+                
                 @Override
                 protected void init() {
                     packs.clear();

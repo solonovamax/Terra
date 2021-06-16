@@ -40,20 +40,6 @@ public class ForgeBlockData implements BlockData {
     }
     
     @Override
-    public BlockData clone() {
-        try {
-            return (ForgeBlockData) super.clone();
-        } catch(CloneNotSupportedException e) {
-            throw new Error(e);
-        }
-    }
-    
-    @Override
-    public BlockType getBlockType() {
-        return ForgeAdapter.adapt(delegate.getBlock());
-    }
-    
-    @Override
     public boolean matches(BlockData other) {
         return delegate.getBlock() == ((ForgeBlockData) other).delegate.getBlock();
     }
@@ -70,6 +56,15 @@ public class ForgeBlockData implements BlockData {
     }
     
     @Override
+    public BlockData clone() {
+        try {
+            return (ForgeBlockData) super.clone();
+        } catch(CloneNotSupportedException e) {
+            throw new Error(e);
+        }
+    }
+    
+    @Override
     @SuppressWarnings("deprecation")
     public boolean isAir() {
         return delegate.isAir();
@@ -78,6 +73,11 @@ public class ForgeBlockData implements BlockData {
     @Override
     public boolean isStructureVoid() {
         return delegate.getBlock() == Blocks.STRUCTURE_VOID;
+    }
+    
+    @Override
+    public BlockType getBlockType() {
+        return ForgeAdapter.adapt(delegate.getBlock());
     }
     
     @Override

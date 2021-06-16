@@ -13,8 +13,9 @@ import net.minecraft.util.registry.Registry;
 
 import java.util.Locale;
 
-public class FabricWorldHandle implements WorldHandle {
 
+public class FabricWorldHandle implements WorldHandle {
+    
     @Override
     public FabricBlockData createBlockData(String data) {
         BlockArgumentParser parser = new BlockArgumentParser(new StringReader(data), true);
@@ -26,7 +27,7 @@ public class FabricWorldHandle implements WorldHandle {
             throw new IllegalArgumentException(e);
         }
     }
-
+    
     @Override
     public EntityType getEntity(String id) {
         Identifier identifier = Identifier.tryParse(id);

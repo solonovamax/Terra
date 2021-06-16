@@ -6,27 +6,15 @@ import com.dfsek.terra.forge.world.block.ForgeBlockData;
 import net.minecraft.block.BlockState;
 import net.minecraft.state.properties.BlockStateProperties;
 
-
 import java.util.HashSet;
 import java.util.Set;
+
 
 public class ForgeMultipleFacing extends ForgeBlockData implements MultipleFacing {
     public ForgeMultipleFacing(BlockState delegate) {
         super(delegate);
     }
-
-    @Override
-    public Set<BlockFace> getFaces() {
-        Set<BlockFace> set = new HashSet<>();
-        if(delegate.getValue(BlockStateProperties.NORTH)) set.add(BlockFace.NORTH);
-        if(delegate.getValue(BlockStateProperties.SOUTH)) set.add(BlockFace.SOUTH);
-        if(delegate.getValue(BlockStateProperties.EAST)) set.add(BlockFace.EAST);
-        if(delegate.getValue(BlockStateProperties.WEST)) set.add(BlockFace.WEST);
-        if(delegate.hasProperty(BlockStateProperties.UP) && delegate.getValue(BlockStateProperties.UP)) set.add(BlockFace.UP);
-        if(delegate.hasProperty(BlockStateProperties.DOWN) && delegate.getValue(BlockStateProperties.DOWN)) set.add(BlockFace.DOWN);
-        return set;
-    }
-
+    
     @Override
     public void setFace(BlockFace face, boolean facing) {
         switch(face) {
@@ -50,7 +38,7 @@ public class ForgeMultipleFacing extends ForgeBlockData implements MultipleFacin
                 break;
         }
     }
-
+    
     @Override
     public Set<BlockFace> getAllowedFaces() {
         Set<BlockFace> set = new HashSet<>();
@@ -62,7 +50,19 @@ public class ForgeMultipleFacing extends ForgeBlockData implements MultipleFacin
         if(delegate.hasProperty(BlockStateProperties.DOWN)) set.add(BlockFace.DOWN);
         return set;
     }
-
+    
+    @Override
+    public Set<BlockFace> getFaces() {
+        Set<BlockFace> set = new HashSet<>();
+        if(delegate.getValue(BlockStateProperties.NORTH)) set.add(BlockFace.NORTH);
+        if(delegate.getValue(BlockStateProperties.SOUTH)) set.add(BlockFace.SOUTH);
+        if(delegate.getValue(BlockStateProperties.EAST)) set.add(BlockFace.EAST);
+        if(delegate.getValue(BlockStateProperties.WEST)) set.add(BlockFace.WEST);
+        if(delegate.hasProperty(BlockStateProperties.UP) && delegate.getValue(BlockStateProperties.UP)) set.add(BlockFace.UP);
+        if(delegate.hasProperty(BlockStateProperties.DOWN) && delegate.getValue(BlockStateProperties.DOWN)) set.add(BlockFace.DOWN);
+        return set;
+    }
+    
     @Override
     public boolean hasFace(BlockFace f) {
         return getFaces().contains(f);

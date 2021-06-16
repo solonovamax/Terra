@@ -13,26 +13,28 @@ import org.spongepowered.asm.mixin.Intrinsic;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+
 @Mixin(ProtoChunk.class)
 @Implements(@Interface(iface = ChunkData.class, prefix = "terra$", remap = Interface.Remap.NONE))
 public abstract class ProtoChunkMixin {
-    @Shadow
-    public abstract BlockState getBlockState(BlockPos pos);
-
-    public @NotNull BlockData terra$getBlockData(int x, int y, int z) {
-        return new FabricBlockData(getBlockState(new BlockPos(x, y, z)));
-    }
-
     public void terra$setBlock(int x, int y, int z, @NotNull BlockData blockData) {
         ((net.minecraft.world.chunk.Chunk) this).setBlockState(new BlockPos(x, y, z), ((FabricBlockData) blockData).getHandle(), false);
     }
-
+    
+    @NotNull
+    public BlockData terra$getBlockData(int x, int y, int z) {
+        return new FabricBlockData(getBlockState(new BlockPos(x, y, z)));
+    }
+    
     @Intrinsic
     public Object terra$getHandle() {
         return this;
     }
-
+    
     public int terra$getMaxHeight() {
         return 255; // TODO: 1.17 - Implement dynamic height.
     }
+    
+    @Shadow
+    public abstract BlockState getBlockState(BlockPos pos);
 }

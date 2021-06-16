@@ -12,12 +12,14 @@ import com.dfsek.terra.api.structures.tokenizer.Position;
 
 import java.util.Map;
 
+
 public class BlockFunction extends AbstractBlockFunction {
     private final BlockData data;
-
-    public BlockFunction(Returnable<Number> x, Returnable<Number> y, Returnable<Number> z, Returnable<String> data, Returnable<Boolean> overwrite, TerraPlugin main, Position position) throws ParseException {
+    
+    public BlockFunction(Returnable<Number> x, Returnable<Number> y, Returnable<Number> z, Returnable<String> data,
+                         Returnable<Boolean> overwrite, TerraPlugin main, Position position) throws ParseException {
         super(x, y, z, data, overwrite, main, position);
-
+        
         if(!(data instanceof ConstantExpression)) throw new ParseException("Block data must be constant", data.getPosition());
         try {
             this.data = main.getWorldHandle().createBlockData(((ConstantExpression<String>) data).getConstant());
@@ -25,7 +27,7 @@ public class BlockFunction extends AbstractBlockFunction {
             throw new ParseException("Could not parse block data", data.getPosition(), e);
         }
     }
-
+    
     @Override
     public Void apply(ImplementationArguments implementationArguments, Map<String, Variable<?>> variableMap) {
         TerraImplementationArguments arguments = (TerraImplementationArguments) implementationArguments;

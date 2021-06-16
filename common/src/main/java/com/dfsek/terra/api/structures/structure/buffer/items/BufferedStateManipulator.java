@@ -8,16 +8,17 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
 
+
 public class BufferedStateManipulator implements BufferedItem {
     private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
     private final TerraPlugin main;
     private final String data;
-
+    
     public BufferedStateManipulator(TerraPlugin main, String state) {
         this.main = main;
         this.data = state;
     }
-
+    
     @Override
     public void paste(Location origin) {
         try {

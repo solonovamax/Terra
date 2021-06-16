@@ -12,24 +12,25 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
 public class FabricOrientable extends FabricBlockData implements Orientable {
     private final EnumProperty<Direction.Axis> property;
-
+    
     public FabricOrientable(BlockState delegate, EnumProperty<Direction.Axis> property) {
         super(delegate);
         this.property = property;
     }
-
+    
     @Override
     public Set<Axis> getAxes() {
         return Arrays.stream(Axis.values()).collect(Collectors.toSet());
     }
-
+    
     @Override
     public Axis getAxis() {
         return FabricAdapter.adapt(getHandle().get(property));
     }
-
+    
     @Override
     public void setAxis(Axis axis) {
         delegate = delegate.with(property, FabricAdapter.adapt(axis));

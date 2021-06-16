@@ -40,11 +40,11 @@ publishing {
             artifact(tasks["jar"])
         }
     }
-
+    
     repositories {
         val mavenUrl = "https://repo.codemc.io/repository/maven-releases/"
         val mavenSnapshotUrl = "https://repo.codemc.io/repository/maven-snapshots/"
-
+        
         maven(mavenUrl) {
             val mavenUsername: String? by project
             val mavenPassword: String? by project

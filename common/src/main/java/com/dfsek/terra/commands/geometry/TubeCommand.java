@@ -16,6 +16,7 @@ import com.dfsek.terra.api.platform.CommandSender;
 import com.dfsek.terra.api.platform.entity.Player;
 import com.dfsek.terra.api.util.generic.pair.Pair;
 
+
 @DebugCommand
 @PlayerCommand
 @Command(
@@ -30,18 +31,18 @@ import com.dfsek.terra.api.util.generic.pair.Pair;
 public class TubeCommand implements CommandTemplate {
     @ArgumentTarget("radius")
     private Integer radius;
-
+    
     @Inject
     private TerraPlugin main;
-
+    
     @Override
     public void execute(CommandSender sender) {
         Player player = (Player) sender;
-
+        
         Pair<Location, Location> locations = main.getWorldHandle().getSelectedLocation(player);
-
+        
         Tube tube = new Tube(locations.getLeft().toVector(), locations.getRight().toVector(), radius);
-
+        
         for(Vector3 v : tube.getGeometry()) {
             v.toLocation(player.getWorld()).getBlock().setBlockData(main.getWorldHandle().createBlockData("minecraft:stone"), false);
         }

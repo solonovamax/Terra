@@ -11,23 +11,24 @@ import com.dfsek.terra.api.world.biome.provider.StandardBiomeProvider;
 
 import java.util.List;
 
-@SuppressWarnings({"FieldMayBeFinal", "unused"})
+
+@SuppressWarnings({ "FieldMayBeFinal", "unused" })
 public class BiomePipelineTemplate extends BiomeProviderTemplate {
     private final TerraPlugin main;
     @Value("pipeline.initial-size")
     @Default
     private int initialSize = 2;
-
+    
     @Value("pipeline.stages")
     private List<StageSeeded> stages;
-
+    
     @Value("pipeline.source")
     private SourceSeeded source;
-
+    
     public BiomePipelineTemplate(TerraPlugin main) {
         this.main = main;
     }
-
+    
     @Override
     public BiomeProvider build(long seed) {
         BiomePipeline.BiomePipelineBuilder biomePipelineBuilder = new BiomePipeline.BiomePipelineBuilder(initialSize);

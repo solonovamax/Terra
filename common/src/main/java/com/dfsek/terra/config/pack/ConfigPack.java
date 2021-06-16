@@ -119,8 +119,20 @@ public class ConfigPack implements LoaderRegistrar {
                 .registerLoader(NoiseSeeded.class, new NoiseSamplerBuilderLoader(getOpenRegistry(NoiseProvider.class)));
     }
     
-    private <R> void putPair(Map<Class<?>, ImmutablePair<OpenRegistry<?>, CheckedRegistry<?>>> map, Class<R> key, OpenRegistry<R> l) {
-        map.put(key, ImmutablePair.of(l, new CheckedRegistry<>(l)));
+    @Override
+    public void register(TypeRegistry registry) {
+        registry
+                .registerLoader(ConfigType.class, configTypeRegistry)
+                .registerLoader(BufferedImage.class, new BufferedImageLoader(loader))
+                .registerLoader(SingleBiomeProviderTemplate.class, SingleBiomeProviderTemplate::new)
+                .registerLoader(BiomePipelineTemplate.class, () -> new BiomePipelineTemplate(main))
+                .registerLoader(ImageProviderTemplate.class, () -> new ImageProviderTemplate(getRegistry(BiomeBuilder.class)))
+                .registerLoader(ImageSamplerTemplate.class, () -> new ImageProviderTemplate(getRegistry(BiomeBuilder.class)))
+                .registerLoader(NoiseSeeded.class, new NoiseSamplerBuilderLoader(getOpenRegistry(NoiseProvider.class)));
+    }
+    
+    public WorldConfig toWorldConfig(TerraWorld world) {
+        return new WorldConfig(world, this, main);
     }
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -146,8 +158,8 @@ public class ConfigPack implements LoaderRegistrar {
         return map;
     }
     
-    protected Map<Class<?>, ImmutablePair<OpenRegistry<?>, CheckedRegistry<?>>> getRegistryMap() {
-        return registryMap;
+    private <R> void putPair(Map<Class<?>, ImmutablePair<OpenRegistry<?>, CheckedRegistry<?>>> map, Class<R> key, OpenRegistry<R> l) {
+        map.put(key, ImmutablePair.of(l, new CheckedRegistry<>(l)));
     }
     
     private void checkDeadEntries() {
@@ -220,6 +232,21 @@ public class ConfigPack implements LoaderRegistrar {
                     (System.nanoTime() - startTime) / 1000000D);
     }
     
+    public BiomeProvider.BiomeProviderBuilder getBiomeProviderBuilder() {
+        return biomeProviderBuilder;
+    }
+    
+    
+    public CheckedRegistry<ConfigType<?, ?>> getConfigTypeRegistry() {
+        return new CheckedRegistry<ConfigType<?, ?>>(configTypeRegistry) {
+            @Override
+            @SuppressWarnings("deprecation")
+            public void addUnchecked(String identifier, ConfigType<?, ?> value) {
+                if(contains(identifier)) throw new UnsupportedOperationException("Cannot override values in ConfigTypeRegistry!");
+            }
+        };
+    }
+    
     @SuppressWarnings("unchecked")
     protected <T> OpenRegistry<T> getOpenRegistry(Class<T> clazz) {
         return (OpenRegistry<T>) registryMap.getOrDefault(clazz, ImmutablePair.ofNull()).getLeft();
@@ -228,6 +255,10 @@ public class ConfigPack implements LoaderRegistrar {
     @SuppressWarnings("unchecked")
     public <T> CheckedRegistry<T> getRegistry(Class<T> clazz) {
         return (CheckedRegistry<T>) registryMap.getOrDefault(clazz, ImmutablePair.ofNull()).getRight();
+    }
+    
+    protected Map<Class<?>, ImmutablePair<OpenRegistry<?>, CheckedRegistry<?>>> getRegistryMap() {
+        return registryMap;
     }
     
     public Set<TerraStructure> getStructures() {
@@ -240,23 +271,5 @@ public class ConfigPack implements LoaderRegistrar {
     
     public Scope getVarScope() {
         return varScope;
-    }
-    
-    public BiomeProvider.BiomeProviderBuilder getBiomeProviderBuilder() {
-        return biomeProviderBuilder;
-    }
-    
-    public WorldConfig toWorldConfig(TerraWorld world) {
-        return new WorldConfig(world, this, main);
-    }
-    
-    public CheckedRegistry<ConfigType<?, ?>> getConfigTypeRegistry() {
-        return new CheckedRegistry<ConfigType<?, ?>>(configTypeRegistry) {
-            @Override
-            @SuppressWarnings("deprecation")
-            public void addUnchecked(String identifier, ConfigType<?, ?> value) {
-                if(contains(identifier)) throw new UnsupportedOperationException("Cannot override values in ConfigTypeRegistry!");
-            }
-        };
     }
 }

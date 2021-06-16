@@ -5,13 +5,14 @@ import com.dfsek.terra.api.platform.block.Block;
 import com.dfsek.terra.api.platform.block.BlockData;
 import com.dfsek.terra.api.platform.block.BlockFace;
 
+
 public class BufferedPulledBlock implements BufferedItem {
     private final BlockData data;
-
+    
     public BufferedPulledBlock(BlockData data) {
         this.data = data;
     }
-
+    
     @Override
     public void paste(Location origin) {
         Block pos = origin.getBlock();

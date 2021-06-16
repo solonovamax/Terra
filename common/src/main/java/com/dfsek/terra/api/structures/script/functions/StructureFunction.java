@@ -44,16 +44,16 @@ public class StructureFunction implements Function<Boolean> {
         this.main = main;
         this.rotations = rotations;
     }
-
+    
     @Override
     public ReturnType returnType() {
         return ReturnType.BOOLEAN;
     }
-
+    
     @Override
     public Boolean apply(ImplementationArguments implementationArguments, Map<String, Variable<?>> variableMap) {
         TerraImplementationArguments arguments = (TerraImplementationArguments) implementationArguments;
-
+        
         if(arguments.getRecursions() > main.getTerraConfig().getMaxRecursion())
             throw new RuntimeException("Structure recursion too deep: " + arguments.getRecursions());
     
@@ -61,15 +61,15 @@ public class StructureFunction implements Function<Boolean> {
                                  z.apply(implementationArguments, variableMap).doubleValue());
     
         RotationUtil.rotateVector(xz, arguments.getRotation());
-    
+        
         String app = id.apply(implementationArguments, variableMap);
         StructureScript script = registry.get(app);
         if(script == null) {
             logger.error("No such structure '{}'", app);
             return null;
         }
-    
-        Rotation rotation;
+        
+        Rotation rotation1;
         String rotString = rotations.get(arguments.getRandom().nextInt(rotations.size())).apply(implementationArguments, variableMap);
         try {
             rotation = Rotation.valueOf(rotString);
@@ -77,14 +77,14 @@ public class StructureFunction implements Function<Boolean> {
             logger.error("Invalid rotation " + rotString);
             return null;
         }
-    
+        
         Vector3 offset = new Vector3(FastMath.roundToInt(xz.getX()), y.apply(implementationArguments, variableMap).doubleValue(),
                                      FastMath.roundToInt(xz.getZ()));
-    
+        
         return script.executeInBuffer(new IntermediateBuffer(arguments.getBuffer(), offset), arguments.getRandom(),
                                       arguments.getRotation().rotate(rotation), arguments.getRecursions() + 1);
     }
-
+    
     @Override
     public Position getPosition() {
         return position;

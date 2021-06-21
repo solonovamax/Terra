@@ -213,7 +213,7 @@ public class TerraBukkitPlugin extends JavaPlugin implements TerraPlugin {
         if(VersionUtil.getSpigotVersionInfo().isYaptopia())
             logger.warn("Yaptopia is a highly unstable fork of spigot. You may experience various issues with it.");
         
-        if(!VersionUtil.getSpigotVersionInfo().isMohist()) {
+        if(VersionUtil.getSpigotVersionInfo().isMohist()) {
             if(System.getProperty("IKnowMohistCausesLotsOfIssuesButIWillUseItAnyways") == null) {
                 //noinspection CodeBlock2Expr
                 Runnable runnable = () -> {

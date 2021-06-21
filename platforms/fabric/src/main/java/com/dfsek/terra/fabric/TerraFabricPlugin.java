@@ -239,7 +239,7 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
             final File configFile = new File(getDataFolder(), "config.yml");
             if(!configFile.exists()) FileUtils.copyInputStreamToFile(stream, configFile);
         } catch(final IOException e) {
-            e.printStackTrace();
+            logger.error("Could not save default config file", e);
         }
     }
     

@@ -315,7 +315,7 @@ public class TerraForgePlugin implements TerraPlugin {
             File configFile = new File(getDataFolder(), "config.yml");
             if(!configFile.exists()) FileUtils.copyInputStreamToFile(stream, configFile);
         } catch(IOException e) {
-            e.printStackTrace();
+            logger.error("Could not save default config file", e);
         }
     }
     

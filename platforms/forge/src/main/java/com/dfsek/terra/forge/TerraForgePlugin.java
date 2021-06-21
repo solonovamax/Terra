@@ -53,6 +53,7 @@ import com.dfsek.terra.registry.master.ConfigRegistry;
 import com.dfsek.terra.world.TerraWorld;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.Minecraft;
@@ -105,9 +106,6 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.jar.JarFile;
 import java.util.zip.ZipFile;
-
-import static com.mojang.brigadier.builder.LiteralArgumentBuilder.literal;
-import static com.mojang.brigadier.builder.RequiredArgumentBuilder.argument;
 
 
 @Mod("terra")
@@ -272,7 +270,7 @@ public class TerraForgePlugin implements TerraPlugin {
         try {
             CommandUtil.registerAll(manager);
         } catch(MalformedCommandException e) {
-            e.printStackTrace(); // TODO do something here even though this should literally never happen
+            logger.error("This should never happen. If you are seeing this, then something has gone very, VERY, wrong.");
         }
     }
     
@@ -398,15 +396,17 @@ public class TerraForgePlugin implements TerraPlugin {
         @SubscribeEvent
         public static void registerCommands(RegisterCommandsEvent event) {
             int max = INSTANCE.manager.getMaxArgumentDepth();
-            RequiredArgumentBuilder<CommandSource, String> arg = argument("arg" + (max - 1), StringArgumentType.word());
+            RequiredArgumentBuilder<CommandSource, String> arg = RequiredArgumentBuilder.argument("arg" + (max - 1), StringArgumentType.word());
             for(int i = 0; i < max; i++) {
-                RequiredArgumentBuilder<CommandSource, String> next = argument("arg" + (max - i - 1), StringArgumentType.word());
+                RequiredArgumentBuilder<CommandSource, String> next = RequiredArgumentBuilder.argument("arg" + (max - i - 1), StringArgumentType.word());
                 
                 arg = next.then(assemble(arg, INSTANCE.manager));
             }
             
-            event.getDispatcher().register(literal("terra").executes(context -> 1).then((ArgumentBuilder) assemble(arg, INSTANCE.manager)));
-            event.getDispatcher().register(literal("te").executes(context -> 1).then((ArgumentBuilder) assemble(arg, INSTANCE.manager)));
+            event.getDispatcher().register(
+                    LiteralArgumentBuilder.literal("terra").executes(context -> 1).then((ArgumentBuilder) assemble(arg, INSTANCE.manager)));
+            event.getDispatcher().register(
+                    LiteralArgumentBuilder.literal("te").executes(context -> 1).then((ArgumentBuilder) assemble(arg, INSTANCE.manager)));
         }
     }
     

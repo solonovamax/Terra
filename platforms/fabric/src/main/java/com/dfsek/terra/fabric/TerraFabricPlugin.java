@@ -91,9 +91,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
-
 
 public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
@@ -128,14 +125,6 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
     
     public static String createBiomeID(ConfigPack pack, String biomeID) {
         return pack.getTemplate().getID().toLowerCase() + "/" + biomeID.toLowerCase(Locale.ROOT);
-    }
-    
-    @Override
-    public void register(TypeRegistry registry) {
-        genericLoaders.register(registry);
-        registry
-                .registerLoader(BlockData.class, (t, o, l) -> worldHandle.createBlockData((String) o))
-                .registerLoader(com.dfsek.terra.api.platform.world.Biome.class, (t, o, l) -> biomeFixer.translate((String) o));
     }
     
     @Override
@@ -191,66 +180,68 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
         }
         logger.info("Loaded addons.");
         
-        registry.loadAll(this);
-        
-        logger.info("Loaded packs.");
-        
         Registry.register(Registry.FEATURE, new Identifier("terra", "flora_populator"), POPULATOR_FEATURE);
         RegistryKey<ConfiguredFeature<?, ?>> floraKey = RegistryKey.of(Registry.CONFIGURED_FEATURE_WORLDGEN,
                                                                        new Identifier("terra", "flora_populator"));
         Registry.register(BuiltinRegistries.CONFIGURED_FEATURE, floraKey.getValue(), POPULATOR_CONFIGURED_FEATURE);
         
-        registry.forEach(pack -> pack.getRegistry(BiomeBuilder.class)
-                                     .forEach((id, biome) -> Registry.register(BuiltinRegistries.BIOME,
-                                                                               new Identifier("terra", createBiomeID(pack, id)),
-                                                                               createBiome(biome)))); // Register all Terra biomes.
         Registry.register(Registry.CHUNK_GENERATOR, new Identifier("terra:terra"), FabricChunkGeneratorWrapper.CODEC);
         Registry.register(Registry.BIOME_SOURCE, new Identifier("terra:terra"), TerraBiomeSource.CODEC);
-        
-        if(FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
-            registry.forEach(pack -> {
-                final GeneratorType generatorType = new GeneratorType("terra." + pack.getTemplate().getID()) {
-                    @Override
-                    protected ChunkGenerator getChunkGenerator(Registry<Biome> biomeRegistry,
-                                                               Registry<ChunkGeneratorSettings> chunkGeneratorSettingsRegistry, long seed) {
-                        return new FabricChunkGeneratorWrapper(new TerraBiomeSource(biomeRegistry, seed, pack), seed, pack);
-                    }
-                };
-                //noinspection ConstantConditions
-                ((GeneratorTypeAccessor) generatorType).setTranslationKey(new LiteralText("Terra:" + pack.getTemplate().getID()));
-                GeneratorTypeAccessor.getValues().add(generatorType);
-            });
-        }
         
         CommandManager manager = new TerraCommandManager(this);
         try {
             CommandUtil.registerAll(manager);
         } catch(MalformedCommandException e) {
-            e.printStackTrace(); // TODO do something here even though this should literally never happen
+            logger.error("This should never happen. If you are seeing this, then something has gone very, VERY, wrong.");
         }
         
         
         CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
                                                        int max = manager.getMaxArgumentDepth();
                                                        RequiredArgumentBuilder<ServerCommandSource, String> arg =
-                                                               argument("arg" + (max - 1), StringArgumentType.word());
+                                                               net.minecraft.server.command.CommandManager.argument("arg" + (max - 1), StringArgumentType.word());
                                                        for(int i = 0; i < max; i++) {
                                                            RequiredArgumentBuilder<ServerCommandSource, String> next =
-                                                                   argument("arg" + (max - i - 1), StringArgumentType.word());
+                                                                   net.minecraft.server.command.CommandManager.argument("arg" + (max - i - 1), StringArgumentType.word());
                 
                                                            arg = next.then(assemble(arg, manager));
                                                        }
             
-                                                       dispatcher.register(literal("terra").executes(context -> 1)
-                                                                                           .then(assemble(arg, manager)));
-                                                       dispatcher.register(literal("te").executes(context -> 1)
-                                                                                        .then(assemble(arg, manager)));
+                                                       dispatcher.register(net.minecraft.server.command.CommandManager.literal("terra").executes(context -> 1)
+                                                                                                                      .then(assemble(arg, manager)));
+                                                       dispatcher.register(net.minecraft.server.command.CommandManager.literal("te").executes(context -> 1)
+                                                                                                                      .then(assemble(arg, manager)));
                                                        //dispatcher.register(literal("te").redirect(root));
                                                    }
                                                   );
         logger.info("Finished initialization.");
     }
     
+    @Override
+    public boolean reload() {
+        config.load(this);
+        LangUtil.load(config.getLanguage(), this); // Load language.
+        final boolean succeed = registry.loadAll(this);
+        final Map<Long, TerraWorld> newMap = new HashMap<>();
+        worldMap.forEach((seed, tw) -> {
+            tw.getConfig().getSamplerCache().clear();
+            final String packID = tw.getConfig().getTemplate().getID();
+            newMap.put(seed, new TerraWorld(tw.getWorld(), registry.get(packID), this));
+        });
+        worldMap.clear();
+        worldMap.putAll(newMap);
+        return succeed;
+    }
+    
+    @Override
+    public void saveDefaultConfig() {
+        try(final InputStream stream = getClass().getResourceAsStream("/config.yml")) {
+            final File configFile = new File(getDataFolder(), "config.yml");
+            if(!configFile.exists()) FileUtils.copyInputStreamToFile(stream, configFile);
+        } catch(final IOException e) {
+            e.printStackTrace();
+        }
+    }
     
     private Biome createBiome(BiomeBuilder biome) {
         BiomeTemplate template = biome.getTemplate();
@@ -345,11 +336,6 @@ public class TerraFabricPlugin implements TerraPlugin, ModInitializer {
     @Override
     public WorldHandle getWorldHandle() {
         return worldHandle;
-    }
-    
-    @Override
-    public Logger logger() {
-        return logger;
     }
     
     @Override

@@ -28,6 +28,9 @@ dependencies {
     
     "shadedApi"("org.slf4j:slf4j-api:1.7.30")
     
+    "shadedImplementation"("org.apache.commons:commons-compress:1.20")
+    "shadedImplementation"("org.tukaani:xz:1.9")
+    
     "compileOnly"("com.google.guava:guava:30.0-jre")
     
     "testImplementation"("com.google.guava:guava:30.0-jre")

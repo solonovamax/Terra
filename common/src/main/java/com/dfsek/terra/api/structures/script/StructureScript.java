@@ -58,16 +58,16 @@ public class StructureScript {
     private String tempID;
     
     public StructureScript(InputStream inputStream, TerraPlugin main, Registry<StructureScript> registry, Registry<LootTable> lootRegistry,
-                           Registry<FunctionBuilder<?>> functionRegistry) throws ParseException {
+                           Registry<FunctionBuilder> functionRegistry) throws ParseException {
         Parser parser;
         try {
             parser = new Parser(IOUtils.toString(inputStream, Charset.defaultCharset()));
         } catch(IOException e) {
             throw new RuntimeException(e);
         }
-        
+    
         functionRegistry.forEach(parser::registerFunction); // Register registry functions.
-        
+    
         parser.registerFunction("block", new BlockFunctionBuilder(main, false))
               .registerFunction("dynamicBlock", new BlockFunctionBuilder(main, true))
               .registerFunction("debugBlock", new BlockFunctionBuilder(main, false))

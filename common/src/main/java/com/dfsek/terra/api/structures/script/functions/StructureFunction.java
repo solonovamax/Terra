@@ -69,7 +69,7 @@ public class StructureFunction implements Function<Boolean> {
             return null;
         }
         
-        Rotation rotation1;
+        Rotation rotation;
         String rotString = rotations.get(arguments.getRandom().nextInt(rotations.size())).apply(implementationArguments, variableMap);
         try {
             rotation = Rotation.valueOf(rotString);

@@ -11,7 +11,7 @@ import com.dfsek.terra.api.util.ReflectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.invoke.MethodHandles;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +22,7 @@ import java.util.Map;
 
 
 public class TerraEventManager implements EventManager {
-    private static final Logger logger = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
+    private static final Logger logger = LoggerFactory.getLogger(TerraEventManager.class);
     
     private final Map<Class<? extends Event>, List<ListenerHolder>> listeners = new HashMap<>();
     private final TerraPlugin main;

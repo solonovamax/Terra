@@ -6,7 +6,7 @@ import com.dfsek.terra.api.math.noise.NoiseSampler;
 import com.dfsek.terra.api.util.collections.ProbabilityCollection;
 import com.dfsek.terra.api.util.seeded.NoiseSeeded;
 import com.dfsek.terra.config.GenericLoaders;
-import com.dfsek.terra.config.fileloaders.FolderLoader;
+import com.dfsek.terra.config.load.PackFileLoader;
 import com.dfsek.terra.config.loaders.ProbabilityCollectionLoader;
 import com.dfsek.terra.config.loaders.config.BufferedImageLoader;
 import com.dfsek.terra.config.loaders.config.sampler.NoiseSamplerBuilderLoader;
@@ -26,7 +26,6 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -99,8 +98,8 @@ public class NoiseTool {
     
     private static BufferedImage load(int seed, boolean distribution, boolean chunk) throws ConfigException, IOException {
         long s = System.nanoTime();
-        
-        FolderLoader folderLoader = new FolderLoader(Paths.get("./"));
+    
+        PackFileLoader folderLoader = new PackFileLoader(new File("./"));
         
         ConfigLoader loader = new ConfigLoader();
         loader.registerLoader(NoiseSeeded.class, new NoiseSamplerBuilderLoader(new NoiseRegistry()))

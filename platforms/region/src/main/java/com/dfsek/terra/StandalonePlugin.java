@@ -1,7 +1,6 @@
 package com.dfsek.terra;
 
-import com.dfsek.tectonic.lo
-ading.TypeRegistry;
+import com.dfsek.tectonic.loading.TypeRegistry;
 import com.dfsek.terra.api.TerraPlugin;
 import com.dfsek.terra.api.addons.TerraAddon;
 import com.dfsek.terra.api.event.EventManager;

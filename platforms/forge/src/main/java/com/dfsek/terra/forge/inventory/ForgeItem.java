@@ -17,11 +17,6 @@ public class ForgeItem implements Item {
     }
     
     @Override
-    public net.minecraft.item.Item getHandle() {
-        return delegate;
-    }
-    
-    @Override
     @SuppressWarnings("deprecation")
     public double getMaxDurability() {
         return delegate.getMaxDamage();

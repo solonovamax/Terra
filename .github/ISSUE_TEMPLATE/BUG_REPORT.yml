@@ -1,7 +1,7 @@
 name: "Bug Report"
-about: "Open a bug report to help us identify issues with Terra."
+description: "Open a bug report to help us identify issues with Terra."
 title: "[Bug] <Put your title here>"
-labels: "Type: Bug, Status: Pending"
+labels: ["Type: Bug", "Status: Pending"]
 
 body:
 

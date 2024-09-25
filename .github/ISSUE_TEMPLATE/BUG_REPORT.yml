@@ -1,0 +1,144 @@
+name: "Bug Report"
+about: "Open a bug report to help us identify issues with Terra."
+title: "[Bug] <Put your title here>"
+labels: "Type: Bug, Status: Pending"
+
+body:
+
+- type: markdown
+  attributes:
+    value: "### Warning"
+- type: markdown
+  attributes:
+    value: "Not filling out this form completely will result in your issue being closed."
+
+- type: checkboxes
+  attributes:
+    label: "Pre-Issue Checklist"
+    description: |
+      Please go through this checklist item by item and make sure you have successfully completed each of these steps.
+      Ignoring any of these will result in your issue being closed.
+    options:
+      - label: "I have checked that I am on the latest version of Terra."
+        required: true
+      - label: "I have searched the github issue tracker for similar issues, including closed ones."
+        required: true
+      - label: "I have made sure that this is not a bug with another mod or plugin, and it is Terra that is causing the issue."
+        required: true
+      - label: "I have made sure that this is not a request for compatibility with a specific mod or plugin (e.g. \"Compatibility with TechCraft v7\")"
+        required: true
+      - label: "I have checked that this is an issue with Terra and not an issue with the pack I am using."
+        required: true
+      - label: "I have attached a copy of the `latest.log` file as well as any errors/stacktraces in the log"
+        required: true
+      - label: "I have filled out and provided all the appropriate information."
+        required: true
+
+- type: input
+  attributes:
+    label: "Terra Version"
+    description: "What version of Terra are you using?"
+    placeholder: "6.5.0"
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: "Platform/Platform Version"
+    description: "Put the platform and platform version here."
+    placeholder: "Purpur version git-Purpur-2134"
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: "External Plugins or Mods"
+    description: "A list of any external plugins or mods you are using."
+    value: |
+      - Mod 1
+      - Mod 2
+      - ...
+  validations:
+    required: true
+- type: input
+  attributes:
+    label: "Terra Pack"
+    description: "The Terra pack currently you are using."
+    placeholder: "Default Terra Overworld pack"
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: "Terra Addons"
+    description: "A list of any Terra addons you are using."
+    value: |
+      - biome-provider-extrusion@1.0.0-BETA+ab60f14ff
+      - biome-provider-image@1.0.1-BETA+ab60f14ff
+      - biome-provider-image-v2@1.0.1-BETA+ab60f14ff
+      - ...
+
+- type: textarea
+  attributes:
+    label: "Issue Description"
+    description: "A quick description of the issue."
+    placeholder: "When generating terrain, something causes the chunks to not load properly"
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: "Steps to Reproduce"
+    description: |
+      Describe what you were doing when this happened.
+      Make sure to include ALL information. Including anything you were doing before that may have caused it.
+    value: |
+      1. Go to '...'
+      2. Click on '....'
+      3. Scroll down to '....'
+      4. See error
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: "Expected Behaviour"
+    description: "A clear and concise description of what you expected to happen."
+    placeholder: "Chunks load properly"
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: "Actual Behaviour"
+    description: "A clear and concise description of what actually happened."
+    placeholder: "Chunks do not load properly when generating terrain"
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: "Full Stacktrace"
+    description: "The full error/stack trace that is printed to the logs."
+    placeholder: |
+      java.io.UncheckedIOException: java.nio.file.NoSuchFileException: ./config/Terra/addons/bootstrap
+        at com.dfsek.terra.addon.BootstrapAddonLoader.loadAddons(BootstrapAddonLoader.java:96) ~[Terra-forge-6.2.1-BETA+358e09d05.jar%23367!/:6.2.1-BETA+358e09d05]
+        at com.dfsek.terra.AbstractPlatform.loadAddons(AbstractPlatform.java:180) ~[Terra-forge-6.2.1-BETA+358e09d05.jar%23367!/:6.2.1-BETA+358e09d05]
+        at com.dfsek.terra.AbstractPlatform.load(AbstractPlatform.java:146) ~[Terra-forge-6.2.1-BETA+358e09d05.jar%23367!/:6.2.1-BETA+358e09d05]
+        at com.dfsek.terra.forge.ForgePlatform.<init>(ForgePlatform.java:49) ~[Terra-forge-6.2.1-BETA+358e09d05.jar%23367!/:6.2.1-BETA+358e09d05]
+        at com.dfsek.terra.forge.ForgeEntryPoint.<clinit>(ForgeEntryPoint.java:51) ~[Terra-forge-6.2.1-BETA+358e09d05.jar%23367!/:6.2.1-BETA+358e09d05]
+        ... 14 more
+    render: javastacktrace
+
+- type: textarea
+  attributes:
+    label: "Full Log File"
+    description: "Upload your `latest.log` file."
+    render: ""
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: "Additional Details"
+    description: |
+      Any other additional information you think should be added.
+      Include screenshots here if appropriate.
+    placeholder: "Also ..."
